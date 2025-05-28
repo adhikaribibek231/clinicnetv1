@@ -9,21 +9,22 @@ def Index(request):
         return redirect('login')
     return render(request, 'index.html')
 def Login(request):
-    error=""
-    if request.method=='POST':
-        u= request.POST['uname']
-        p= request.POST['pwd']
+    error = ""
+    if request.method == 'POST':
+        u = request.POST['uname']
+        p = request.POST['pwd']
         user = authenticate(username=u, password=p)
-        try:
-            if not request.user.is_staff:
-                login(request,user)
-                error="no"
+        if user is not None:
+            if user.is_staff:
+                login(request, user)
+                error = "no"
             else:
-                error="yes"
-        except:
-            error="yes"
-    d={'error':error}
-    return render(request, 'index.html',d)
+                error = "yes"
+        else:
+            error = "yes"
+    d = {'error': error}
+    return render(request, 'login.html', d)
+
 
 def Logout_admin(request):
     if not request.user.is_staff:
