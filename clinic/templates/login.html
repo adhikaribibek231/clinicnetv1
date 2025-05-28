@@ -1,26 +1,24 @@
 {% include 'navigation.html' %}
 {% load static %}
 
-{% ifequal error "no" %}
+{% if error == "no" %}
 <script>
     alert('Logged in Successfully');
-    window.location=({% url 'home' %});
+    window.location = "{% url 'home' %}";
 </script>
-{% endifequal %}
-
-{% ifequal error "Yes" %}
+{% elif error == "Yes" %}
 <script>
     alert('Invalid Login Credentials, Try Again');
-    window.location=({% url 'home' %});
+    window.location = "{% url 'home' %}";
 </script>
-{% endifequal %}
+{% endif %}
 
 <div class="container">
     <h2 class="text-center">Admin Login</h2>
     <form>
         {% csrf_token %}
         <label>Admin Name</label>
-        <input type="text" class = "form-control" name="uname">
+        <input type="text" class="form-control" name="uname">
         <label>Password</label>
         <input type="password" class="form-control" name="pwd">
         <br>
