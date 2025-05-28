@@ -1,9 +1,15 @@
 from django.db import models
+# cmd commands
+#py manage.py makemigrations
+#py manage.py migrate
+# py manage.py shell
+#from clinic.models import Doctor, Patient, Appointment
+#Doctor.objects.all()
 
 # Create your models here.
 class Doctor(models.Model):
     name = models.CharField(max_length=50)
-    mobile = models.IntegerField
+    mobile = models.IntegerField(null=True)
     special = models.CharField(max_length=50)
 
     def __str__(self):
@@ -18,11 +24,13 @@ class Patient(models.Model):
         return self.name
 
 class Appointment(models.Model):
-    doctor = models.Foreignkey(Doctor,on_delete=models.CASCADE)
-    patient = models.Foreignkey(Patient,on_delete=models.CASCADE)
+    doctor = models.ForeignKey(Doctor,on_delete=models.CASCADE)
+    patient = models.ForeignKey(Patient,on_delete=models.CASCADE)
     date1 = models.DateField()
     time1 = models.TimeField()
 
     def __str__(self):
         return self.doctor.name+"--"+ self.patient.name
+    
+
     
