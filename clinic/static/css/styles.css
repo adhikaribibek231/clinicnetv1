@@ -198,3 +198,56 @@ nav a.active {
     text-align: center;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
+
+.table {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+    background-color: #fff;
+    margin-top: 20px;
+    border-collapse: separate;
+    width: 100%;
+}
+
+/* Table Header */
+.table thead th {
+    background: linear-gradient(90deg, #6a11cb, #2575fc);
+    color: white;
+    text-align: center;
+    font-weight: 600;
+    font-size: 16px;
+    padding: 14px 12px;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+/* Table Body Cells */
+.table td {
+    vertical-align: middle;
+    text-align: center;
+    font-size: 15px;
+    padding: 12px;
+    color: #444;
+    border-top: 1px solid #eee;
+}
+
+/* Row Hover Effect */
+.table-hover tbody tr:hover {
+    background-color: #f0f4ff;
+    transition: background-color 0.3s ease;
+}
+
+/* Zebra Striping */
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: #fafafa;
+}
+
+/* Placeholder Button */
+.btn-placeholder {
+    background-color: #ccc;
+    border: none;
+    color: #666;
+    padding: 6px 12px;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: not-allowed;
+}

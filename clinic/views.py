@@ -40,6 +40,8 @@ def Logout_admin(request):
 def View_Doctor(request):
     if not request.user.is_staff:
         return redirect('login')
-    doc = Doctor.objects.all()
-    context = {'doc': doc}
+    doctors = Doctor.objects.all()
+    context = {'doctors': doctors}
     return render(request, 'view_doctor.html', context)
+
+
