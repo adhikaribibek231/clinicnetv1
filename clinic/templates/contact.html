@@ -7,24 +7,55 @@
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-        <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
         integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
-    <title>Contact Us Us</title>
+    <title>Contact Us</title>
 </head>
 
 <body>
-    <div class="container">
-    <h2>Contact Us</h2>
-    <p>Welcome to our clinic! We are dedicated to providing the best care for our patients.</p>
-    <p>Our team of experienced professionals is here to help you with all your healthcare needs.</p>
-    <p>We offer a wide range of services, including general check-ups, specialized treatments, and preventive care.</p>
-    <p>Our mission is to ensure that every patient receives personalized attention and the highest quality of care.</p>
-    <p>Feel free to contact us or visit our clinic to learn more about how we can assist you in achieving your health
-        goals.</p>
+    <div class="container mt-5">
+        <h2>Contact Us</h2>
+        <p>If you have any questions, inquiries, or would like to schedule an appointment, feel free to reach out to us. We're here to help!</p>
 
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <h5>Clinic Information</h5>
+                <p><strong>Address:</strong> 123 Health Street, Wellness City, HC 45678</p>
+                <p><strong>Phone:</strong> (123) 456-7890</p>
+                <p><strong>Email:</strong> info@yourclinic.com</p>
+                <p><strong>Opening Hours:</strong><br>
+                    Monday - Friday: 8:00 AM – 6:00 PM<br>
+                    Saturday: 9:00 AM – 2:00 PM<br>
+                    Sunday: Closed
+                </p>
+            </div>
+
+            <div class="col-md-6">
+                <h5>Send Us a Message</h5>
+                <form method="post" action="{% url 'contact' %}">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="name">Your Name</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Your Email</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="message">Your Message</label>
+                        <textarea class="form-control" id="message" name="message" rows="4" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Send Message</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
         integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
         crossorigin="anonymous"></script>
@@ -34,7 +65,6 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
         integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
         crossorigin="anonymous"></script>
-    </div>
 </body>
 
 </html>
