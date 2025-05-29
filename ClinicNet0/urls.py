@@ -28,5 +28,7 @@ urlpatterns = [
     path('logout/', Logout_admin, name='logout'),
     path('view_doctor/', View_Doctor, name='view_doctor'),
     path('add_doctor/', Add_Doctor, name='add_doctor'),
+    path('delete_doctor/<int:pid>/', Delete_Doctor, name='delete_doctor'),
+
     path('View_Patient/', View_Patient, name='view_patient'),
 ]

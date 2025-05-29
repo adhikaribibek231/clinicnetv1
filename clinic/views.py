@@ -68,3 +68,10 @@ def Add_Doctor(request):
             return redirect('view_doctor')  # Redirect after successful save
 
     return render(request, 'add_doctor.html', {'error': error})
+
+def Delete_Doctor(request,pid):
+    if not request.user.is_staff:
+        return redirect('login')
+    doctor = Doctor.objects.get(id=pid)
+    doctor.delete()
+    return redirect('view_doctor')
