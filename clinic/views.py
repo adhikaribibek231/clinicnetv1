@@ -51,3 +51,20 @@ def View_Patient(request):
     }
     return render(request, 'view_patient.html', context)
 
+def Add_Doctor(request):
+    error = ""
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        mobile = request.POST.get('mobile')
+        special = request.POST.get('special')
+
+        try:
+            Doctor.objects.create(name=name, mobile=mobile, special=special)
+            error = "no"
+        except:
+            error = "yes"
+
+        if error == "no":
+            return redirect('view_doctor')  # Redirect after successful save
+
+    return render(request, 'add_doctor.html', {'error': error})
