@@ -1,7 +1,7 @@
 from django.db import models
 # cmd commands
-#py manage.py makemigrations
-#py manage.py migrate
+# py manage.py makemigrations
+# py manage.py migrate
 # py manage.py shell
 #from clinic.models import Doctor, Patient, Appointment
 #Doctor.objects.all()
@@ -19,6 +19,7 @@ class Patient(models.Model):
     name = models.CharField(max_length= 50)
     gender = models.CharField(max_length= 10)
     mobile = models.IntegerField(null=True)
+    age = models.IntegerField(null=True)
     address = models.CharField(max_length= 10)
     def __str__(self):
         return self.name

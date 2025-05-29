@@ -74,6 +74,7 @@
             <th>Name</th>
             <th>Gender</th>
             <th>Mobile</th>
+            <th>Age</th>
             <th>Address</th>
             {% if request.user.is_staff %}
             <th>Actions</th>
@@ -87,6 +88,7 @@
             <td>{{ patient.name }}</td>
             <td>{{ patient.gender }}</td>
             <td>{{ patient.mobile }}</td>
+            <td>{{ patient.age }}</td>
             <td>{{ patient.address }}</td>
             {% if request.user.is_staff %}
             <td>

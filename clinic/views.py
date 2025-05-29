@@ -45,6 +45,8 @@ def View_Doctor(request):
     return render(request, 'view_doctor.html', context)
 
 def View_Patient(request):
+    if not request.user.is_staff:
+        return redirect('login')
     patients = Patient.objects.all()
     context = {
         'patients': patients
@@ -75,3 +77,23 @@ def Delete_Doctor(request,pid):
     doctor = Doctor.objects.get(id=pid)
     doctor.delete()
     return redirect('view_doctor')
+
+def Add_Patient(request):
+    error = ""
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        gender = request.POST.get('gender')
+        mobile = request.POST.get('mobile')
+        age = request.POST.get('age')
+        address = request.POST.get('address')
+
+        try:
+            Patient.objects.create(name=name, gender=gender, mobile=mobile, age=age, address=address)
+            error = "no"
+        except:
+            error = "yes"
+
+        if error == "no":
+            return redirect('view_patient')  # Redirect after successful save
+
+    return render(request, 'add_patient.html', {'error': error})
