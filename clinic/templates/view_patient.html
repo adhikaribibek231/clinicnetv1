@@ -7,7 +7,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>View Doctors - ClinicNet</title>
+  <title>View Patients - ClinicNet</title>
 
   <!-- Custom CSS -->
   <link rel="stylesheet" href="{% static 'css/styles.css' %}">
@@ -19,7 +19,7 @@
   <link rel="stylesheet" href="https://cdn.datatables.net/2.3.1/css/dataTables.dataTables.min.css">
   <link rel="stylesheet" href="https://cdn.datatables.net/buttons/3.2.3/css/buttons.dataTables.min.css">
 
-  <!-- FontAwesome (optional for icons) -->
+  <!-- FontAwesome for Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
   <style>
@@ -32,7 +32,7 @@
     }
 
     .table thead th {
-      background: linear-gradient(to right, #6a11cb, #2575fc);
+      background: linear-gradient(to right, #ff416c, #ff4b2b);
       color: white;
       font-weight: 600;
       text-align: center;
@@ -63,29 +63,31 @@
 
 <body>
   <div class="container py-5">
-    <h2 class="mb-4 text-center">Our Doctors</h2>
+    <h2 class="mb-4 text-center">Our Patients</h2>
 
-    {% if doctors %}
+    {% if patients %}
     <div class="table-responsive">
       <table class="table table-bordered table-striped" id="example">
         <thead>
           <tr>
             <th>#</th>
             <th>Name</th>
+            <th>Gender</th>
             <th>Mobile</th>
-            <th>Specialization</th>
+            <th>Address</th>
             {% if request.user.is_staff %}
             <th>Actions</th>
             {% endif %}
           </tr>
         </thead>
         <tbody>
-          {% for doctor in doctors %}
+          {% for patient in patients %}
           <tr>
             <td>{{ forloop.counter }}</td>
-            <td>{{ doctor.name }}</td>
-            <td>{{ doctor.mobile }}</td>
-            <td>{{ doctor.special }}</td>
+            <td>{{ patient.name }}</td>
+            <td>{{ patient.gender }}</td>
+            <td>{{ patient.mobile }}</td>
+            <td>{{ patient.address }}</td>
             {% if request.user.is_staff %}
             <td>
               <button class="btn btn-placeholder"><i class="fas fa-edit"></i> Edit</button>
@@ -98,7 +100,7 @@
       </table>
     </div>
     {% else %}
-    <div class="alert alert-info text-center">No doctors found.</div>
+    <div class="alert alert-info text-center">No patients found.</div>
     {% endif %}
   </div>
 

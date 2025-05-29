@@ -44,4 +44,10 @@ def View_Doctor(request):
     context = {'doctors': doctors}
     return render(request, 'view_doctor.html', context)
 
+def View_Patient(request):
+    patients = Patient.objects.all()
+    context = {
+        'patients': patients
+    }
+    return render(request, 'view_patient.html', context)
 

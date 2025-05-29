@@ -27,4 +27,5 @@ urlpatterns = [
     path('admin_login/', Login, name='login'),
     path('logout/', Logout_admin, name='logout'),
     path('view_doctor/', View_Doctor, name='view_doctor'),
+    path('View_Patient/', View_Patient, name='view_patient'),
 ]
