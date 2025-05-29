@@ -7,7 +7,7 @@
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-        <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
         integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
@@ -16,15 +16,60 @@
 </head>
 
 <body>
-    <div class="container">
-    <h2>About Us</h2>
-    <p>Welcome to our clinic! We are dedicated to providing the best care for our patients.</p>
-    <p>Our team of experienced professionals is here to help you with all your healthcare needs.</p>
-    <p>We offer a wide range of services, including general check-ups, specialized treatments, and preventive care.</p>
-    <p>Our mission is to ensure that every patient receives personalized attention and the highest quality of care.</p>
-    <p>Feel free to contact us or visit our clinic to learn more about how we can assist you in achieving your health
-        goals.</p>
+    <div class="container mt-5">
+        <h2 class="mb-4">About Our Clinic</h2>
 
+        <div class="mb-4">
+            <p>At our clinic, we are committed to delivering high-quality, compassionate healthcare to individuals and families. With years of experience and a passion for patient care, our team is dedicated to supporting your health and well-being every step of the way.</p>
+        </div>
+
+        <div class="row mb-5">
+            <div class="col-md-6">
+                <h4>Our Mission</h4>
+                <p>To provide accessible, personalized, and top-tier healthcare services that improve the lives of our patients. We believe that great care begins with understanding the unique needs of each individual.</p>
+            </div>
+            <div class="col-md-6">
+                <h4>Our Vision</h4>
+                <p>To be a trusted community clinic known for clinical excellence, innovation in healthcare, and a strong patient-first philosophy.</p>
+            </div>
+        </div>
+
+        <div class="mb-5">
+            <h4>Why Choose Us?</h4>
+            <ul>
+                <li>Experienced and compassionate medical professionals</li>
+                <li>Wide range of healthcare services under one roof</li>
+                <li>Modern medical equipment and technologies</li>
+                <li>Comfortable and patient-friendly environment</li>
+                <li>Personalized treatment and preventative care</li>
+            </ul>
+        </div>
+
+        <div class="mb-5">
+            <h4>Meet Our Team</h4>
+            <div class="row">
+                <div class="col-md-4 text-center">
+                    <img src="{% static 'images/doctor1.jpg' %}" alt="Dr. Jane Smith" class="img-fluid rounded-circle mb-2" width="150">
+                    <h6>Dr. Jane Smith</h6>
+                    <p>Chief Medical Officer</p>
+                </div>
+                <div class="col-md-4 text-center">
+                    <img src="{% static 'images/doctor2.jpg' %}" alt="Dr. John Doe" class="img-fluid rounded-circle mb-2" width="150">
+                    <h6>Dr. John Doe</h6>
+                    <p>General Practitioner</p>
+                </div>
+                <div class="col-md-4 text-center">
+                    <img src="{% static 'images/doctor3.jpg' %}" alt="Dr. Emily White" class="img-fluid rounded-circle mb-2" width="150">
+                    <h6>Dr. Emily White</h6>
+                    <p>Pediatric Specialist</p>
+                </div>
+            </div>
+        </div>
+
+        <p class="text-center">We look forward to welcoming you to our clinic and supporting your journey to better health.</p>
+    </div>
+
+    <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
         integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
         crossorigin="anonymous"></script>
@@ -34,7 +79,6 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
         integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
         crossorigin="anonymous"></script>
-    </div>
 </body>
 
 </html>
