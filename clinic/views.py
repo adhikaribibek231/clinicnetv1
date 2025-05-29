@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
+from .models import *
 from django.contrib.auth import authenticate, logout, login
 # Create your views here.
 def About(request):
@@ -35,3 +36,10 @@ def Logout_admin(request):
         return redirect('login')
     logout(request)
     return redirect('login')
+
+def View_Doctor(request):
+    if not request.user.is_staff:
+        return redirect('login')
+    doc = Doctor.objects.all()
+    context = {'doc': doc}
+    return render(request, 'view_doctor.html', context)
