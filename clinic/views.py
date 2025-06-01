@@ -68,7 +68,7 @@ def Add_Doctor(request):
             error = "yes"
 
         if error == "no":
-            return redirect('view_doctor')  # Redirect after successful save
+            return redirect('view_doctor') 
 
     return render(request, 'add_doctor.html', {'error': error})
 
@@ -95,7 +95,7 @@ def Add_Patient(request):
             error = "yes"
 
         if error == "no":
-            return redirect('view_patient')  # Redirect after successful save
+            return redirect('view_patient')
 
     return render(request, 'add_patient.html', {'error': error})
 
@@ -119,7 +119,7 @@ def Add_Appointment(request):
             patient = Patient.objects.get(id=patient_id)
             Appointment.objects.create(doctor=doctor, patient=patient, date1=date1, time1=time1)
             error = "no"
-            return redirect('view_appointment')  # Redirect after successful save
+            return redirect('view_appointment')
         except:
             error = "yes"
 
