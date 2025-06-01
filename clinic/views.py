@@ -105,3 +105,18 @@ def Delete_Patient(request,pid):
     patient = Patient.objects.get(id=pid)
     patient.delete()
     return redirect('view_patient')
+
+def Add_Appointment(request):
+    if request.method == 'POST':
+        doctor=request.POST.get('doctor')
+        patient=request.POST.get('patient')
+        date1=request.POST.get('date1')
+        time1=request.POST.get('time1')
+
+    else:
+            context = {
+                'doctors': Doctor.objects.all(),
+                'patients': Patient.objects.all(),
+                'error': request.GET.get('error', '')  # or however you're handling errors
+            }
+            return render(request, 'add_appointment.html', context)    

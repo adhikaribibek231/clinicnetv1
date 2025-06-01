@@ -33,4 +33,7 @@ urlpatterns = [
 
     path('view_patient/', View_Patient, name='view_patient'),
     path('add_patient/', Add_Patient, name='add_patient'),
+
+    # path('view_appointment/', View_Appointment, name='view_appointment'),
+    path('add_appointment/', Add_Appointment, name='add_appointment'),
 ]
