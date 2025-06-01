@@ -12,7 +12,14 @@ def Contact(request):
 def Index(request):
     if not request.user.is_staff:
         return redirect('login')
-    return render(request, 'index.html')
+    doctors = Doctor.objects.all()
+    patients = Patient.objects.all()
+    appointments = Appointment.objects.all()
+    d = doctors.count()
+    p = patients.count()
+    a = appointments.count()
+    return render(request, 'index.html', {'d': d, 'p': p, 'a': a})
+
 def Login(request):
     error = ""
     if request.method == 'POST':
