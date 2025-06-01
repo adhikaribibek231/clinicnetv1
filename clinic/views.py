@@ -37,6 +37,7 @@ def Logout_admin(request):
     logout(request)
     return redirect('login')
 
+
 def View_Doctor(request):
     if not request.user.is_staff:
         return redirect('login')
@@ -97,3 +98,10 @@ def Add_Patient(request):
             return redirect('view_patient')  # Redirect after successful save
 
     return render(request, 'add_patient.html', {'error': error})
+
+def Delete_Patient(request,pid):
+    if not request.user.is_staff:
+        return redirect('login')
+    patient = Patient.objects.get(id=pid)
+    patient.delete()
+    return redirect('view_patient')
