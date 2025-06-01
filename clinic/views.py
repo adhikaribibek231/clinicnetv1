@@ -107,16 +107,38 @@ def Delete_Patient(request,pid):
     return redirect('view_patient')
 
 def Add_Appointment(request):
+    error = ""
     if request.method == 'POST':
-        doctor=request.POST.get('doctor')
-        patient=request.POST.get('patient')
-        date1=request.POST.get('date1')
-        time1=request.POST.get('time1')
+        doctor_id = request.POST.get('doctor')
+        patient_id = request.POST.get('patient')
+        date1 = request.POST.get('date1')
+        time1 = request.POST.get('time1')
 
-    else:
-            context = {
-                'doctors': Doctor.objects.all(),
-                'patients': Patient.objects.all(),
-                'error': request.GET.get('error', '')  # or however you're handling errors
-            }
-            return render(request, 'add_appointment.html', context)    
+        try:
+            doctor = Doctor.objects.get(id=doctor_id)
+            patient = Patient.objects.get(id=patient_id)
+            Appointment.objects.create(doctor=doctor, patient=patient, date1=date1, time1=time1)
+            error = "no"
+            return redirect('view_appointment')  # Redirect after successful save
+        except:
+            error = "yes"
+
+    context = {
+        'doctors': Doctor.objects.all(),
+        'patients': Patient.objects.all(),
+        'error': error
+    }
+    return render(request, 'add_appointment.html', context)
+
+
+def View_Appointment(request):
+    appointments = Appointment.objects.select_related('doctor', 'patient').all()
+    return render(request, 'view_appointment.html', {'appointments': appointments})
+
+def Delete_Appointment(request, aid):
+    if not request.user.is_staff:
+        return redirect('login')
+    appointment = Appointment.objects.get(id=aid)
+    appointment.delete()
+    return redirect('view_appointment')
+

@@ -1,0 +1,137 @@
+{% include 'navigation.html' %}
+{% load static %}
+
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>View Appointments - ClinicNet</title>
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+
+  <!-- DataTable CSS -->
+  <link rel="stylesheet" href="https://cdn.datatables.net/2.3.1/css/dataTables.dataTables.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/buttons/3.2.3/css/buttons.dataTables.min.css">
+
+  <!-- FontAwesome for Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+    body {
+      background-color: #f8f9fa;
+    }
+
+    h2 {
+      font-weight: 700;
+    }
+
+    .table thead th {
+      background: linear-gradient(to right, #007bff, #00c6ff);
+      color: white;
+      font-weight: 600;
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    .table tbody td {
+      vertical-align: middle;
+      text-align: center;
+      color: #333;
+    }
+
+    .btn-placeholder {
+      background-color: #6c757d;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      font-size: 14px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .btn-placeholder:hover {
+      background-color: #5a6268;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container py-5">
+    <h2 class="mb-4 text-center">Appointments</h2>
+
+    {% if appointments %}
+    <div class="table-responsive">
+      <table class="table table-bordered table-striped" id="example">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Doctor</th>
+            <th>Patient</th>
+            <th>Date</th>
+            <th>Time</th>
+            {% if request.user.is_staff %}
+            <th>Actions</th>
+            {% endif %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for appointment in appointments %}
+          <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ appointment.doctor.name }}</td>
+            <td>{{ appointment.patient.name }}</td>
+            <td>{{ appointment.date1 }}</td>
+            <td>{{ appointment.time1 }}</td>
+            {% if request.user.is_staff %}
+            <td>
+              <button class="btn btn-placeholder"><i class="fas fa-edit"></i> Edit</button>
+              <a href="{% url 'delete_appointment' appointment.id %}" class="btn btn-placeholder"
+                onclick="return confirm('Are you sure you want to delete this appointment?');">
+                <i class="fas fa-trash-alt"></i> Delete
+              </a>
+            </td>
+            {% endif %}
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="alert alert-info text-center">No appointments found.</div>
+    {% endif %}
+  </div>
+
+  <!-- JS Libraries -->
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- DataTables JS + Buttons -->
+  <script src="https://cdn.datatables.net/2.3.1/js/dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/3.2.3/js/dataTables.buttons.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+  <script src="https://cdn.datatables.net/buttons/3.2.3/js/buttons.html5.min.js"></script>
+
+  <!-- Initialize DataTable -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      new DataTable('#example', {
+        responsive: true,
+        layout: {
+          topStart: {
+            buttons: ['copyHtml5', 'excelHtml5', 'csvHtml5', 'pdfHtml5']
+          }
+        }
+      });
+    });
+  </script>
+</body>
+
+</html>
