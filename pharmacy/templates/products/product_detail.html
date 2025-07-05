@@ -1,41 +1,39 @@
-{% extends 'products/base.html'%} {% block content%}
-<br></br>
+{% extends 'products/base.html' %}
+
+{% block content %}
+<br>
 {% if product %}
   <h2>{{ product.item_name }}</h2>
   <p>Category: {{ product.category_name }}</p>
   <p>Price: ₦{{ product.unit_price }}</p>
   <p>Quantity in stock: {{ product.total_quantity }}</p>
+
+  <div class="container my-3">
+    <a href="{% url 'issue_item' product.id %}" class="btn btn-secondary">Order Item</a>
+    <a href="{% url 'add_to_stock' product.id %}" class="btn btn-secondary">Add Item</a>
+  </div>
+
+  <div class="container mt-4">
+    <table class="table">
+      <thead class="thead-dark">
+        <tr>
+          <th scope="col">Category</th>
+          <th scope="col">Item Name</th>
+          <th scope="col">Quantity</th>
+          <th scope="col">Unit Price(₦)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>{{ product.category_name }}</td>
+          <td>{{ product.item_name }}</td>
+          <td>{{ product.total_quantity }}</td>
+          <td>₦{{ product.unit_price }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 {% else %}
   <p class="text-danger">This product does not exist.</p>
 {% endif %}
-<div class = "container">
-    <a href="{% url 'issue_item' product.id %}" ><input type="submit" value="Order Item" class="btn btn-secondary" btn type="button"/></a>
-    <a href="{% url 'add_to_stock' product.id %}" ><input type= "submit" value="Add Item" class="btn btn-secondary btn" type="button"/></a>
-</div>
-
-<br></br>
-<div class = "container">
-  <table class="table">
-    <thead class="thead-dark">
-      <tr>
-        <th scope="col">Category</th>
-        <th scope="col">Item Name</th>
-        <th scope="col">Quantity</th>
-        <th scope="col">Unit Price(₦)</th>   
-      </tr>
-    </thead>
-    <tbody>
-      <tr>    
-        <td>{{product.category_name}}</td>
-        <td>{{product.item_name}}</td>
-        <td>{{product.total_quantity}}</td>
-        <td>₦{{product.unit_price}}</td>   
-      </tr>
-    </tbody>  
-  </table>
-</div>
-<div class = "container">
-    <a href="{% url 'issue_item' product.id %}" ><input type="submit" value="Order Item" class="btn btn-secondary" btn type="button"/></a>
-    <a href="{% url 'add_to_stock' product.id %}" ><input type= "submit" value="Add Item" class="btn btn-secondary btn" type="button"/></a>
-</div>
-{% endblock%}
+{% endblock %}

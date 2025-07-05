@@ -1,8 +1,10 @@
-{% extends 'products/base.html'%} {% block content%}
+{% extends 'products/base.html' %}
+
+{% block content %}
 <br></br>
 
-<div class = "container">
-  <h1 class= "text-center">ITEMS IN STOCK</h1>
+<div class="container">
+  <h1 class="text-center">ITEMS IN STOCK</h1>
   <br>
   <table class="table">
     <thead class="thead-dark">
@@ -11,26 +13,24 @@
         <th scope="col">Item Name</th>
         <th scope="col">Quantity</th>
         <th scope="col">Unit Price(₦)</th>
-        <th scope = "col">Detail</th>
+        <th scope="col">Detail</th>
       </tr>
     </thead>
-    {% for product in products%}
     <tbody>
-      <tr>    
-        <td>{{product.category_name}}</td>
-        <td>{{product.item_name}}</td>
-        <td>{{product.total_quantity}}</td>
-        <td>₦{{product.unit_price}}</td>
-        <td><a href="{% url 'product_detail' product.id %}"
-              ><input
-                type="submit"
-                value="BUY ITEM"
-                class="btn btn-secondary btn"
-                type="button"
-            /></a></td>
+      {% for product in products %}
+      <tr>
+        <td>{{ product.category_name }}</td>
+        <td>{{ product.item_name }}</td>
+        <td>{{ product.total_quantity }}</td>
+        <td>₦{{ product.unit_price }}</td>
+        <td>
+          <a href="{% url 'product_detail' product.id %}">
+            <button class="btn btn-secondary">BUY ITEM</button>
+          </a>
+        </td>
       </tr>
+      {% endfor %}
     </tbody>
-    {% endfor %}
   </table>
 </div>
-{% endblock%}
+{% endblock %}

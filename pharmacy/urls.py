@@ -8,7 +8,8 @@ urlpatterns = [
     path('receipt/', receipt, name = "receipt"),
 
     path('home/<int:product_id>/',product_detail, name='product_detail'),
-    path('all_sales/', all_sales, name = 'all_sales')
-
+    path('all_sales/', all_sales, name = 'all_sales'),
+    path('issue_item/<int:pk>/', issue_item, name='issue_item'),
+    path('add_to_stock/<int:pk>/', add_to_stock, name='add_to_stock'),
 ]
 
