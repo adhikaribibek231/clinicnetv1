@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'clinic',
     'pharmacy',
     'labtest',
+    'crispy_forms',
 ]
 
 MIDDLEWARE = [
