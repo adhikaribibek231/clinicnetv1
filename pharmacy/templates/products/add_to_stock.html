@@ -2,15 +2,12 @@
 {% load crispy_forms_tags%} 
 {% load static %}
 {% block content%}
-<br/>
-
-<div class="container">
-  <form method="POST" action = "">
-    <h1 class = "text-center
-    ">SALES FORM</h1><br>
+<section>
+  <h2>ADD TO STOCK</h2>
+  <form method="POST" action="">
     {% csrf_token %} 
     {{form | crispy}}
-    <input type = "submit" class="btn btn-secondary btn"type="button">
+    <input type="submit" class="btn-placeholder" value="Submit">
   </form>
-</div>
+</section>
 {% endblock %}

@@ -1,39 +1,45 @@
 {% extends 'products/base.html' %}
 
 {% block content %}
-<br>
 {% if product %}
-  <h2>{{ product.item_name }}</h2>
-  <p>Category: {{ product.category_name }}</p>
-  <p>Price: ₦{{ product.unit_price }}</p>
-  <p>Quantity in stock: {{ product.total_quantity }}</p>
+  <section>
+    <h2>{{ product.item_name }}</h2>
+    <p>Category: {{ product.category_name }}</p>
+    <p>Price: ₦{{ product.unit_price }}</p>
+    <p>Quantity in stock: {{ product.total_quantity }}</p>
 
-  <div class="container my-3">
-    <a href="{% url 'issue_item' product.id %}" class="btn btn-secondary">Order Item</a>
-    <a href="{% url 'add_to_stock' product.id %}" class="btn btn-secondary">Add Item</a>
-  </div>
+    <div class="grid">
+      <a href="{% url 'issue_item' product.id %}" class="btn-placeholder">Order Item</a>
+      <a href="{% url 'add_to_stock' product.id %}" class="btn-placeholder">Add Item</a>
+    </div>
+  </section>
 
-  <div class="container mt-4">
-    <table class="table">
-      <thead class="thead-dark">
-        <tr>
-          <th scope="col">Category</th>
-          <th scope="col">Item Name</th>
-          <th scope="col">Quantity</th>
-          <th scope="col">Unit Price(₦)</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>{{ product.category_name }}</td>
-          <td>{{ product.item_name }}</td>
-          <td>{{ product.total_quantity }}</td>
-          <td>₦{{ product.unit_price }}</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+  <section>
+    <h2>Product Details</h2>
+    <div class="table-container">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Category</th>
+            <th>Item Name</th>
+            <th>Quantity</th>
+            <th>Unit Price(₦)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>{{ product.category_name }}</td>
+            <td>{{ product.item_name }}</td>
+            <td>{{ product.total_quantity }}</td>
+            <td>₦{{ product.unit_price }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
 {% else %}
-  <p class="text-danger">This product does not exist.</p>
+  <section>
+    <p>This product does not exist.</p>
+  </section>
 {% endif %}
 {% endblock %}

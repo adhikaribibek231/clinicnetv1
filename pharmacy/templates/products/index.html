@@ -1,36 +1,33 @@
 {% extends 'products/base.html' %}
 
 {% block content %}
-<br></br>
-
-<div class="container">
-  <h1 class="text-center">ITEMS IN STOCK</h1>
-  <br>
-  <table class="table">
-    <thead class="thead-dark">
-      <tr>
-        <th scope="col">Category</th>
-        <th scope="col">Item Name</th>
-        <th scope="col">Quantity</th>
-        <th scope="col">Unit Price(₦)</th>
-        <th scope="col">Detail</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for product in products %}
-      <tr>
-        <td>{{ product.category_name }}</td>
-        <td>{{ product.item_name }}</td>
-        <td>{{ product.total_quantity }}</td>
-        <td>₦{{ product.unit_price }}</td>
-        <td>
-          <a href="{% url 'product_detail' product.id %}">
-            <button class="btn btn-secondary">BUY ITEM</button>
-          </a>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
+<section>
+    <h2>ITEMS IN STOCK</h2>
+    <div class="table-container">
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th>Category</th>
+                    <th>Item Name</th>
+                    <th>Quantity</th>
+                    <th>Unit Price(₦)</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                <tr>
+                    <td>{{ product.category_name }}</td>
+                    <td>{{ product.item_name }}</td>
+                    <td>{{ product.total_quantity }}</td>
+                    <td>₦{{ product.unit_price }}</td>
+                    <td>
+                        <a href="{% url 'product_detail' product.id %}" class="btn-placeholder">BUY ITEM</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
 {% endblock %}
