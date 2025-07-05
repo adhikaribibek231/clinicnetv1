@@ -3,11 +3,21 @@
 {% load static %}
 {% block content%}
 <section>
-  <h2>SALES FORM</h2>
+  <h2>SELL ITEM</h2>
+  
+  {% if product %}
+  <div class="card">
+    <h3>{{ product.item_name }}</h3>
+    <p><strong>Category:</strong> {{ product.category_name }}</p>
+    <p><strong>Current Stock:</strong> {{ product.total_quantity }} items</p>
+    <p><strong>Unit Price:</strong> ₦{{ product.unit_price }}</p>
+  </div>
+  {% endif %}
+  
   <form method="POST" action="">
     {% csrf_token %} 
-    {{sales_form | crispy}}
-    <input type="submit" class="btn-placeholder" value="Submit">
+    {{ sales_form.as_p }}
+    <input type="submit" class="btn-placeholder" value="Process Sale">
   </form>
 </section>
 {% endblock %}

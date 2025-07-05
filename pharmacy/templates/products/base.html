@@ -12,15 +12,26 @@
 <body>
     <nav>
         <a href="{% url 'home' %}" class="logo">PHARM PLUS</a>
-        {% if user.is_authenticated %}
+        <div class="nav-links">
             <a href="{% url 'home' %}">HOME</a>
+            <a href="{% url 'index' %}">INVENTORY</a>
             <a href="{% url 'receipt' %}">RECEIPTS</a>
-            <a href="#">ALL SALES</a>
+            <a href="{% url 'all_sales' %}">ALL SALES</a>
             <a href="{% url 'logout' %}">LOGOUT</a>
-        {% endif %}
+        </div>
     </nav>
     
     <main>
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <div class="message {% if message.tags %}{{ message.tags }}{% endif %}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
         {% block content %}
         {% endblock %}
     </main>
