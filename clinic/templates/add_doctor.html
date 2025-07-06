@@ -1,23 +1,7 @@
-{% include 'admin_navigation.html' %}
-{% include 'back_button.html' %}
+{% extends 'clinic_base.html' %}
 {% load static %}
 
-<!doctype html>
-<html lang="en">
-
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Add Doctor - ClinicNet</title>
-
-  <!-- Custom CSS -->
-  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
-
-  <!-- Bootstrap CSS -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
-
-  <!-- FontAwesome Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+{% block title %}Add Doctor - ClinicNet{% endblock %}
 
   <style>
     body {
@@ -140,10 +124,10 @@
       color: white;
     }
   </style>
-</head>
+{% endblock %}
 
-<body>
-  <div class="container py-5">
+{% block content %}
+<div class="container py-5">
     <div class="row justify-content-center">
       <div class="col-md-8 col-lg-6">
         <div class="form-card">
@@ -273,55 +257,52 @@
       </div>
     </div>
   </div>
+{% endblock %}
 
-  <!-- Bootstrap JS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+{% block extra_js %}
+<script>
+  function setSpecialization(specialization) {
+    document.getElementById('special').value = specialization;
+    
+    // Update active tag
+    document.querySelectorAll('.specialization-tag').forEach(tag => {
+      tag.classList.remove('active');
+    });
+    event.target.classList.add('active');
+  }
 
-  <script>
-    function setSpecialization(specialization) {
-      document.getElementById('special').value = specialization;
-      
-      // Update active tag
-      document.querySelectorAll('.specialization-tag').forEach(tag => {
-        tag.classList.remove('active');
-      });
-      event.target.classList.add('active');
+  // Form validation
+  document.getElementById('addDoctorForm').addEventListener('submit', function(e) {
+    const name = document.getElementById('name').value.trim();
+    const mobile = document.getElementById('mobile').value.trim();
+    const special = document.getElementById('special').value.trim();
+    
+    if (name.length < 2) {
+      alert('Please enter a valid name (at least 2 characters)');
+      e.preventDefault();
+      return;
     }
+    
+    if (!/^[0-9]{10}$/.test(mobile)) {
+      alert('Please enter a valid 10-digit mobile number');
+      e.preventDefault();
+      return;
+    }
+    
+    if (special.length < 3) {
+      alert('Please enter a valid specialization (at least 3 characters)');
+      e.preventDefault();
+      return;
+    }
+  });
 
-    // Form validation
-    document.getElementById('addDoctorForm').addEventListener('submit', function(e) {
-      const name = document.getElementById('name').value.trim();
-      const mobile = document.getElementById('mobile').value.trim();
-      const special = document.getElementById('special').value.trim();
-      
-      if (name.length < 2) {
-        alert('Please enter a valid name (at least 2 characters)');
-        e.preventDefault();
-        return;
-      }
-      
-      if (!/^[0-9]{10}$/.test(mobile)) {
-        alert('Please enter a valid 10-digit mobile number');
-        e.preventDefault();
-        return;
-      }
-      
-      if (special.length < 3) {
-        alert('Please enter a valid specialization (at least 3 characters)');
-        e.preventDefault();
-        return;
-      }
-    });
-
-    // Auto-format mobile number
-    document.getElementById('mobile').addEventListener('input', function(e) {
-      let value = e.target.value.replace(/\D/g, '');
-      if (value.length > 10) {
-        value = value.substring(0, 10);
-      }
-      e.target.value = value;
-    });
-  </script>
-</body>
-
-</html>
+  // Auto-format mobile number
+  document.getElementById('mobile').addEventListener('input', function(e) {
+    let value = e.target.value.replace(/\D/g, '');
+    if (value.length > 10) {
+      value = value.substring(0, 10);
+    }
+    e.target.value = value;
+  });
+</script>
+{% endblock %}
