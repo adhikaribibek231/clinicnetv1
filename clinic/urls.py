@@ -31,4 +31,12 @@ urlpatterns = [
     path('api/admin-confirm/', confirm_admin_appointment, name='confirm_admin_appointment'),
     path('confirmation/<str:token>/', appointment_confirmation, name='appointment_confirmation'),
     path('download/<str:token>/', download_token, name='download_token'),
+    
+    # Schedule Management URLs
+    path('schedules/', View_Schedules, name='view_schedules'),
+    path('manage-schedules/', Manage_Schedules, name='manage_schedules'),
+    path('update-availability/<int:doctor_id>/', Update_Doctor_Availability, name='update_doctor_availability'),
+    
+    # Service Management URLs
+    path('manage-services/', Manage_Services, name='manage_services'),
 ]

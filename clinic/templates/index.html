@@ -1,4 +1,4 @@
-{% include 'navigation.html' %}
+{% include 'admin_navigation.html' %}
 {% load static %}
 
 <!doctype html>
@@ -27,10 +27,13 @@
       border-radius: 1rem;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
       transition: 0.3s;
+      border: none;
+      margin-bottom: 20px;
     }
 
     .dashboard-card:hover {
       transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
     }
 
     .card-icon {
@@ -38,65 +41,312 @@
     }
 
     .bg-doctor {
-      background: linear-gradient(to right, #00b4db, #0083b0);
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     }
 
     .bg-patient {
-      background: linear-gradient(to right, #ff416c, #ff4b2b);
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
     }
 
     .bg-appointment {
-      background: linear-gradient(to right, #56ab2f, #a8e063);
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    }
+
+    .bg-service {
+      background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    }
+
+    .bg-schedule {
+      background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    }
+
+    .bg-walkin {
+      background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
     }
 
     .card-body {
       color: white;
       text-align: center;
+      padding: 2rem 1.5rem;
     }
 
     .count {
       font-size: 2.5rem;
       font-weight: bold;
+      margin-bottom: 0.5rem;
     }
 
     .label {
-      font-size: 1.2rem;
+      font-size: 1.1rem;
       font-weight: 500;
+      margin-bottom: 1rem;
+    }
+
+    .action-btn {
+      background: rgba(255, 255, 255, 0.2);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-block;
+      margin: 2px;
+    }
+
+    .action-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+      border-color: rgba(255, 255, 255, 0.5);
+      color: white;
+      text-decoration: none;
+      transform: translateY(-2px);
+    }
+
+    .section-title {
+      color: #2c3e50;
+      font-weight: bold;
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 3px solid #3498db;
+      display: inline-block;
+    }
+
+    .quick-stats {
+      background: white;
+      border-radius: 15px;
+      padding: 2rem;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      margin-bottom: 2rem;
+    }
+
+    .recent-appointments {
+      background: white;
+      border-radius: 15px;
+      padding: 2rem;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      margin-bottom: 2rem;
+    }
+
+    .appointment-item {
+      border-left: 4px solid #3498db;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      background: #f8f9fa;
+      border-radius: 0 8px 8px 0;
+    }
+
+    .status-badge {
+      padding: 4px 12px;
+      border-radius: 15px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .status-pending {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .status-confirmed {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .status-completed {
+      background: #cce5ff;
+      color: #004085;
+    }
+
+    .welcome-section {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 2rem;
+      border-radius: 15px;
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+
+    .welcome-section h1 {
+      font-size: 2.5rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+    }
+
+    .welcome-section p {
+      font-size: 1.2rem;
+      opacity: 0.9;
     }
   </style>
 </head>
 
 <body>
-  <div class="container py-5">
-    <h2 class="text-center mb-5">Welcome to Admin Dashboard</h2>
+  <div class="container-fluid py-4">
+    <!-- Welcome Section -->
+    <div class="welcome-section">
+      <h1><i class="fas fa-hospital-alt"></i> ClinicNet Admin Dashboard</h1>
+      <p>Manage your clinic operations efficiently</p>
+    </div>
 
-    <div class="row g-4">
-      <div class="col-md-4">
-        <div class="card dashboard-card bg-doctor">
+    <!-- Quick Stats -->
+    <div class="quick-stats">
+      <h3 class="section-title"><i class="fas fa-chart-bar"></i> Quick Statistics</h3>
+      <div class="row">
+        <div class="col-md-3">
+          <div class="card dashboard-card bg-doctor">
+            <div class="card-body">
+              <div class="card-icon mb-3"><i class="fas fa-user-md"></i></div>
+              <div class="count">{{ d }}</div>
+              <div class="label">Total Doctors</div>
+              <div class="mt-3">
+                <a href="{% url 'clinic:view_doctor' %}" class="action-btn">View All</a>
+                <a href="{% url 'clinic:add_doctor' %}" class="action-btn">Add New</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <div class="card dashboard-card bg-patient">
+            <div class="card-body">
+              <div class="card-icon mb-3"><i class="fas fa-user-injured"></i></div>
+              <div class="count">{{ p }}</div>
+              <div class="label">Total Patients</div>
+              <div class="mt-3">
+                <a href="{% url 'clinic:view_patient' %}" class="action-btn">View All</a>
+                <a href="{% url 'clinic:add_patient' %}" class="action-btn">Add New</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <div class="card dashboard-card bg-appointment">
+            <div class="card-body">
+              <div class="card-icon mb-3"><i class="fas fa-calendar-check"></i></div>
+              <div class="count">{{ a }}</div>
+              <div class="label">Total Appointments</div>
+              <div class="mt-3">
+                <a href="{% url 'clinic:view_appointment' %}" class="action-btn">View All</a>
+                <a href="{% url 'clinic:add_appointment' %}" class="action-btn">Add New</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <div class="card dashboard-card bg-service">
+            <div class="card-body">
+              <div class="card-icon mb-3"><i class="fas fa-stethoscope"></i></div>
+              <div class="count">{{ services_count }}</div>
+              <div class="label">Services</div>
+              <div class="mt-3">
+                <a href="{% url 'clinic:manage_services' %}" class="action-btn">Manage</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row">
+      <div class="col-md-6">
+        <div class="card dashboard-card bg-schedule">
           <div class="card-body">
-            <div class="card-icon mb-3"><i class="fas fa-user-md"></i></div>
-            <div class="count">{{ d }}</div>
-            <div class="label">Total Doctors</div>
+            <div class="card-icon mb-3"><i class="fas fa-clock"></i></div>
+            <div class="label">Doctor Schedules</div>
+            <div class="mt-3">
+              <a href="{% url 'clinic:manage_schedules' %}" class="action-btn">Manage Schedules</a>
+              <a href="{% url 'clinic:view_schedules' %}" class="action-btn">View All</a>
+            </div>
           </div>
         </div>
       </div>
 
-      <div class="col-md-4">
-        <div class="card dashboard-card bg-patient">
+      <div class="col-md-6">
+        <div class="card dashboard-card bg-walkin">
           <div class="card-body">
-            <div class="card-icon mb-3"><i class="fas fa-user-injured"></i></div>
-            <div class="count">{{ p }}</div>
-            <div class="label">Total Patients</div>
+            <div class="card-icon mb-3"><i class="fas fa-user-plus"></i></div>
+            <div class="label">Walk-in Appointments</div>
+            <div class="mt-3">
+              <a href="{% url 'clinic:add_appointment' %}" class="action-btn">Add Walk-in</a>
+              <a href="{% url 'clinic:view_appointment' %}" class="action-btn">View All</a>
+            </div>
           </div>
         </div>
       </div>
+    </div>
 
-      <div class="col-md-4">
-        <div class="card dashboard-card bg-appointment">
+    <!-- Recent Appointments -->
+    <div class="recent-appointments">
+      <h3 class="section-title"><i class="fas fa-calendar-alt"></i> Recent Appointments</h3>
+      {% if recent_appointments %}
+        {% for appointment in recent_appointments %}
+        <div class="appointment-item">
+          <div class="row align-items-center">
+            <div class="col-md-3">
+              <strong>{{ appointment.patient_name }}</strong>
+              <br><small class="text-muted">Token: {{ appointment.token }}</small>
+            </div>
+            <div class="col-md-3">
+              <i class="fas fa-user-md"></i> Dr. {{ appointment.doctor.name }}
+              <br><small class="text-muted">{{ appointment.service.name }}</small>
+            </div>
+            <div class="col-md-2">
+              <i class="fas fa-calendar"></i> {{ appointment.date|date:"M d, Y" }}
+              <br><i class="fas fa-clock"></i> {{ appointment.time|time:"g:i A" }}
+            </div>
+            <div class="col-md-2">
+              <span class="status-badge status-{{ appointment.status }}">
+                {{ appointment.status|title }}
+              </span>
+            </div>
+            <div class="col-md-2">
+              <a href="{% url 'clinic:appointment_confirmation' appointment.token %}" class="btn btn-sm btn-outline-primary">
+                <i class="fas fa-eye"></i> View
+              </a>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="text-center text-muted py-4">
+          <i class="fas fa-calendar-times fa-3x mb-3"></i>
+          <p>No recent appointments</p>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Quick Management Links -->
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card">
           <div class="card-body">
-            <div class="card-icon mb-3"><i class="fas fa-calendar-check"></i></div>
-            <div class="count">{{ a }}</div>
-            <div class="label">Total Appointments</div>
+            <h5 class="card-title"><i class="fas fa-cogs"></i> Quick Management</h5>
+            <div class="row">
+              <div class="col-md-3">
+                <a href="{% url 'clinic:view_doctor' %}" class="btn btn-outline-primary btn-block mb-2">
+                  <i class="fas fa-user-md"></i> Manage Doctors
+                </a>
+              </div>
+              <div class="col-md-3">
+                <a href="{% url 'clinic:view_patient' %}" class="btn btn-outline-success btn-block mb-2">
+                  <i class="fas fa-user-injured"></i> Manage Patients
+                </a>
+              </div>
+              <div class="col-md-3">
+                <a href="{% url 'clinic:view_appointment' %}" class="btn btn-outline-info btn-block mb-2">
+                  <i class="fas fa-calendar-check"></i> Manage Appointments
+                </a>
+              </div>
+              <div class="col-md-3">
+                <a href="/admin/" class="btn btn-outline-warning btn-block mb-2">
+                  <i class="fas fa-cog"></i> Admin Panel
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       </div>

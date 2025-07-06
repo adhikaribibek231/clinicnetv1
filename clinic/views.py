@@ -10,6 +10,7 @@ import json
 from PIL import Image, ImageDraw, ImageFont
 import io
 import base64
+from django.contrib import messages
 # Create your views here.
 
 def Home(request):
@@ -244,11 +245,26 @@ def Contact(request):
 def Index(request):
     doctors = Doctor.objects.all()
     patients = Patient.objects.all()
-    appointments = Appointment.objects.all()
+    old_appointments = Appointment.objects.all()
+    new_appointments = PublicAppointment.objects.all()
+    services = Service.objects.all()
+    
+    # Get recent appointments (last 10)
+    recent_appointments = PublicAppointment.objects.select_related('doctor', 'service').order_by('-created_at')[:10]
+    
     d = doctors.count()
     p = patients.count()
-    a = appointments.count()
-    return render(request, 'index.html', {'d': d, 'p': p, 'a': a})
+    a = old_appointments.count() + new_appointments.count()
+    services_count = services.count()
+    
+    context = {
+        'd': d, 
+        'p': p, 
+        'a': a,
+        'services_count': services_count,
+        'recent_appointments': recent_appointments
+    }
+    return render(request, 'index.html', context)
 
 def Login(request):
     error = ""
@@ -422,7 +438,182 @@ def View_Appointment(request):
 
 @login_required
 def Delete_Appointment(request, aid):
-    appointment = Appointment.objects.get(id=aid)
-    appointment.delete()
+    try:
+        # Try to delete from new appointments first
+        appointment = PublicAppointment.objects.get(id=aid)
+        appointment.delete()
+    except PublicAppointment.DoesNotExist:
+        try:
+            # If not found in new appointments, try old appointments
+            appointment = Appointment.objects.get(id=aid)
+            appointment.delete()
+        except Appointment.DoesNotExist:
+            messages.error(request, 'Appointment not found!')
+    
     return redirect('clinic:view_appointment')
+
+@login_required
+def View_Schedules(request):
+    """View all doctor schedules"""
+    schedules = DoctorSchedule.objects.select_related('doctor', 'service').order_by('date', 'start_time')
+    doctors = Doctor.objects.all()
+    services = Service.objects.all()
+    
+    context = {
+        'schedules': schedules,
+        'doctors': doctors,
+        'services': services
+    }
+    return render(request, 'view_schedules.html', context)
+
+@login_required
+def Manage_Schedules(request):
+    """Manage doctor schedules - add/edit/delete"""
+    doctors = Doctor.objects.all()
+    services = Service.objects.all()
+    
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        
+        if action == 'add':
+            try:
+                DoctorSchedule.objects.create(
+                    doctor_id=request.POST.get('doctor'),
+                    service_id=request.POST.get('service'),
+                    date=request.POST.get('date'),
+                    start_time=request.POST.get('start_time'),
+                    end_time=request.POST.get('end_time'),
+                    is_available=request.POST.get('is_available') == 'on'
+                )
+                messages.success(request, 'Schedule added successfully!')
+            except Exception as e:
+                messages.error(request, f'Error adding schedule: {str(e)}')
+        
+        elif action == 'update':
+            schedule_id = request.POST.get('schedule_id')
+            try:
+                schedule = DoctorSchedule.objects.get(id=schedule_id)
+                schedule.doctor_id = request.POST.get('doctor')
+                schedule.service_id = request.POST.get('service')
+                schedule.date = request.POST.get('date')
+                schedule.start_time = request.POST.get('start_time')
+                schedule.end_time = request.POST.get('end_time')
+                schedule.is_available = request.POST.get('is_available') == 'on'
+                schedule.save()
+                messages.success(request, 'Schedule updated successfully!')
+            except DoctorSchedule.DoesNotExist:
+                messages.error(request, 'Schedule not found!')
+            except Exception as e:
+                messages.error(request, f'Error updating schedule: {str(e)}')
+        
+        elif action == 'delete':
+            schedule_id = request.POST.get('schedule_id')
+            try:
+                schedule = DoctorSchedule.objects.get(id=schedule_id)
+                schedule.delete()
+                messages.success(request, 'Schedule deleted successfully!')
+            except DoctorSchedule.DoesNotExist:
+                messages.error(request, 'Schedule not found!')
+            except Exception as e:
+                messages.error(request, f'Error deleting schedule: {str(e)}')
+        
+        return redirect('clinic:manage_schedules')
+    
+    schedules = DoctorSchedule.objects.select_related('doctor', 'service').order_by('date', 'start_time')
+    
+    context = {
+        'schedules': schedules,
+        'doctors': doctors,
+        'services': services
+    }
+    return render(request, 'manage_schedules.html', context)
+
+@login_required
+def Update_Doctor_Availability(request, doctor_id):
+    """Update doctor availability for specific dates"""
+    try:
+        doctor = Doctor.objects.get(id=doctor_id)
+    except Doctor.DoesNotExist:
+        messages.error(request, 'Doctor not found!')
+        return redirect('clinic:manage_schedules')
+    
+    if request.method == 'POST':
+        date = request.POST.get('date')
+        is_available = request.POST.get('is_available') == 'on'
+        
+        # Update all schedules for this doctor on this date
+        schedules = DoctorSchedule.objects.filter(doctor=doctor, date=date)
+        schedules.update(is_available=is_available)
+        
+        status = "available" if is_available else "unavailable"
+        messages.success(request, f'Dr. {doctor.name} marked as {status} for {date}')
+        return redirect('clinic:manage_schedules')
+    
+    # Get doctor's schedules for the next 30 days
+    today = date.today()
+    end_date = today + timedelta(days=30)
+    schedules = DoctorSchedule.objects.filter(
+        doctor=doctor,
+        date__gte=today,
+        date__lte=end_date
+    ).order_by('date')
+    
+    context = {
+        'doctor': doctor,
+        'schedules': schedules
+    }
+    return render(request, 'update_doctor_availability.html', context)
+
+@login_required
+def Manage_Services(request):
+    """Manage services - add/edit/delete"""
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        
+        if action == 'add':
+            try:
+                Service.objects.create(
+                    name=request.POST.get('name'),
+                    description=request.POST.get('description', ''),
+                    duration_minutes=request.POST.get('duration_minutes', 30),
+                    price=request.POST.get('price', 0.00)
+                )
+                messages.success(request, 'Service added successfully!')
+            except Exception as e:
+                messages.error(request, f'Error adding service: {str(e)}')
+        
+        elif action == 'update':
+            service_id = request.POST.get('service_id')
+            try:
+                service = Service.objects.get(id=service_id)
+                service.name = request.POST.get('name')
+                service.description = request.POST.get('description', '')
+                service.duration_minutes = request.POST.get('duration_minutes', 30)
+                service.price = request.POST.get('price', 0.00)
+                service.save()
+                messages.success(request, 'Service updated successfully!')
+            except Service.DoesNotExist:
+                messages.error(request, 'Service not found!')
+            except Exception as e:
+                messages.error(request, f'Error updating service: {str(e)}')
+        
+        elif action == 'delete':
+            service_id = request.POST.get('service_id')
+            try:
+                service = Service.objects.get(id=service_id)
+                service.delete()
+                messages.success(request, 'Service deleted successfully!')
+            except Service.DoesNotExist:
+                messages.error(request, 'Service not found!')
+            except Exception as e:
+                messages.error(request, f'Error deleting service: {str(e)}')
+        
+        return redirect('clinic:manage_services')
+    
+    services = Service.objects.all().order_by('name')
+    
+    context = {
+        'services': services
+    }
+    return render(request, 'manage_services.html', context)
 

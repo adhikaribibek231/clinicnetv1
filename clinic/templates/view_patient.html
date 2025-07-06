@@ -1,4 +1,4 @@
-{% include 'navigation.html' %}
+{% include 'admin_navigation.html' %}
 {% load static %}
 
 <!doctype html>
@@ -93,7 +93,7 @@
             {% if request.user.is_staff %}
             <td>
               <button class="btn btn-placeholder"><i class="fas fa-edit"></i> Edit</button>
-                            <a href="{% url 'delete_patient' patient.id %}" class="btn btn-placeholder"
+                            <a href="{% url 'clinic:delete_patient' patient.id %}" class="btn btn-placeholder"
                                 onclick="return confirm('Are you sure you want to delete this patient?');">
                                 <i class="fas fa-trash-alt"></i> Delete
                             </a>

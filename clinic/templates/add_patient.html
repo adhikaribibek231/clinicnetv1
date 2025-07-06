@@ -1,4 +1,4 @@
-{% include 'navigation.html' %}
+{% include 'admin_navigation.html' %}
 {% load static %}
 
 <!doctype html>
@@ -24,7 +24,7 @@
         <h4 class="mb-0">Add New Patient</h4>
       </div>
       <div class="card-body">
-        <form method="post" action="{% url 'add_patient' %}">
+        <form method="post" action="{% url 'clinic:add_patient' %}">
           {% csrf_token %}
           <div class="form-group">
             <label for="name">Patient Name</label>
@@ -63,7 +63,7 @@
           </button>
         </div>
         <script>
-          setTimeout(() => window.location.href = "{% url 'view_patient' %}", 1500);
+          setTimeout(() => window.location.href = "{% url 'clinic:view_patient' %}", 1500);
         </script>
         {% elif error == "yes" %}
         <div class="alert alert-danger alert-dismissible fade show mt-4" role="alert">

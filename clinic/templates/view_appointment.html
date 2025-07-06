@@ -1,4 +1,4 @@
-{% include 'navigation.html' %}
+{% include 'admin_navigation.html' %}
 {% load static %}
 
 <!doctype html>
@@ -65,9 +65,65 @@
   <div class="container py-5">
     <h2 class="mb-4 text-center">Appointments</h2>
 
-    {% if appointments %}
+    {% if new_appointments %}
     <div class="table-responsive">
       <table class="table table-bordered table-striped" id="example">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Token</th>
+            <th>Doctor</th>
+            <th>Patient</th>
+            <th>Service</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Status</th>
+            <th>Payment</th>
+            {% if request.user.is_staff %}
+            <th>Actions</th>
+            {% endif %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for appointment in new_appointments %}
+          <tr>
+            <td>{{ forloop.counter }}</td>
+            <td><span class="badge badge-info">{{ appointment.token }}</span></td>
+            <td>{{ appointment.doctor.name }}</td>
+            <td>{{ appointment.patient_name }}</td>
+            <td>{{ appointment.service.name }}</td>
+            <td>{{ appointment.date }}</td>
+            <td>{{ appointment.time }}</td>
+            <td>
+              <span class="badge badge-{% if appointment.status == 'pending' %}warning{% elif appointment.status == 'confirmed' %}success{% elif appointment.status == 'completed' %}info{% else %}danger{% endif %}">
+                {{ appointment.status|title }}
+              </span>
+            </td>
+            <td>
+              <span class="badge badge-{% if appointment.payment_status == 'paid' %}success{% else %}warning{% endif %}">
+                {{ appointment.payment_status|title }}
+              </span>
+            </td>
+            {% if request.user.is_staff %}
+            <td>
+              <button class="btn btn-placeholder"><i class="fas fa-edit"></i> Edit</button>
+              <a href="{% url 'clinic:delete_appointment' appointment.id %}" class="btn btn-placeholder"
+                onclick="return confirm('Are you sure you want to delete this appointment?');">
+                <i class="fas fa-trash-alt"></i> Delete
+              </a>
+            </td>
+            {% endif %}
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+    
+    {% if old_appointments %}
+    <h3 class="mt-4 mb-3">Legacy Appointments</h3>
+    <div class="table-responsive">
+      <table class="table table-bordered table-striped" id="example2">
         <thead>
           <tr>
             <th>#</th>
@@ -81,7 +137,7 @@
           </tr>
         </thead>
         <tbody>
-          {% for appointment in appointments %}
+          {% for appointment in old_appointments %}
           <tr>
             <td>{{ forloop.counter }}</td>
             <td>{{ appointment.doctor.name }}</td>
@@ -91,7 +147,7 @@
             {% if request.user.is_staff %}
             <td>
               <button class="btn btn-placeholder"><i class="fas fa-edit"></i> Edit</button>
-              <a href="{% url 'delete_appointment' appointment.id %}" class="btn btn-placeholder"
+              <a href="{% url 'clinic:delete_appointment' appointment.id %}" class="btn btn-placeholder"
                 onclick="return confirm('Are you sure you want to delete this appointment?');">
                 <i class="fas fa-trash-alt"></i> Delete
               </a>
@@ -102,7 +158,9 @@
         </tbody>
       </table>
     </div>
-    {% else %}
+    {% endif %}
+    
+    {% if not new_appointments and not old_appointments %}
     <div class="alert alert-info text-center">No appointments found.</div>
     {% endif %}
   </div>
@@ -130,6 +188,17 @@
           }
         }
       });
+      
+      if (document.getElementById('example2')) {
+        new DataTable('#example2', {
+          responsive: true,
+          layout: {
+            topStart: {
+              buttons: ['copyHtml5', 'excelHtml5', 'csvHtml5', 'pdfHtml5']
+            }
+          }
+        });
+      }
     });
   </script>
 </body>
