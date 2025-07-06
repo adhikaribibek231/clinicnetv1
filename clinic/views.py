@@ -245,8 +245,7 @@ def Contact(request):
 def Index(request):
     doctors = Doctor.objects.all()
     patients = Patient.objects.all()
-    old_appointments = Appointment.objects.all()
-    new_appointments = PublicAppointment.objects.all()
+    appointments = PublicAppointment.objects.all()
     services = Service.objects.all()
     
     # Get recent appointments (last 10)
@@ -254,7 +253,7 @@ def Index(request):
     
     d = doctors.count()
     p = patients.count()
-    a = old_appointments.count() + new_appointments.count()
+    a = appointments.count()
     services_count = services.count()
     
     context = {
@@ -310,11 +309,24 @@ def Add_Doctor(request):
         name = request.POST.get('name')
         mobile = request.POST.get('mobile')
         special = request.POST.get('special')
+        email = request.POST.get('email', '')
+        qualification = request.POST.get('qualification', '')
+        experience = request.POST.get('experience', 0)
+        consultation_fee = request.POST.get('consultation_fee', 0)
 
         try:
-            Doctor.objects.create(name=name, mobile=mobile, special=special)
+            Doctor.objects.create(
+                name=name, 
+                mobile=mobile, 
+                special=special,
+                email=email,
+                qualification=qualification,
+                experience=experience,
+                consultation_fee=consultation_fee
+            )
             error = "no"
-        except:
+        except Exception as e:
+            print(f"Error creating doctor: {e}")
             error = "yes"
 
         if error == "no":
@@ -337,11 +349,26 @@ def Add_Patient(request):
         mobile = request.POST.get('mobile')
         age = request.POST.get('age')
         address = request.POST.get('address')
+        email = request.POST.get('email', '')
+        blood_group = request.POST.get('blood_group', '')
+        emergency_contact = request.POST.get('emergency_contact', '')
+        medical_history = request.POST.get('medical_history', '')
 
         try:
-            Patient.objects.create(name=name, gender=gender, mobile=mobile, age=age, address=address)
+            Patient.objects.create(
+                name=name, 
+                gender=gender, 
+                mobile=mobile, 
+                age=age, 
+                address=address,
+                email=email,
+                blood_group=blood_group,
+                emergency_contact=emergency_contact,
+                medical_history=medical_history
+            )
             error = "no"
-        except:
+        except Exception as e:
+            print(f"Error creating patient: {e}")
             error = "yes"
 
         if error == "no":
@@ -425,30 +452,22 @@ def confirm_admin_appointment(request):
 
 @login_required
 def View_Appointment(request):
-    # Get both old and new appointments
-    old_appointments = Appointment.objects.select_related('doctor', 'patient').all()
-    new_appointments = PublicAppointment.objects.select_related('doctor', 'service').all()
+    # Get only new appointments
+    appointments = PublicAppointment.objects.select_related('doctor', 'service').all().order_by('-created_at')
     
     context = {
-        'old_appointments': old_appointments,
-        'new_appointments': new_appointments,
-        'appointments': new_appointments  # For backward compatibility
+        'appointments': appointments
     }
     return render(request, 'view_appointment.html', context)
 
 @login_required
 def Delete_Appointment(request, aid):
     try:
-        # Try to delete from new appointments first
         appointment = PublicAppointment.objects.get(id=aid)
         appointment.delete()
+        messages.success(request, 'Appointment deleted successfully!')
     except PublicAppointment.DoesNotExist:
-        try:
-            # If not found in new appointments, try old appointments
-            appointment = Appointment.objects.get(id=aid)
-            appointment.delete()
-        except Appointment.DoesNotExist:
-            messages.error(request, 'Appointment not found!')
+        messages.error(request, 'Appointment not found!')
     
     return redirect('clinic:view_appointment')
 

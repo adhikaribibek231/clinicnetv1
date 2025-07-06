@@ -6,82 +6,448 @@
 
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Add Patient - ClinicNet</title>
 
   <!-- Custom CSS -->
   <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 
   <!-- Bootstrap CSS -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
-    integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+    body {
+      background-color: #f8f9fa;
+    }
+
+    .form-card {
+      border-radius: 20px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+      border: none;
+      overflow: hidden;
+    }
+
+    .form-header {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      color: white;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    .form-body {
+      padding: 2rem;
+      background: white;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-control {
+      border-radius: 10px;
+      border: 2px solid #e9ecef;
+      padding: 12px 15px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+      border-color: #f093fb;
+      box-shadow: 0 0 0 0.2rem rgba(240, 147, 251, 0.25);
+    }
+
+    .form-label {
+      font-weight: 600;
+      color: #495057;
+      margin-bottom: 0.5rem;
+    }
+
+    .btn-submit {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      border: none;
+      border-radius: 25px;
+      padding: 12px 30px;
+      font-weight: 600;
+      font-size: 1.1rem;
+      transition: all 0.3s ease;
+    }
+
+    .btn-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(240, 147, 251, 0.3);
+    }
+
+    .btn-cancel {
+      background: #6c757d;
+      border: none;
+      border-radius: 25px;
+      padding: 12px 30px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .btn-cancel:hover {
+      background: #5a6268;
+      transform: translateY(-2px);
+    }
+
+    .alert {
+      border-radius: 15px;
+      border: none;
+      padding: 1rem 1.5rem;
+    }
+
+    .input-group-text {
+      background: #f8f9fa;
+      border: 2px solid #e9ecef;
+      border-right: none;
+      border-radius: 10px 0 0 10px;
+    }
+
+    .input-group .form-control {
+      border-left: none;
+      border-radius: 0 10px 10px 0;
+    }
+
+    .gender-options {
+      display: flex;
+      gap: 1rem;
+      margin-top: 0.5rem;
+    }
+
+    .gender-option {
+      flex: 1;
+      text-align: center;
+      padding: 1rem;
+      border: 2px solid #e9ecef;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: white;
+    }
+
+    .gender-option:hover {
+      border-color: #f093fb;
+      background: #f8f9fa;
+    }
+
+    .gender-option.active {
+      border-color: #f093fb;
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      color: white;
+    }
+
+    .gender-option input[type="radio"] {
+      display: none;
+    }
+
+    .blood-group-options {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .blood-group-option {
+      text-align: center;
+      padding: 0.5rem;
+      border: 2px solid #e9ecef;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: white;
+      font-weight: 600;
+    }
+
+    .blood-group-option:hover {
+      border-color: #f093fb;
+      background: #f8f9fa;
+    }
+
+    .blood-group-option.active {
+      border-color: #f093fb;
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      color: white;
+    }
+
+    .blood-group-option input[type="radio"] {
+      display: none;
+    }
+  </style>
 </head>
 
 <body>
-  <div class="container mt-5">
-    <div class="card shadow-sm rounded-lg">
-      <div class="card-header bg-primary text-white text-center">
-        <h4 class="mb-0">Add New Patient</h4>
-      </div>
-      <div class="card-body">
-        <form method="post" action="{% url 'clinic:add_patient' %}">
-          {% csrf_token %}
-          <div class="form-group">
-            <label for="name">Patient Name</label>
-            <input type="text" class="form-control" id="name" name="name" placeholder="Enter patient's name" required>
+  <div class="container py-5">
+    <div class="row justify-content-center">
+      <div class="col-md-8 col-lg-6">
+        <div class="form-card">
+          <div class="form-header">
+            <h3 class="mb-2"><i class="fas fa-user-injured"></i> Add New Patient</h3>
+            <p class="mb-0">Enter patient information to add them to the system</p>
           </div>
           
-<div class="form-group">
-  <label for="gender">Gender</label><br>
-  <input type="radio" name="gender" value="Male">Male
-  <input type="radio" name="gender" value="Female">Female
-</div>
+          <div class="form-body">
+            <!-- Feedback Messages -->
+            {% if error == "no" %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+              <i class="fas fa-check-circle"></i> <strong>Success!</strong> Patient added successfully.
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <script>
+              setTimeout(() => window.location.href = "{% url 'clinic:view_patient' %}", 2000);
+            </script>
+            {% elif error == "yes" %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+              <i class="fas fa-exclamation-triangle"></i> <strong>Error!</strong> Something went wrong. Please try again.
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            {% endif %}
 
-          <div class="form-group">
-            <label for="mobile">Mobile Number</label>
-            <input type="tel" class="form-control" id="mobile" name="mobile" placeholder="Enter mobile number" required>
+            <form method="post" id="addPatientForm">
+              {% csrf_token %}
+              
+              <div class="form-group">
+                <label for="name" class="form-label">
+                  <i class="fas fa-user"></i> Full Name
+                </label>
+                <input type="text" class="form-control" id="name" name="name" 
+                       placeholder="Enter patient's full name" required>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">
+                  <i class="fas fa-venus-mars"></i> Gender
+                </label>
+                <div class="gender-options">
+                  <label class="gender-option" onclick="selectGender('Male')">
+                    <input type="radio" name="gender" value="Male" required>
+                    <i class="fas fa-mars fa-2x mb-2"></i>
+                    <div>Male</div>
+                  </label>
+                  <label class="gender-option" onclick="selectGender('Female')">
+                    <input type="radio" name="gender" value="Female" required>
+                    <i class="fas fa-venus fa-2x mb-2"></i>
+                    <div>Female</div>
+                  </label>
+                  <label class="gender-option" onclick="selectGender('Other')">
+                    <input type="radio" name="gender" value="Other" required>
+                    <i class="fas fa-genderless fa-2x mb-2"></i>
+                    <div>Other</div>
+                  </label>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="age" class="form-label">
+                  <i class="fas fa-birthday-cake"></i> Age
+                </label>
+                <input type="number" class="form-control" id="age" name="age" 
+                       placeholder="25" min="0" max="150" required>
+              </div>
+
+              <div class="form-group">
+                <label for="mobile" class="form-label">
+                  <i class="fas fa-phone"></i> Mobile Number
+                </label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text">+977</span>
+                  </div>
+                  <input type="tel" class="form-control" id="mobile" name="mobile" 
+                         placeholder="98XXXXXXXX" pattern="[0-9]{10}" required>
+                </div>
+                <small class="form-text text-muted">Enter 10-digit mobile number without country code</small>
+              </div>
+
+              <div class="form-group">
+                <label for="email" class="form-label">
+                  <i class="fas fa-envelope"></i> Email (Optional)
+                </label>
+                <input type="email" class="form-control" id="email" name="email" 
+                       placeholder="patient@example.com">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">
+                  <i class="fas fa-tint"></i> Blood Group (Optional)
+                </label>
+                <div class="blood-group-options">
+                  <label class="blood-group-option" onclick="selectBloodGroup('A+')">
+                    <input type="radio" name="blood_group" value="A+">
+                    A+
+                  </label>
+                  <label class="blood-group-option" onclick="selectBloodGroup('A-')">
+                    <input type="radio" name="blood_group" value="A-">
+                    A-
+                  </label>
+                  <label class="blood-group-option" onclick="selectBloodGroup('B+')">
+                    <input type="radio" name="blood_group" value="B+">
+                    B+
+                  </label>
+                  <label class="blood-group-option" onclick="selectBloodGroup('B-')">
+                    <input type="radio" name="blood_group" value="B-">
+                    B-
+                  </label>
+                  <label class="blood-group-option" onclick="selectBloodGroup('AB+')">
+                    <input type="radio" name="blood_group" value="AB+">
+                    AB+
+                  </label>
+                  <label class="blood-group-option" onclick="selectBloodGroup('AB-')">
+                    <input type="radio" name="blood_group" value="AB-">
+                    AB-
+                  </label>
+                  <label class="blood-group-option" onclick="selectBloodGroup('O+')">
+                    <input type="radio" name="blood_group" value="O+">
+                    O+
+                  </label>
+                  <label class="blood-group-option" onclick="selectBloodGroup('O-')">
+                    <input type="radio" name="blood_group" value="O-">
+                    O-
+                  </label>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="address" class="form-label">
+                  <i class="fas fa-map-marker-alt"></i> Address
+                </label>
+                <textarea class="form-control" id="address" name="address" rows="3" 
+                          placeholder="Enter complete address" required></textarea>
+              </div>
+
+              <div class="form-group">
+                <label for="emergency_contact" class="form-label">
+                  <i class="fas fa-phone-alt"></i> Emergency Contact (Optional)
+                </label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text">+977</span>
+                  </div>
+                  <input type="tel" class="form-control" id="emergency_contact" name="emergency_contact" 
+                         placeholder="98XXXXXXXX" pattern="[0-9]{10}">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="medical_history" class="form-label">
+                  <i class="fas fa-notes-medical"></i> Medical History (Optional)
+                </label>
+                <textarea class="form-control" id="medical_history" name="medical_history" rows="3" 
+                          placeholder="Any relevant medical history, allergies, or conditions"></textarea>
+              </div>
+
+              <div class="row mt-4">
+                <div class="col-md-6">
+                  <a href="{% url 'clinic:view_patient' %}" class="btn btn-cancel btn-block">
+                    <i class="fas fa-arrow-left"></i> Cancel
+                  </a>
+                </div>
+                <div class="col-md-6">
+                  <button type="submit" class="btn btn-submit btn-block">
+                    <i class="fas fa-plus"></i> Add Patient
+                  </button>
+                </div>
+              </div>
+            </form>
           </div>
-          <div class="form-group">
-            <label for="age">Age</label>
-            <input type="number" class="form-control" id="age" name="age" placeholder="Enter age" required>
-          </div>
-
-          <div class="form-group">
-            <label for="address">Address</label>
-            <input type="text" class="form-control" id="address" name="address" placeholder="Enter Address" required>
-          </div>
-
-          <button type="submit" class="btn btn-success btn-block">Add Patient</button>
-        </form>
-
-        <!-- Feedback Messages -->
-        {% if error == "no" %}
-        <div class="alert alert-success alert-dismissible fade show mt-4" role="alert">
-          <strong>Success!</strong> Patient added successfully.
-          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
         </div>
-        <script>
-          setTimeout(() => window.location.href = "{% url 'clinic:view_patient' %}", 1500);
-        </script>
-        {% elif error == "yes" %}
-        <div class="alert alert-danger alert-dismissible fade show mt-4" role="alert">
-          <strong>Error!</strong> Something went wrong. Please try again.
-          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        {% endif %}
       </div>
     </div>
   </div>
 
-  <!-- Bootstrap JS + Popper -->
-  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"
-    integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
-    integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    function selectGender(gender) {
+      // Remove active class from all options
+      document.querySelectorAll('.gender-option').forEach(option => {
+        option.classList.remove('active');
+      });
+      
+      // Add active class to selected option
+      event.target.closest('.gender-option').classList.add('active');
+      
+      // Set the radio button value
+      document.querySelector(`input[name="gender"][value="${gender}"]`).checked = true;
+    }
+
+    function selectBloodGroup(bloodGroup) {
+      // Remove active class from all options
+      document.querySelectorAll('.blood-group-option').forEach(option => {
+        option.classList.remove('active');
+      });
+      
+      // Add active class to selected option
+      event.target.closest('.blood-group-option').classList.add('active');
+      
+      // Set the radio button value
+      document.querySelector(`input[name="blood_group"][value="${bloodGroup}"]`).checked = true;
+    }
+
+    // Form validation
+    document.getElementById('addPatientForm').addEventListener('submit', function(e) {
+      const name = document.getElementById('name').value.trim();
+      const mobile = document.getElementById('mobile').value.trim();
+      const age = document.getElementById('age').value;
+      const address = document.getElementById('address').value.trim();
+      const gender = document.querySelector('input[name="gender"]:checked');
+      
+      if (name.length < 2) {
+        alert('Please enter a valid name (at least 2 characters)');
+        e.preventDefault();
+        return;
+      }
+      
+      if (!gender) {
+        alert('Please select a gender');
+        e.preventDefault();
+        return;
+      }
+      
+      if (!age || age < 0 || age > 150) {
+        alert('Please enter a valid age (0-150)');
+        e.preventDefault();
+        return;
+      }
+      
+      if (!/^[0-9]{10}$/.test(mobile)) {
+        alert('Please enter a valid 10-digit mobile number');
+        e.preventDefault();
+        return;
+      }
+      
+      if (address.length < 5) {
+        alert('Please enter a complete address (at least 5 characters)');
+        e.preventDefault();
+        return;
+      }
+    });
+
+    // Auto-format mobile numbers
+    document.getElementById('mobile').addEventListener('input', function(e) {
+      let value = e.target.value.replace(/\D/g, '');
+      if (value.length > 10) {
+        value = value.substring(0, 10);
+      }
+      e.target.value = value;
+    });
+
+    document.getElementById('emergency_contact').addEventListener('input', function(e) {
+      let value = e.target.value.replace(/\D/g, '');
+      if (value.length > 10) {
+        value = value.substring(0, 10);
+      }
+      e.target.value = value;
+    });
+  </script>
 </body>
 
 </html>

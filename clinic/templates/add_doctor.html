@@ -6,72 +6,321 @@
 
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Add Doctor - ClinicNet</title>
 
   <!-- Custom CSS -->
   <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 
   <!-- Bootstrap CSS -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
-    integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+    body {
+      background-color: #f8f9fa;
+    }
+
+    .form-card {
+      border-radius: 20px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+      border: none;
+      overflow: hidden;
+    }
+
+    .form-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    .form-body {
+      padding: 2rem;
+      background: white;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-control {
+      border-radius: 10px;
+      border: 2px solid #e9ecef;
+      padding: 12px 15px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+
+    .form-label {
+      font-weight: 600;
+      color: #495057;
+      margin-bottom: 0.5rem;
+    }
+
+    .btn-submit {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+      border-radius: 25px;
+      padding: 12px 30px;
+      font-weight: 600;
+      font-size: 1.1rem;
+      transition: all 0.3s ease;
+    }
+
+    .btn-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-cancel {
+      background: #6c757d;
+      border: none;
+      border-radius: 25px;
+      padding: 12px 30px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .btn-cancel:hover {
+      background: #5a6268;
+      transform: translateY(-2px);
+    }
+
+    .alert {
+      border-radius: 15px;
+      border: none;
+      padding: 1rem 1.5rem;
+    }
+
+    .input-group-text {
+      background: #f8f9fa;
+      border: 2px solid #e9ecef;
+      border-right: none;
+      border-radius: 10px 0 0 10px;
+    }
+
+    .input-group .form-control {
+      border-left: none;
+      border-radius: 0 10px 10px 0;
+    }
+
+    .specialization-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .specialization-tag {
+      background: #e9ecef;
+      color: #495057;
+      padding: 0.25rem 0.75rem;
+      border-radius: 15px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .specialization-tag:hover {
+      background: #667eea;
+      color: white;
+    }
+
+    .specialization-tag.active {
+      background: #667eea;
+      color: white;
+    }
+  </style>
 </head>
 
 <body>
-  <div class="container mt-5">
-    <div class="card shadow-sm rounded-lg">
-      <div class="card-header bg-primary text-white text-center">
-        <h4 class="mb-0">Add New Doctor</h4>
-      </div>
-      <div class="card-body">
-        <form method="post" action="{% url 'clinic:add_doctor' %}">
-          {% csrf_token %}
-          <div class="form-group">
-            <label for="name">Doctor Name</label>
-            <input type="text" class="form-control" id="name" name="name" placeholder="Enter doctor's name" required>
+  <div class="container py-5">
+    <div class="row justify-content-center">
+      <div class="col-md-8 col-lg-6">
+        <div class="form-card">
+          <div class="form-header">
+            <h3 class="mb-2"><i class="fas fa-user-md"></i> Add New Doctor</h3>
+            <p class="mb-0">Enter doctor information to add them to the system</p>
           </div>
+          
+          <div class="form-body">
+            <!-- Feedback Messages -->
+            {% if error == "no" %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+              <i class="fas fa-check-circle"></i> <strong>Success!</strong> Doctor added successfully.
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <script>
+              setTimeout(() => window.location.href = "{% url 'clinic:view_doctor' %}", 2000);
+            </script>
+            {% elif error == "yes" %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+              <i class="fas fa-exclamation-triangle"></i> <strong>Error!</strong> Something went wrong. Please try again.
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            {% endif %}
 
-          <div class="form-group">
-            <label for="mobile">Mobile Number</label>
-            <input type="tel" class="form-control" id="mobile" name="mobile" placeholder="Enter mobile number" required>
+            <form method="post" id="addDoctorForm">
+              {% csrf_token %}
+              
+              <div class="form-group">
+                <label for="name" class="form-label">
+                  <i class="fas fa-user"></i> Full Name
+                </label>
+                <input type="text" class="form-control" id="name" name="name" 
+                       placeholder="Enter doctor's full name" required>
+              </div>
+
+              <div class="form-group">
+                <label for="mobile" class="form-label">
+                  <i class="fas fa-phone"></i> Mobile Number
+                </label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text">+977</span>
+                  </div>
+                  <input type="tel" class="form-control" id="mobile" name="mobile" 
+                         placeholder="98XXXXXXXX" pattern="[0-9]{10}" required>
+                </div>
+                <small class="form-text text-muted">Enter 10-digit mobile number without country code</small>
+              </div>
+
+              <div class="form-group">
+                <label for="special" class="form-label">
+                  <i class="fas fa-stethoscope"></i> Specialization
+                </label>
+                <input type="text" class="form-control" id="special" name="special" 
+                       placeholder="Enter specialization" required>
+                
+                <!-- Quick specialization tags -->
+                <div class="specialization-tags">
+                  <span class="specialization-tag" onclick="setSpecialization('Cardiology')">Cardiology</span>
+                  <span class="specialization-tag" onclick="setSpecialization('Dermatology')">Dermatology</span>
+                  <span class="specialization-tag" onclick="setSpecialization('Neurology')">Neurology</span>
+                  <span class="specialization-tag" onclick="setSpecialization('Orthopedics')">Orthopedics</span>
+                  <span class="specialization-tag" onclick="setSpecialization('Pediatrics')">Pediatrics</span>
+                  <span class="specialization-tag" onclick="setSpecialization('Psychiatry')">Psychiatry</span>
+                  <span class="specialization-tag" onclick="setSpecialization('General Medicine')">General Medicine</span>
+                  <span class="specialization-tag" onclick="setSpecialization('Surgery')">Surgery</span>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="email" class="form-label">
+                  <i class="fas fa-envelope"></i> Email (Optional)
+                </label>
+                <input type="email" class="form-control" id="email" name="email" 
+                       placeholder="doctor@example.com">
+              </div>
+
+              <div class="form-group">
+                <label for="qualification" class="form-label">
+                  <i class="fas fa-graduation-cap"></i> Qualification (Optional)
+                </label>
+                <input type="text" class="form-control" id="qualification" name="qualification" 
+                       placeholder="MBBS, MD, etc.">
+              </div>
+
+              <div class="form-group">
+                <label for="experience" class="form-label">
+                  <i class="fas fa-clock"></i> Years of Experience (Optional)
+                </label>
+                <input type="number" class="form-control" id="experience" name="experience" 
+                       placeholder="5" min="0" max="50">
+              </div>
+
+              <div class="form-group">
+                <label for="consultation_fee" class="form-label">
+                  <i class="fas fa-money-bill"></i> Consultation Fee (Optional)
+                </label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text">₹</span>
+                  </div>
+                  <input type="number" class="form-control" id="consultation_fee" name="consultation_fee" 
+                         placeholder="1000" min="0" step="50">
+                </div>
+              </div>
+
+              <div class="row mt-4">
+                <div class="col-md-6">
+                  <a href="{% url 'clinic:view_doctor' %}" class="btn btn-cancel btn-block">
+                    <i class="fas fa-arrow-left"></i> Cancel
+                  </a>
+                </div>
+                <div class="col-md-6">
+                  <button type="submit" class="btn btn-submit btn-block">
+                    <i class="fas fa-plus"></i> Add Doctor
+                  </button>
+                </div>
+              </div>
+            </form>
           </div>
-
-          <div class="form-group">
-            <label for="special">Specialization</label>
-            <input type="text" class="form-control" id="special" name="special" placeholder="Enter specialization" required>
-          </div>
-
-          <button type="submit" class="btn btn-success btn-block">Add Doctor</button>
-        </form>
-
-        <!-- Feedback Messages -->
-        {% if error == "no" %}
-        <div class="alert alert-success alert-dismissible fade show mt-4" role="alert">
-          <strong>Success!</strong> Doctor added successfully.
-          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
         </div>
-        <script>
-          setTimeout(() => window.location.href = "{% url 'clinic:view_doctor' %}", 1500);
-        </script>
-        {% elif error == "yes" %}
-        <div class="alert alert-danger alert-dismissible fade show mt-4" role="alert">
-          <strong>Error!</strong> Something went wrong. Please try again.
-          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        {% endif %}
       </div>
     </div>
   </div>
 
-  <!-- Bootstrap JS + Popper -->
-  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"
-    integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
-    integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    function setSpecialization(specialization) {
+      document.getElementById('special').value = specialization;
+      
+      // Update active tag
+      document.querySelectorAll('.specialization-tag').forEach(tag => {
+        tag.classList.remove('active');
+      });
+      event.target.classList.add('active');
+    }
+
+    // Form validation
+    document.getElementById('addDoctorForm').addEventListener('submit', function(e) {
+      const name = document.getElementById('name').value.trim();
+      const mobile = document.getElementById('mobile').value.trim();
+      const special = document.getElementById('special').value.trim();
+      
+      if (name.length < 2) {
+        alert('Please enter a valid name (at least 2 characters)');
+        e.preventDefault();
+        return;
+      }
+      
+      if (!/^[0-9]{10}$/.test(mobile)) {
+        alert('Please enter a valid 10-digit mobile number');
+        e.preventDefault();
+        return;
+      }
+      
+      if (special.length < 3) {
+        alert('Please enter a valid specialization (at least 3 characters)');
+        e.preventDefault();
+        return;
+      }
+    });
+
+    // Auto-format mobile number
+    document.getElementById('mobile').addEventListener('input', function(e) {
+      let value = e.target.value.replace(/\D/g, '');
+      if (value.length > 10) {
+        value = value.substring(0, 10);
+      }
+      e.target.value = value;
+    });
+  </script>
 </body>
 
 </html>

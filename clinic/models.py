@@ -11,9 +11,13 @@ from datetime import datetime, timedelta
 
 # Create your models here.
 class Doctor(models.Model):
-    name = models.CharField(max_length=50)
-    mobile = models.IntegerField(null=True)
-    special = models.CharField(max_length=50)
+    name = models.CharField(max_length=100)
+    mobile = models.CharField(max_length=15, default='')
+    special = models.CharField(max_length=100)
+    email = models.EmailField(blank=True, null=True)
+    qualification = models.CharField(max_length=100, blank=True, null=True)
+    experience = models.IntegerField(default=0, validators=[MinValueValidator(0), MaxValueValidator(50)])
+    consultation_fee = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
 
     def __str__(self):
         return self.name
@@ -62,11 +66,18 @@ class DoctorSchedule(models.Model):
         return slots
     
 class Patient(models.Model):
-    name = models.CharField(max_length= 50)
-    gender = models.CharField(max_length= 10)
-    mobile = models.IntegerField(null=True)
-    age = models.IntegerField(null=True)
-    address = models.CharField(max_length= 10)
+    name = models.CharField(max_length=100)
+    gender = models.CharField(max_length=10, choices=[('Male', 'Male'), ('Female', 'Female'), ('Other', 'Other')])
+    mobile = models.CharField(max_length=15, default='')
+    age = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(150)])
+    address = models.TextField()
+    email = models.EmailField(blank=True, null=True)
+    blood_group = models.CharField(max_length=5, blank=True, null=True, 
+                                 choices=[('A+', 'A+'), ('A-', 'A-'), ('B+', 'B+'), ('B-', 'B-'), 
+                                         ('AB+', 'AB+'), ('AB-', 'AB-'), ('O+', 'O+'), ('O-', 'O-')])
+    emergency_contact = models.CharField(max_length=15, blank=True, null=True)
+    medical_history = models.TextField(blank=True, null=True)
+    
     def __str__(self):
         return self.name
 
