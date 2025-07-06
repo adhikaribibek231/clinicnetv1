@@ -21,10 +21,11 @@ from .views import unified_login, unified_logout
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', unified_login, name='unified_login'),  # Main login page
+    path('', Home, name='home'),  # Public home page
+    path('login/', unified_login, name='unified_login'),  # Login page
     path('logout/', unified_logout, name='unified_logout'),
-    path('about/', About, name='about'),
-    path('contact/', Contact, name='contact'),
+    path('about/', About_Public, name='about'),  # Public about page
+    path('contact/', Contact_Public, name='contact'),  # Public contact page
     path('clinic/', include('clinic.urls', namespace='clinic')),
     path('pharmacy/', include('pharmacy.urls', namespace='pharmacy')),
 ]

@@ -4,8 +4,23 @@ from .models import *
 from django.contrib.auth import authenticate, logout, login
 from django.contrib.auth.decorators import login_required
 # Create your views here.
+
+def Home(request):
+    """Public home page accessible without login"""
+    return render(request, 'home.html')
+
+def About_Public(request):
+    """Public about page accessible without login"""
+    return render(request, 'about_public.html')
+
+def Contact_Public(request):
+    """Public contact page accessible without login"""
+    return render(request, 'contact_public.html')
+
+@login_required
 def About(request):
     return render(request, 'about.html')
+@login_required
 def Contact(request):
     return render(request, 'contact.html')
 # def Service(request):

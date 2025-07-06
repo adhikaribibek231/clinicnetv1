@@ -5,9 +5,11 @@ from clinic.views import *
 app_name = 'clinic'
 
 urlpatterns = [
-    path('',Index, name='home'),
+    path('dashboard/', Index, name='dashboard'),  # Admin dashboard
     path('admin_login/', Login, name='login'),
     path('logout/', Logout_admin, name='logout'),
+    path('about/', About, name='about_protected'),  # Protected about page
+    path('contact/', Contact, name='contact_protected'),  # Protected contact page
     path('view_doctor/', View_Doctor, name='view_doctor'),
     path('add_doctor/', Add_Doctor, name='add_doctor'),
     path('delete_doctor/<int:pid>/', Delete_Doctor, name='delete_doctor'),
