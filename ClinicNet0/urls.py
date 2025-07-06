@@ -17,12 +17,14 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from clinic.views import *
+from .views import unified_login, unified_logout
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', unified_login, name='unified_login'),  # Main login page
+    path('logout/', unified_logout, name='unified_logout'),
     path('about/', About, name='about'),
     path('contact/', Contact, name='contact'),
-    path('clinic/', include ('clinic.urls')),
-    path('pharmacy/', include ('pharmacy.urls')),
-
+    path('clinic/', include('clinic.urls', namespace='clinic')),
+    path('pharmacy/', include('pharmacy.urls', namespace='pharmacy')),
 ]

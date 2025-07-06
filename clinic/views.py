@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from .models import *
 from django.contrib.auth import authenticate, logout, login
+from django.contrib.auth.decorators import login_required
 # Create your views here.
 def About(request):
     return render(request, 'about.html')
@@ -9,9 +10,8 @@ def Contact(request):
     return render(request, 'contact.html')
 # def Service(request):
 #     return render(request, 'service.html')
+@login_required
 def Index(request):
-    if not request.user.is_staff:
-        return redirect('login')
     doctors = Doctor.objects.all()
     patients = Patient.objects.all()
     appointments = Appointment.objects.all()
@@ -39,28 +39,25 @@ def Login(request):
 
 
 def Logout_admin(request):
-    if not request.user.is_staff:
-        return redirect('login')
     logout(request)
-    return redirect('login')
+    return redirect('unified_login')
 
 
+@login_required
 def View_Doctor(request):
-    if not request.user.is_staff:
-        return redirect('login')
     doctors = Doctor.objects.all()
     context = {'doctors': doctors}
     return render(request, 'view_doctor.html', context)
 
+@login_required
 def View_Patient(request):
-    if not request.user.is_staff:
-        return redirect('login')
     patients = Patient.objects.all()
     context = {
         'patients': patients
     }
     return render(request, 'view_patient.html', context)
 
+@login_required
 def Add_Doctor(request):
     error = ""
     if request.method == 'POST':
@@ -79,13 +76,13 @@ def Add_Doctor(request):
 
     return render(request, 'add_doctor.html', {'error': error})
 
+@login_required
 def Delete_Doctor(request,pid):
-    if not request.user.is_staff:
-        return redirect('login')
     doctor = Doctor.objects.get(id=pid)
     doctor.delete()
     return redirect('view_doctor')
 
+@login_required
 def Add_Patient(request):
     error = ""
     if request.method == 'POST':
@@ -106,13 +103,13 @@ def Add_Patient(request):
 
     return render(request, 'add_patient.html', {'error': error})
 
+@login_required
 def Delete_Patient(request,pid):
-    if not request.user.is_staff:
-        return redirect('login')
     patient = Patient.objects.get(id=pid)
     patient.delete()
     return redirect('view_patient')
 
+@login_required
 def Add_Appointment(request):
     error = ""
     if request.method == 'POST':
@@ -138,13 +135,13 @@ def Add_Appointment(request):
     return render(request, 'add_appointment.html', context)
 
 
+@login_required
 def View_Appointment(request):
     appointments = Appointment.objects.select_related('doctor', 'patient').all()
     return render(request, 'view_appointment.html', {'appointments': appointments})
 
+@login_required
 def Delete_Appointment(request, aid):
-    if not request.user.is_staff:
-        return redirect('login')
     appointment = Appointment.objects.get(id=aid)
     appointment.delete()
     return redirect('view_appointment')

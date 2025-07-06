@@ -14,6 +14,10 @@
             <h3>Total Sales</h3>
             <p>{{ total_sales }} transactions completed</p>
         </div>
+        <div class="card">
+            <h3>Inventory Value</h3>
+            <p>₦{{ total_value|floatformat:2 }}</p>
+        </div>
     </div>
 </section>
 
@@ -23,17 +27,17 @@
         <div class="card">
             <h3>View Inventory</h3>
             <p>Check all items currently in stock</p>
-            <a href="{% url 'index' %}" class="btn-placeholder">View Stock</a>
+            <a href="{% url 'pharmacy:index' %}" class="btn-placeholder">View Stock</a>
         </div>
         <div class="card">
             <h3>View Receipts</h3>
             <p>Check all transaction receipts</p>
-            <a href="{% url 'receipt' %}" class="btn-placeholder">View Receipts</a>
+            <a href="{% url 'pharmacy:receipt' %}" class="btn-placeholder">View Receipts</a>
         </div>
         <div class="card">
             <h3>Sales Report</h3>
             <p>View detailed sales information</p>
-            <a href="{% url 'all_sales' %}" class="btn-placeholder">View Sales</a>
+            <a href="{% url 'pharmacy:all_sales' %}" class="btn-placeholder">View Sales</a>
         </div>
     </div>
 </section>
@@ -60,7 +64,7 @@
                     <td>{{ product.total_quantity }}</td>
                     <td>₦{{ product.unit_price }}</td>
                     <td>
-                        <a href="{% url 'product_detail' product.id %}" class="btn-placeholder">View Details</a>
+                        <a href="{% url 'pharmacy:product_detail' product.id %}" class="btn-placeholder">View Details</a>
                     </td>
                 </tr>
                 {% endfor %}

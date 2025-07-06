@@ -1,0 +1,269 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClinicNet - Unified Login</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <!-- Poppins font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .login-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+        }
+        
+        .login-header {
+            margin-bottom: 30px;
+        }
+        
+        .login-header h1 {
+            color: #6a11cb;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .login-header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+        
+        .user-type-selector {
+            margin-bottom: 25px;
+        }
+        
+        .user-type-selector label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .user-type-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        .user-type-btn {
+            padding: 12px 24px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            color: #666;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .user-type-btn.active {
+            border-color: #6a11cb;
+            background: #6a11cb;
+            color: white;
+        }
+        
+        .user-type-btn:hover {
+            border-color: #6a11cb;
+            color: #6a11cb;
+        }
+        
+        .user-type-btn.active:hover {
+            color: white;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+            box-sizing: border-box;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #6a11cb;
+            box-shadow: 0 0 0 3px rgba(106, 17, 203, 0.1);
+        }
+        
+        .login-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(90deg, #6a11cb, #2575fc);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+        
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(106, 17, 203, 0.3);
+        }
+        
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .app-info {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .app-info h3 {
+            color: #6a11cb;
+            margin-bottom: 15px;
+        }
+        
+        .app-features {
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+        }
+        
+        .feature {
+            flex: 1;
+            padding: 0 10px;
+        }
+        
+        .feature h4 {
+            color: #333;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        
+        .feature p {
+            color: #666;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <h1>ClinicNet</h1>
+                <p>Unified Healthcare Management System</p>
+            </div>
+            
+            {% if error %}
+            <div class="error-message">
+                {{ error }}
+            </div>
+            {% endif %}
+            
+            {% if messages %}
+            {% for message in messages %}
+            <div class="{% if message.tags %}{{ message.tags }}{% endif %}-message">
+                {{ message }}
+            </div>
+            {% endfor %}
+            {% endif %}
+            
+            <form method="POST">
+                {% csrf_token %}
+                
+                <div class="user-type-selector">
+                    <label>Select Your Department:</label>
+                    <div class="user-type-buttons">
+                        <button type="button" class="user-type-btn active" data-type="clinic" onclick="selectUserType('clinic')">
+                            🏥 Clinic
+                        </button>
+                        <button type="button" class="user-type-btn" data-type="pharmacy" onclick="selectUserType('pharmacy')">
+                            💊 Pharmacy
+                        </button>
+                    </div>
+                    <input type="hidden" name="user_type" id="user_type" value="clinic">
+                </div>
+                
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" placeholder="Enter your username" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                </div>
+                
+                <button type="submit" class="login-btn">Login</button>
+            </form>
+            
+            <div class="app-info">
+                <h3>System Features</h3>
+                <div class="app-features">
+                    <div class="feature">
+                        <h4>🏥 Clinic</h4>
+                        <p>Patient Management<br>Doctor Scheduling<br>Appointments</p>
+                    </div>
+                    <div class="feature">
+                        <h4>💊 Pharmacy</h4>
+                        <p>Inventory Management<br>Sales Tracking<br>Stock Control</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function selectUserType(type) {
+            // Update hidden input
+            document.getElementById('user_type').value = type;
+            
+            // Update button styles
+            document.querySelectorAll('.user-type-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[data-type="${type}"]`).classList.add('active');
+        }
+    </script>
+</body>
+</html> 

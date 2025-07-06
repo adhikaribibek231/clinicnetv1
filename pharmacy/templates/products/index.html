@@ -22,7 +22,7 @@
                     <td>{{ product.total_quantity }}</td>
                     <td>₦{{ product.unit_price }}</td>
                     <td>
-                        <a href="{% url 'product_detail' product.id %}" class="btn-placeholder">BUY ITEM</a>
+                        <a href="{% url 'pharmacy:product_detail' product.id %}" class="btn-placeholder">BUY ITEM</a>
                     </td>
                 </tr>
                 {% endfor %}

@@ -7,11 +7,13 @@ from .models import Product, Sale, Category
 from .forms import AddForm, SaleForm
 # Create your views here.
 
+@login_required
 def Pharmacy(request):
     """Main inventory view"""
     products = Product.objects.all().order_by('-id')
     return render(request, 'products/index.html', {'products': products})
 
+@login_required
 def home(request):
     """Home dashboard view"""
     products = Product.objects.all().order_by('-id')[:5]  # Show latest 5 products
@@ -29,16 +31,19 @@ def home(request):
     }
     return render(request, 'products/home.html', context)
 
+@login_required
 def receipt(request): 
     """View all sales receipts"""
     sales = Sale.objects.all().order_by('-date_created')
     return render(request, 'products/receipt.html', {'sales': sales})
 
+@login_required
 def product_detail(request, product_id):
     """View individual product details"""
     product = get_object_or_404(Product, id=product_id)
     return render(request, 'products/product_detail.html', {'product': product})
 
+@login_required
 def all_sales(request):
     """View comprehensive sales report"""
     sales = Sale.objects.all().order_by('-date_created')
@@ -52,6 +57,7 @@ def all_sales(request):
         'net': net,
     })
 
+@login_required
 def issue_item(request, pk):
     """Process item sale"""
     issued_item = get_object_or_404(Product, id=pk)
@@ -80,7 +86,7 @@ def issue_item(request, pk):
                     issued_item.save()
                     
                     messages.success(request, f'Successfully sold {requested_quantity} {issued_item.item_name} to {new_sale.issued_to}')
-                    return redirect('receipt')
+                    return redirect('pharmacy:receipt')
                     
             except Exception as e:
                 messages.error(request, f'Error processing sale: {str(e)}')
@@ -94,6 +100,7 @@ def issue_item(request, pk):
         'product': issued_item,
     })
 
+@login_required
 def add_to_stock(request, pk):
     """Add items to stock"""
     issued_item = get_object_or_404(Product, id=pk)
@@ -111,7 +118,7 @@ def add_to_stock(request, pk):
                     issued_item.save()
                     
                     messages.success(request, f'Successfully added {added_quantity} items to {issued_item.item_name} stock.')
-                    return redirect('index')
+                    return redirect('pharmacy:index')
                     
             except Exception as e:
                 messages.error(request, f'Error updating stock: {str(e)}')
@@ -129,4 +136,4 @@ def logout_view(request):
     """Logout view"""
     logout(request)
     messages.success(request, 'You have been successfully logged out.')
-    return render(request, 'products/logout.html')
+    return redirect('unified_login')

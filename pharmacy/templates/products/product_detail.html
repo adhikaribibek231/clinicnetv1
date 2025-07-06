@@ -9,8 +9,8 @@
     <p>Quantity in stock: {{ product.total_quantity }}</p>
 
     <div class="grid">
-      <a href="{% url 'issue_item' product.id %}" class="btn-placeholder">Order Item</a>
-      <a href="{% url 'add_to_stock' product.id %}" class="btn-placeholder">Add Item</a>
+      <a href="{% url 'pharmacy:issue_item' product.id %}" class="btn-placeholder">Order Item</a>
+      <a href="{% url 'pharmacy:add_to_stock' product.id %}" class="btn-placeholder">Add Item</a>
     </div>
   </section>
 

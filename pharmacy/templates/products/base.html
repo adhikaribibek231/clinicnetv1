@@ -11,13 +11,13 @@
 </head>
 <body>
     <nav>
-        <a href="{% url 'home' %}" class="logo">PHARM PLUS</a>
+        <a href="{% url 'pharmacy:home' %}" class="logo">PHARM PLUS</a>
         <div class="nav-links">
-            <a href="{% url 'home' %}">HOME</a>
-            <a href="{% url 'index' %}">INVENTORY</a>
-            <a href="{% url 'receipt' %}">RECEIPTS</a>
-            <a href="{% url 'all_sales' %}">ALL SALES</a>
-            <a href="{% url 'logout' %}">LOGOUT</a>
+            <a href="{% url 'pharmacy:home' %}">HOME</a>
+            <a href="{% url 'pharmacy:index' %}">INVENTORY</a>
+            <a href="{% url 'pharmacy:receipt' %}">RECEIPTS</a>
+            <a href="{% url 'pharmacy:all_sales' %}">ALL SALES</a>
+            <a href="{% url 'unified_logout' %}">LOGOUT</a>
         </div>
     </nav>
     

@@ -2,6 +2,8 @@ from django.contrib import admin
 from django.urls import path, include
 from clinic.views import *
 
+app_name = 'clinic'
+
 urlpatterns = [
     path('',Index, name='home'),
     path('admin_login/', Login, name='login'),

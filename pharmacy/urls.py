@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.urls import path, include
 from pharmacy.views import *
 
+app_name = 'pharmacy'
 
 urlpatterns = [
     path('', Pharmacy, name='index'),  # Main inventory page
