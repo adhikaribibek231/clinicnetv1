@@ -6,10 +6,10 @@
   <div class="card">
     <h3>Customer: {{sale.issued_to | title}}</h3>
     <p>Item: {{sale.item}}</p>
-    <p>Amount Paid: ₦{{ sale.amount_received }}</p>
+    <p>Amount Paid: Rs. {{ sale.amount_received }}</p>
     <p>Quantity: {{sale.quantity }}</p>
-    <h4>Total Price: ₦{{ sale.get_total }}</h4>
-    <p>Change Collected: ₦{{ sale.get_change }}</p>
+    <h4>Total Price: Rs. {{ sale.get_total }}</h4>
+    <p>Change Collected: Rs. {{ sale.get_change }}</p>
     <p><strong>Date:</strong> {{ sale.date_created|date:"F j, Y, g:i a" }}</p>
   </div>
   {% empty %}

@@ -13,9 +13,9 @@
       </thead>  
       <tbody>
         <tr>    
-          <td>₦{{total}}</td>
-          <td>₦{{change}}</td>
-          <td>₦{{net}}</td>
+          <td>Rs. {{total}}</td>
+          <td>Rs. {{change}}</td>
+          <td>Rs. {{net}}</td>
         </tr>
       </tbody>
     </table>
@@ -32,7 +32,7 @@
           <th>Customer name</th>
           <th>Item Bought</th>
           <th>Quantity</th>
-          <th>Unit Price(₦)</th>
+          <th>Unit Price(NPR)</th>
           <th>Total Cost</th>
           <th>Amount Paid</th>
           <th>Change Collected</th>
@@ -45,10 +45,10 @@
           <td>{{sale.issued_to | title}}</td>
           <td>{{sale.item | title}}</td>
           <td>{{sale.quantity}}</td>
-          <td>₦{{sale.unit_price}}</td>
-          <td>₦{{sale.get_total}}</td>
-          <td>₦{{sale.amount_received}}</td>
-          <td>₦{{sale.get_change}}</td>
+          <td>Rs. {{sale.unit_price}}</td>
+          <td>Rs. {{sale.get_total}}</td>
+          <td>Rs. {{sale.amount_received}}</td>
+          <td>Rs. {{sale.get_change}}</td>
         </tr>
         {% endfor %}
       </tbody>

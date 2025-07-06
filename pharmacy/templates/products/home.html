@@ -16,7 +16,7 @@
         </div>
         <div class="card">
             <h3>Inventory Value</h3>
-            <p>₦{{ total_value|floatformat:2 }}</p>
+            <p>Rs. {{ total_value|floatformat:2 }}</p>
         </div>
     </div>
 </section>
@@ -52,7 +52,7 @@
                     <th>Item Name</th>
                     <th>Category</th>
                     <th>Quantity</th>
-                    <th>Unit Price(₦)</th>
+                    <th>Unit Price(NPR)</th>
                     <th>Action</th>
                 </tr>
             </thead>
@@ -62,7 +62,7 @@
                     <td>{{ product.item_name }}</td>
                     <td>{{ product.category_name }}</td>
                     <td>{{ product.total_quantity }}</td>
-                    <td>₦{{ product.unit_price }}</td>
+                    <td>Rs. {{ product.unit_price }}</td>
                     <td>
                         <a href="{% url 'pharmacy:product_detail' product.id %}" class="btn-placeholder">View Details</a>
                     </td>

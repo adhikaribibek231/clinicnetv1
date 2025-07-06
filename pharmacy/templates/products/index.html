@@ -10,7 +10,7 @@
                     <th>Category</th>
                     <th>Item Name</th>
                     <th>Quantity</th>
-                    <th>Unit Price(₦)</th>
+                    <th>Unit Price(NPR)</th>
                     <th>Action</th>
                 </tr>
             </thead>
@@ -20,7 +20,7 @@
                     <td>{{ product.category_name }}</td>
                     <td>{{ product.item_name }}</td>
                     <td>{{ product.total_quantity }}</td>
-                    <td>₦{{ product.unit_price }}</td>
+                    <td>Rs. {{ product.unit_price }}</td>
                     <td>
                         <a href="{% url 'pharmacy:product_detail' product.id %}" class="btn-placeholder">BUY ITEM</a>
                     </td>

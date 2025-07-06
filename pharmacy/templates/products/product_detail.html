@@ -5,7 +5,7 @@
   <section>
     <h2>{{ product.item_name }}</h2>
     <p>Category: {{ product.category_name }}</p>
-    <p>Price: ₦{{ product.unit_price }}</p>
+    <p>Price: Rs. {{ product.unit_price }}</p>
     <p>Quantity in stock: {{ product.total_quantity }}</p>
 
     <div class="grid">
@@ -23,7 +23,7 @@
             <th>Category</th>
             <th>Item Name</th>
             <th>Quantity</th>
-            <th>Unit Price(₦)</th>
+            <th>Unit Price(NPR)</th>
           </tr>
         </thead>
         <tbody>
@@ -31,7 +31,7 @@
             <td>{{ product.category_name }}</td>
             <td>{{ product.item_name }}</td>
             <td>{{ product.total_quantity }}</td>
-            <td>₦{{ product.unit_price }}</td>
+            <td>Rs. {{ product.unit_price }}</td>
           </tr>
         </tbody>
       </table>
