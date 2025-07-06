@@ -26,6 +26,7 @@ urlpatterns = [
     path('logout/', unified_logout, name='unified_logout'),
     path('about/', About_Public, name='about'),  # Public about page
     path('contact/', Contact_Public, name='contact'),  # Public contact page
+    path('book-appointment/', BookAppointment, name='book_appointment_public'),  # Public booking page
     path('clinic/', include('clinic.urls', namespace='clinic')),
     path('pharmacy/', include('pharmacy.urls', namespace='pharmacy')),
 ]

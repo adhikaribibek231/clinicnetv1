@@ -22,4 +22,13 @@ urlpatterns = [
     path('add_appointment/', Add_Appointment, name='add_appointment'),
     path('delete-appointment/<int:aid>/', Delete_Appointment, name='delete_appointment'),
 
+    # Public appointment booking URLs
+    path('book/', BookAppointment, name='book_appointment'),
+    path('api/doctors/', get_available_doctors, name='get_available_doctors'),
+    path('api/dates/', get_available_dates, name='get_available_dates'),
+    path('api/times/', get_available_times, name='get_available_times'),
+    path('api/confirm/', confirm_appointment, name='confirm_appointment'),
+    path('api/admin-confirm/', confirm_admin_appointment, name='confirm_admin_appointment'),
+    path('confirmation/<str:token>/', appointment_confirmation, name='appointment_confirmation'),
+    path('download/<str:token>/', download_token, name='download_token'),
 ]
