@@ -11,10 +11,10 @@ def unified_login(request):
             if request.user.userprofile.user_type == 'pharmacy':
                 return redirect('pharmacy:home')
             else:
-                return redirect('clinic:home')
+                return redirect('clinic:dashboard')
         else:
             # Default to clinic for existing users without profile
-            return redirect('clinic:home')
+            return redirect('clinic:dashboard')
     
     error = ""
     if request.method == 'POST':
@@ -44,7 +44,7 @@ def unified_login(request):
                 if user_type == 'pharmacy':
                     return redirect('pharmacy:home')
                 else:
-                    return redirect('clinic:home')
+                    return redirect('clinic:dashboard')
             else:
                 error = "Access denied. Staff privileges required."
         else:

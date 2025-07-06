@@ -87,7 +87,7 @@ def Add_Doctor(request):
             error = "yes"
 
         if error == "no":
-            return redirect('view_doctor') 
+            return redirect('clinic:view_doctor') 
 
     return render(request, 'add_doctor.html', {'error': error})
 
@@ -95,7 +95,7 @@ def Add_Doctor(request):
 def Delete_Doctor(request,pid):
     doctor = Doctor.objects.get(id=pid)
     doctor.delete()
-    return redirect('view_doctor')
+    return redirect('clinic:view_doctor')
 
 @login_required
 def Add_Patient(request):
@@ -114,7 +114,7 @@ def Add_Patient(request):
             error = "yes"
 
         if error == "no":
-            return redirect('view_patient')
+            return redirect('clinic:view_patient')
 
     return render(request, 'add_patient.html', {'error': error})
 
@@ -122,7 +122,7 @@ def Add_Patient(request):
 def Delete_Patient(request,pid):
     patient = Patient.objects.get(id=pid)
     patient.delete()
-    return redirect('view_patient')
+    return redirect('clinic:view_patient')
 
 @login_required
 def Add_Appointment(request):
@@ -138,7 +138,7 @@ def Add_Appointment(request):
             patient = Patient.objects.get(id=patient_id)
             Appointment.objects.create(doctor=doctor, patient=patient, date1=date1, time1=time1)
             error = "no"
-            return redirect('view_appointment')
+            return redirect('clinic:view_appointment')
         except:
             error = "yes"
 
@@ -159,5 +159,5 @@ def View_Appointment(request):
 def Delete_Appointment(request, aid):
     appointment = Appointment.objects.get(id=aid)
     appointment.delete()
-    return redirect('view_appointment')
+    return redirect('clinic:view_appointment')
 
