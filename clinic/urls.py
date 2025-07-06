@@ -12,14 +12,17 @@ urlpatterns = [
     path('contact/', Contact, name='contact_protected'),  # Protected contact page
     path('view_doctor/', View_Doctor, name='view_doctor'),
     path('add_doctor/', Add_Doctor, name='add_doctor'),
+    path('edit_doctor/<int:doctor_id>/', Edit_Doctor, name='edit_doctor'),
     path('delete_doctor/<int:pid>/', Delete_Doctor, name='delete_doctor'),
     path('delete_patient/<int:pid>/', Delete_Patient, name='delete_patient'),
 
     path('view_patient/', View_Patient, name='view_patient'),
     path('add_patient/', Add_Patient, name='add_patient'),
+    path('edit_patient/<int:patient_id>/', Edit_Patient, name='edit_patient'),
 
     path('view_appointment/', View_Appointment, name='view_appointment'),
     path('add_appointment/', Add_Appointment, name='add_appointment'),
+    path('edit_appointment/<int:appointment_id>/', Edit_Appointment, name='edit_appointment'),
     path('delete-appointment/<int:aid>/', Delete_Appointment, name='delete_appointment'),
 
     # Public appointment booking URLs

@@ -636,3 +636,86 @@ def Manage_Services(request):
     }
     return render(request, 'manage_services.html', context)
 
+@login_required
+def Edit_Doctor(request, doctor_id):
+    """Edit doctor information"""
+    try:
+        doctor = Doctor.objects.get(id=doctor_id)
+        if request.method == 'POST':
+            doctor.name = request.POST.get('name')
+            doctor.mobile = request.POST.get('mobile')
+            doctor.special = request.POST.get('special')
+            doctor.email = request.POST.get('email', '')
+            doctor.qualification = request.POST.get('qualification', '')
+            doctor.experience = request.POST.get('experience', 0)
+            doctor.consultation_fee = request.POST.get('consultation_fee', 0.00)
+            doctor.save()
+            messages.success(request, 'Doctor updated successfully!')
+            return redirect('clinic:view_doctor')
+        
+        context = {'doctor': doctor}
+        return render(request, 'edit_doctor.html', context)
+    except Doctor.DoesNotExist:
+        messages.error(request, 'Doctor not found!')
+        return redirect('clinic:view_doctor')
+
+@login_required
+def Edit_Patient(request, patient_id):
+    """Edit patient information"""
+    try:
+        patient = Patient.objects.get(id=patient_id)
+        if request.method == 'POST':
+            patient.name = request.POST.get('name')
+            patient.gender = request.POST.get('gender')
+            patient.mobile = request.POST.get('mobile')
+            patient.age = request.POST.get('age')
+            patient.address = request.POST.get('address')
+            patient.email = request.POST.get('email', '')
+            patient.blood_group = request.POST.get('blood_group', '')
+            patient.emergency_contact = request.POST.get('emergency_contact', '')
+            patient.medical_history = request.POST.get('medical_history', '')
+            patient.save()
+            messages.success(request, 'Patient updated successfully!')
+            return redirect('clinic:view_patient')
+        
+        context = {'patient': patient}
+        return render(request, 'edit_patient.html', context)
+    except Patient.DoesNotExist:
+        messages.error(request, 'Patient not found!')
+        return redirect('clinic:view_patient')
+
+@login_required
+def Edit_Appointment(request, appointment_id):
+    """Edit appointment information"""
+    try:
+        appointment = PublicAppointment.objects.get(id=appointment_id)
+        if request.method == 'POST':
+            appointment.patient_name = request.POST.get('patient_name')
+            appointment.patient_age = request.POST.get('patient_age')
+            appointment.patient_gender = request.POST.get('patient_gender')
+            appointment.patient_mobile = request.POST.get('patient_mobile')
+            appointment.patient_address = request.POST.get('patient_address')
+            appointment.emergency_contact = request.POST.get('emergency_contact', '')
+            appointment.doctor_id = request.POST.get('doctor')
+            appointment.service_id = request.POST.get('service')
+            appointment.date = request.POST.get('date')
+            appointment.time = request.POST.get('time')
+            appointment.status = request.POST.get('status')
+            appointment.payment_status = request.POST.get('payment_status')
+            appointment.notes = request.POST.get('notes', '')
+            appointment.save()
+            messages.success(request, 'Appointment updated successfully!')
+            return redirect('clinic:view_appointment')
+        
+        doctors = Doctor.objects.all()
+        services = Service.objects.all()
+        context = {
+            'appointment': appointment,
+            'doctors': doctors,
+            'services': services,
+        }
+        return render(request, 'edit_appointment.html', context)
+    except PublicAppointment.DoesNotExist:
+        messages.error(request, 'Appointment not found!')
+        return redirect('clinic:view_appointment')
+

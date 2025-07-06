@@ -1,4 +1,5 @@
 {% include 'admin_navigation.html' %}
+{% include 'back_button.html' %}
 {% load static %}
 
 <!doctype html>
@@ -24,58 +25,254 @@
 
     <style>
         body {
-            background-color: #f8f9fa;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+            padding: 2rem;
         }
 
         h2 {
             font-weight: 700;
+            color: #333;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .table {
+            width: 100%;
+            margin-bottom: 1rem;
+            background-color: transparent;
         }
 
         .table thead th {
-            background: linear-gradient(to right, #6a11cb, #2575fc);
+            background: linear-gradient(to right, #667eea, #764ba2);
             color: white;
             font-weight: 600;
             text-align: center;
             vertical-align: middle;
+            border: none;
+            padding: 20px 15px;
+            font-size: 14px;
+            white-space: nowrap;
         }
 
         .table tbody td {
             vertical-align: middle;
             text-align: center;
             color: #333;
+            padding: 20px 15px;
+            border-bottom: 1px solid #e9ecef;
+            font-size: 14px;
         }
 
-        .btn-placeholder {
-            background-color: #6c757d;
+        .table tbody tr:hover {
+            background-color: rgba(102, 126, 234, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .btn-edit {
+            background: linear-gradient(135deg, #28a745, #20c997);
             color: white;
             border: none;
-            padding: 6px 12px;
-            font-size: 14px;
-            border-radius: 4px;
+            padding: 10px 20px;
+            font-size: 13px;
+            border-radius: 8px;
             cursor: pointer;
+            margin: 2px;
+            transition: all 0.3s ease;
+            display: inline-block;
+            text-decoration: none;
+            min-width: 80px;
         }
 
-        .btn-placeholder:hover {
-            background-color: #5a6268;
+        .btn-edit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+            color: white;
+            text-decoration: none;
+        }
+
+        .btn-delete {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 13px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 2px;
+            transition: all 0.3s ease;
+            display: inline-block;
+            text-decoration: none;
+            min-width: 80px;
+        }
+
+        .btn-delete:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
+            color: white;
+            text-decoration: none;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            align-items: center;
+        }
+
+        .doctor-info {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-left: 5px solid #667eea;
+        }
+
+        .stats-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .stats-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stats-label {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .specialization-badge {
+            background: linear-gradient(135deg, #17a2b8, #138496);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            max-width: 150px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: inline-block;
+        }
+
+        .fee-badge {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .experience-badge {
+            background: linear-gradient(135deg, #ffc107, #e0a800);
+            color: #212529;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .table-responsive {
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .dataTables_wrapper {
+            margin-top: 20px;
+        }
+
+        .dataTables_length, .dataTables_filter {
+            margin-bottom: 15px;
+        }
+
+        .dataTables_info, .dataTables_paginate {
+            margin-top: 15px;
+        }
+
+        .email-cell {
+            max-width: 200px;
+            word-wrap: break-word;
+            text-align: left;
+        }
+
+        .qualification-cell {
+            max-width: 150px;
+            word-wrap: break-word;
+            text-align: left;
+        }
+
+        .name-cell {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .mobile-cell {
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
         }
     </style>
 </head>
 
 <body>
-    <div class="container py-5">
-        <h2 class="mb-4 text-center">Our Doctors</h2>
+    <div class="container">
+        <h2><i class="fas fa-user-md me-2"></i>Our Medical Team</h2>
 
         {% if doctors %}
+        <!-- Statistics Cards -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="stats-card">
+                    <div class="stats-number">{{ doctors.count }}</div>
+                    <div class="stats-label">Total Doctors</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stats-card">
+                    <div class="stats-number">{{ doctors|length }}</div>
+                    <div class="stats-label">Active Doctors</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stats-card">
+                    <div class="stats-number">{{ doctors|length }}</div>
+                    <div class="stats-label">Specializations</div>
+                </div>
+            </div>
+        </div>
+
         <div class="table-responsive">
             <table class="table table-bordered table-striped" id="example">
                 <thead>
                     <tr>
-                        <th>#</th>
-                        <th>Name</th>
-                        <th>Mobile</th>
-                        <th>Specialization</th>
+                        <th style="width: 5%;"><i class="fas fa-hashtag"></i></th>
+                        <th style="width: 15%;"><i class="fas fa-user me-1"></i>Name</th>
+                        <th style="width: 12%;"><i class="fas fa-phone me-1"></i>Mobile</th>
+                        <th style="width: 15%;"><i class="fas fa-stethoscope me-1"></i>Specialization</th>
+                        <th style="width: 15%;"><i class="fas fa-envelope me-1"></i>Email</th>
+                        <th style="width: 12%;"><i class="fas fa-graduation-cap me-1"></i>Qualification</th>
+                        <th style="width: 10%;"><i class="fas fa-clock me-1"></i>Experience</th>
+                        <th style="width: 10%;"><i class="fas fa-money-bill me-1"></i>Fee (NPR)</th>
                         {% if request.user.is_staff %}
-                        <th>Actions</th>
+                        <th style="width: 6%;"><i class="fas fa-cogs me-1"></i>Actions</th>
                         {% endif %}
                     </tr>
                 </thead>
@@ -83,16 +280,28 @@
                     {% for doctor in doctors %}
                     <tr>
                         <td>{{ forloop.counter }}</td>
-                        <td>{{ doctor.name }}</td>
-                        <td>{{ doctor.mobile }}</td>
-                        <td>{{ doctor.special }}</td>
+                        <td class="name-cell">{{ doctor.name }}</td>
+                        <td class="mobile-cell">{{ doctor.mobile }}</td>
+                        <td>
+                            <span class="specialization-badge" title="{{ doctor.special }}">
+                                {{ doctor.special|truncatechars:20 }}
+                            </span>
+                        </td>
+                        <td class="email-cell">{{ doctor.email|default:"-" }}</td>
+                        <td class="qualification-cell">{{ doctor.qualification|default:"-"|truncatechars:25 }}</td>
+                        <td><span class="experience-badge">{{ doctor.experience }} years</span></td>
+                        <td><span class="fee-badge">NPR {{ doctor.consultation_fee }}</span></td>
                         {% if request.user.is_staff %}
                         <td>
-                            <button class="btn btn-placeholder" onclick=""><i class="fas fa-edit"></i> Edit</button>
-                            <a href="{% url 'clinic:delete_doctor' doctor.id %}" class="btn btn-placeholder"
-                                onclick="return confirm('Are you sure you want to delete this doctor?');">
-                                <i class="fas fa-trash-alt"></i> Delete
-                            </a>
+                            <div class="action-buttons">
+                                <a href="{% url 'clinic:edit_doctor' doctor.id %}" class="btn-edit">
+                                    <i class="fas fa-edit"></i> Edit
+                                </a>
+                                <a href="{% url 'clinic:delete_doctor' doctor.id %}" class="btn-delete"
+                                    onclick="return confirm('Are you sure you want to delete Dr. {{ doctor.name }}?');">
+                                    <i class="fas fa-trash-alt"></i> Delete
+                                </a>
+                            </div>
                         </td>
                         {% endif %}
                     </tr>
@@ -101,7 +310,10 @@
             </table>
         </div>
         {% else %}
-        <div class="alert alert-info text-center">No doctors found.</div>
+        <div class="alert alert-info text-center">
+            <i class="fas fa-info-circle me-2"></i>
+            No doctors found. Please add some doctors to get started.
+        </div>
         {% endif %}
     </div>
 
@@ -126,7 +338,12 @@
                     topStart: {
                         buttons: ['copyHtml5', 'excelHtml5', 'csvHtml5', 'pdfHtml5']
                     }
-                }
+                },
+                pageLength: 10,
+                order: [[1, 'asc']],
+                columnDefs: [
+                    { orderable: false, targets: -1 }
+                ]
             });
         });
     </script>
