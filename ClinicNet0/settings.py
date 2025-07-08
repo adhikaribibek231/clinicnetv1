@@ -81,8 +81,29 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
+        'OPTIONS': {
+            'timeout': 20,  # Connection timeout in seconds
+            'check_same_thread': False,  # Allow multiple threads
+        },
+        'ATOMIC_REQUESTS': True,  # Wrap each request in a transaction
+        'CONN_MAX_AGE': 60,  # Keep connections alive for 60 seconds
     }
 }
+
+# SQLite-specific optimizations
+if 'sqlite' in DATABASES['default']['ENGINE']:
+    import sqlite3
+    
+    # Enable WAL mode for better concurrency
+    def enable_wal_mode():
+        with sqlite3.connect(DATABASES['default']['NAME']) as conn:
+            conn.execute('PRAGMA journal_mode=WAL;')
+            conn.execute('PRAGMA synchronous=NORMAL;')
+            conn.execute('PRAGMA cache_size=10000;')
+            conn.execute('PRAGMA temp_store=MEMORY;')
+    
+    # Uncomment the line below to enable WAL mode (run once)
+    # enable_wal_mode()
 
 
 # Password validation

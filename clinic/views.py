@@ -7,10 +7,44 @@ from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from datetime import datetime, timedelta, date
 import json
-from PIL import Image, ImageDraw, ImageFont
 import io
 import base64
 from django.contrib import messages
+import time
+import sqlite3
+from django.db import connection
+from PIL import Image, ImageDraw, ImageFont
+
+# Database performance monitoring
+def get_db_stats():
+    """Get SQLite database statistics for monitoring"""
+    try:
+        with sqlite3.connect('db.sqlite3') as conn:
+            cursor = conn.cursor()
+            
+            # Get database size
+            cursor.execute("SELECT page_count * page_size as size FROM pragma_page_count(), pragma_page_size();")
+            db_size = cursor.fetchone()[0]
+            
+            # Get table sizes
+            cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+            tables = cursor.fetchall()
+            
+            table_stats = {}
+            for table in tables:
+                table_name = table[0]
+                cursor.execute(f"SELECT COUNT(*) FROM {table_name};")
+                count = cursor.fetchone()[0]
+                table_stats[table_name] = count
+            
+            return {
+                'database_size_mb': round(db_size / (1024 * 1024), 2),
+                'table_counts': table_stats,
+                'total_tables': len(tables)
+            }
+    except Exception as e:
+        return {'error': str(e)}
+
 # Create your views here.
 
 def Home(request):
@@ -256,12 +290,16 @@ def Index(request):
     a = appointments.count()
     services_count = services.count()
     
+    # Get database statistics
+    db_stats = get_db_stats()
+    
     context = {
         'd': d, 
         'p': p, 
         'a': a,
         'services_count': services_count,
-        'recent_appointments': recent_appointments
+        'recent_appointments': recent_appointments,
+        'db_stats': db_stats
     }
     return render(request, 'index.html', context)
 

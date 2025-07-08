@@ -1,0 +1,68 @@
+{
+  "hematology": [
+    { "test": "Complete Blood Cell Count (CBC)", "unit": "cu mm", "reference": "4000 – 11000" },
+    { "test": "RBC", "unit": "million/cu mm", "reference": "4.5 – 6.0" },
+    { "test": "Platelets", "unit": "lakh/cu mm", "reference": "1.5 – 4.0" },
+    { "test": "Neutrophils", "unit": "%", "reference": "40 – 75" },
+    { "test": "Lymphocytes", "unit": "%", "reference": "20 – 45" },
+    { "test": "Eosinophils", "unit": "%", "reference": "1 – 6" },
+    { "test": "Monocytes", "unit": "%", "reference": "2 – 10" },
+    { "test": "Basophils", "unit": "%", "reference": "<1" },
+    { "test": "Hemoglobin (Male)", "unit": "g/dl", "reference": "13.5 – 18" },
+    { "test": "Hemoglobin (Female)", "unit": "g/dl", "reference": "11.5 – 16.5" },
+    { "test": "PCV", "unit": "%", "reference": "39 – 50" },
+    { "test": "MCV", "unit": "fl", "reference": "76 – 96" },
+    { "test": "MCH", "unit": "pg", "reference": "27 – 32" },
+    { "test": "MCHC", "unit": "g/dl", "reference": "32 – 36" },
+    { "test": "ESR (Male)", "unit": "mm/hr", "reference": "0 – 10" },
+    { "test": "ESR (Female)", "unit": "mm/hr", "reference": "0 – 20" }
+  ],
+  "biochemistry": {
+    "glucose": [
+      { "test": "Glucose (Fasting)", "unit": "mg/dl", "reference": "70 – 110" },
+      { "test": "Glucose (PP)", "unit": "mg/dl", "reference": "70 – 140" },
+      { "test": "Glucose (Random)", "unit": "mg/dl", "reference": "<140" }
+    ],
+    "renal_function": [
+      { "test": "Urea", "unit": "mg/dl", "reference": "15 – 45" },
+      { "test": "Creatinine", "unit": "mg/dl", "reference": "0.6 – 1.4" },
+      { "test": "Sodium", "unit": "mmol/l", "reference": "135 – 148" },
+      { "test": "Potassium", "unit": "mmol/l", "reference": "3.5 – 5.0" },
+      { "test": "Uric Acid", "unit": "mg/dl", "reference": "2.0 – 7.0" }
+    ],
+    "lipid_profile": [
+      { "test": "Total Cholesterol", "unit": "mg/dl", "reference": "<250" },
+      { "test": "Triglycerides", "unit": "mg/dl", "reference": "<150" },
+      { "test": "HDL Cholesterol", "unit": "mg/dl", "reference": ">45" },
+      { "test": "LDL Cholesterol", "unit": "mg/dl", "reference": "<150" }
+    ],
+    "liver_function": [
+      { "test": "Bilirubin (Total)", "unit": "mg/dl", "reference": "<1.2" },
+      { "test": "Bilirubin (Direct)", "unit": "mg/dl", "reference": "<0.4" },
+      { "test": "Total Protein", "unit": "g/dl", "reference": "6 – 8" },
+      { "test": "Albumin", "unit": "g/dl", "reference": "3.5 – 5.5" },
+      { "test": "ALT/SGPT", "unit": "U/l", "reference": "<40" },
+      { "test": "AST/SGOT", "unit": "U/l", "reference": "<40" },
+      { "test": "ALP", "unit": "U/l", "reference": "<150" },
+      { "test": "Amylase", "unit": "", "reference": "" },
+      { "test": "Ionized Calcium", "unit": "mg/dl", "reference": "8.0 – 11.0" }
+    ]
+  },
+  "serological_tests": [
+    { "test": "ASO", "unit": "IU/ml", "reference": "" },
+    { "test": "RA Factor", "unit": "", "reference": "" },
+    { "test": "CRP", "unit": "", "reference": "" },
+    { "test": "RPR/VDRL", "unit": "", "reference": "" },
+    { "test": "HIV", "unit": "", "reference": "" },
+    { "test": "HBsAg", "unit": "", "reference": "" },
+    { "test": "HCV", "unit": "", "reference": "" },
+    { "test": "H. Pylori", "unit": "", "reference": "" },
+    { "test": "TROPONIN-I", "unit": "", "reference": "" }
+  ],
+  "widal_test": [
+    { "serotype": "S. typhi 'O'", "reaction": "", "titre": "" },
+    { "serotype": "S. typhi 'H'", "reaction": "", "titre": "" },
+    { "serotype": "S. paratyphi 'AH'", "reaction": "", "titre": "" },
+    { "serotype": "S. paratyphi 'BH'", "reaction": "", "titre": "" }
+  ]
+}
