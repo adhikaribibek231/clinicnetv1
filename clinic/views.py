@@ -757,3 +757,5 @@ def Edit_Appointment(request, appointment_id):
         messages.error(request, 'Appointment not found!')
         return redirect('clinic:view_appointment')
 
+def test_modal(request):
+    return render(request, 'test_modal.html')

@@ -42,4 +42,7 @@ urlpatterns = [
     
     # Service Management URLs
     path('manage-services/', Manage_Services, name='manage_services'),
+
+    #test modal
+    path('test-modal/', test_modal, name='test_modal'),
 ]
