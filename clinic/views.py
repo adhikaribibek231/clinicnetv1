@@ -13,7 +13,7 @@ from django.contrib import messages
 import time
 import sqlite3
 from django.db import connection
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont  # type: ignore
 
 # Database performance monitoring
 def get_db_stats():
@@ -61,8 +61,8 @@ def Contact_Public(request):
 
 def BookAppointment(request):
     """Public appointment booking page"""
-    services = Service.objects.all()
-    doctors = Doctor.objects.all()
+    services = Service.objects.all()  # type: ignore
+    doctors = Doctor.objects.all()  # type: ignore
     
     context = {
         'services': services,
@@ -75,8 +75,8 @@ def get_available_doctors(request):
     service_id = request.GET.get('service_id')
     if service_id:
         # Get doctors who can provide this service
-        schedules = DoctorSchedule.objects.filter(service_id=service_id, is_available=True)
-        doctors = Doctor.objects.filter(id__in=schedules.values_list('doctor', flat=True)).distinct()
+        schedules = DoctorSchedule.objects.filter(service_id=service_id, is_available=True)  # type: ignore
+        doctors = Doctor.objects.filter(id__in=schedules.values_list('doctor', flat=True)).distinct()  # type: ignore
         doctor_list = [{'id': doctor.id, 'name': doctor.name, 'special': doctor.special} for doctor in doctors]
         return JsonResponse({'doctors': doctor_list})
     return JsonResponse({'doctors': []})
@@ -91,23 +91,23 @@ def get_available_dates(request):
         today = date.today()
         end_date = today + timedelta(days=30)
         
-        schedules = DoctorSchedule.objects.filter(
+        schedules = DoctorSchedule.objects.filter( # type: ignore
             doctor_id=doctor_id,
             service_id=service_id,
             date__gte=today,
             date__lte=end_date,
             is_available=True
-        ).values_list('date', flat=True).distinct()
+        ).values_list('date', flat=True).distinct()  # type: ignore
         
         # Filter out dates where all slots are booked
         available_dates = []
         for schedule_date in schedules:
-            day_schedules = DoctorSchedule.objects.filter(
+            day_schedules = DoctorSchedule.objects.filter( # type: ignore
                 doctor_id=doctor_id,
                 service_id=service_id,
                 date=schedule_date,
                 is_available=True
-            )
+            )  # type: ignore
             
             # Check if any slots are available for this date
             has_available_slots = False
@@ -131,12 +131,12 @@ def get_available_times(request):
     if doctor_id and service_id and selected_date:
         try:
             date_obj = datetime.strptime(selected_date, '%Y-%m-%d').date()
-            schedules = DoctorSchedule.objects.filter(
+            schedules = DoctorSchedule.objects.filter( # type: ignore
                 doctor_id=doctor_id,
                 service_id=service_id,
                 date=date_obj,
                 is_available=True
-            )
+            )  # type: ignore
             
             all_slots = []
             for schedule in schedules:
@@ -155,7 +155,7 @@ def confirm_appointment(request):
             data = json.loads(request.body)
             
             # Create the appointment
-            appointment = PublicAppointment.objects.create(
+            appointment = PublicAppointment.objects.create( # type: ignore
                 patient_name=data['patient_name'],
                 patient_age=data['patient_age'],
                 patient_gender=data['patient_gender'],
@@ -166,7 +166,7 @@ def confirm_appointment(request):
                 service_id=data['service_id'],
                 date=data['date'],
                 time=data['time']
-            )
+            )  # type: ignore
             
             return JsonResponse({
                 'success': True,
@@ -181,18 +181,18 @@ def confirm_appointment(request):
 def appointment_confirmation(request, token):
     """Show appointment confirmation with token"""
     try:
-        appointment = PublicAppointment.objects.get(token=token)
+        appointment = PublicAppointment.objects.get(token=token)  # type: ignore
         context = {
             'appointment': appointment
         }
         return render(request, 'appointment_confirmation.html', context)
-    except PublicAppointment.DoesNotExist:
+    except PublicAppointment.DoesNotExist:  # type: ignore
         return render(request, 'appointment_not_found.html')
 
 def download_token(request, token):
     """Generate and download appointment token as JPEG"""
     try:
-        appointment = PublicAppointment.objects.get(token=token)
+        appointment = PublicAppointment.objects.get(token=token)  # type: ignore
         
         # Create image
         img = Image.new('RGB', (800, 600), color='white')
@@ -264,8 +264,8 @@ def download_token(request, token):
         response['Content-Disposition'] = f'attachment; filename="appointment_token_{appointment.token}.jpg"'
         return response
         
-    except PublicAppointment.DoesNotExist:
-        return HttpResponse("Appointment not found", status=404)
+    except PublicAppointment.DoesNotExist:  # type: ignore
+        return HttpResponse("Appointment not found", status=404)  # type: ignore
 
 @login_required
 def About(request):
@@ -277,13 +277,13 @@ def Contact(request):
 #     return render(request, 'service.html')
 @login_required
 def Index(request):
-    doctors = Doctor.objects.all()
-    patients = Patient.objects.all()
-    appointments = PublicAppointment.objects.all()
-    services = Service.objects.all()
+    doctors = Doctor.objects.all()  # type: ignore
+    patients = Patient.objects.all()  # type: ignore
+    appointments = PublicAppointment.objects.all()  # type: ignore
+    services = Service.objects.all()  # type: ignore
     
     # Get recent appointments (last 10)
-    recent_appointments = PublicAppointment.objects.select_related('doctor', 'service').order_by('-created_at')[:10]
+    recent_appointments = PublicAppointment.objects.select_related('doctor', 'service').order_by('-created_at')[:10]  # type: ignore
     
     d = doctors.count()
     p = patients.count()
@@ -328,13 +328,13 @@ def Logout_admin(request):
 
 @login_required
 def View_Doctor(request):
-    doctors = Doctor.objects.all()
+    doctors = Doctor.objects.all()  # type: ignore
     context = {'doctors': doctors}
     return render(request, 'view_doctor.html', context)
 
 @login_required
 def View_Patient(request):
-    patients = Patient.objects.all()
+    patients = Patient.objects.all()  # type: ignore
     context = {
         'patients': patients
     }
@@ -353,7 +353,7 @@ def Add_Doctor(request):
         consultation_fee = request.POST.get('consultation_fee', 0)
 
         try:
-            Doctor.objects.create(
+            Doctor.objects.create( # type: ignore
                 name=name, 
                 mobile=mobile, 
                 special=special,
@@ -361,7 +361,7 @@ def Add_Doctor(request):
                 qualification=qualification,
                 experience=experience,
                 consultation_fee=consultation_fee
-            )
+            )  # type: ignore
             error = "no"
         except Exception as e:
             print(f"Error creating doctor: {e}")
@@ -374,7 +374,7 @@ def Add_Doctor(request):
 
 @login_required
 def Delete_Doctor(request,pid):
-    doctor = Doctor.objects.get(id=pid)
+    doctor = Doctor.objects.get(id=pid)  # type: ignore
     doctor.delete()
     return redirect('clinic:view_doctor')
 
@@ -393,7 +393,7 @@ def Add_Patient(request):
         medical_history = request.POST.get('medical_history', '')
 
         try:
-            Patient.objects.create(
+            Patient.objects.create( # type: ignore 
                 name=name, 
                 gender=gender, 
                 mobile=mobile, 
@@ -403,7 +403,7 @@ def Add_Patient(request):
                 blood_group=blood_group,
                 emergency_contact=emergency_contact,
                 medical_history=medical_history
-            )
+            )  # type: ignore
             error = "no"
         except Exception as e:
             print(f"Error creating patient: {e}")
@@ -416,16 +416,16 @@ def Add_Patient(request):
 
 @login_required
 def Delete_Patient(request,pid):
-    patient = Patient.objects.get(id=pid)
+    patient = Patient.objects.get(id=pid)  # type: ignore
     patient.delete()
     return redirect('clinic:view_patient')
 
 @login_required
 def Add_Appointment(request):
     """Admin appointment booking with new unified system"""
-    services = Service.objects.all()
-    doctors = Doctor.objects.all()
-    patients = Patient.objects.all()
+    services = Service.objects.all()  # type: ignore
+    doctors = Doctor.objects.all()  # type: ignore
+    patients = Patient.objects.all()  # type: ignore
     
     context = {
         'services': services,
@@ -447,7 +447,7 @@ def confirm_admin_appointment(request):
             
             if patient_id:
                 # Use existing patient
-                patient = Patient.objects.get(id=patient_id)
+                patient = Patient.objects.get(id=patient_id)  # type: ignore
                 patient_name = patient.name
                 patient_age = patient.age
                 patient_gender = patient.gender
@@ -462,7 +462,7 @@ def confirm_admin_appointment(request):
                 patient_address = data['patient_address']
             
             # Create the appointment
-            appointment = PublicAppointment.objects.create(
+            appointment = PublicAppointment.objects.create( # type: ignore
                 patient_name=patient_name,
                 patient_age=patient_age,
                 patient_gender=patient_gender,
@@ -475,7 +475,7 @@ def confirm_admin_appointment(request):
                 time=data['time'],
                 status='confirmed',  # Admin bookings are confirmed by default
                 payment_status='paid'  # Admin bookings are paid by default
-            )
+            )  # type: ignore
             
             return JsonResponse({
                 'success': True,
@@ -491,7 +491,7 @@ def confirm_admin_appointment(request):
 @login_required
 def View_Appointment(request):
     # Get only new appointments
-    appointments = PublicAppointment.objects.select_related('doctor', 'service').all().order_by('-created_at')
+    appointments = PublicAppointment.objects.select_related('doctor', 'service').all().order_by('-created_at')  # type: ignore
     
     context = {
         'appointments': appointments
@@ -501,10 +501,10 @@ def View_Appointment(request):
 @login_required
 def Delete_Appointment(request, aid):
     try:
-        appointment = PublicAppointment.objects.get(id=aid)
+        appointment = PublicAppointment.objects.get(id=aid)  # type: ignore
         appointment.delete()
         messages.success(request, 'Appointment deleted successfully!')
-    except PublicAppointment.DoesNotExist:
+    except PublicAppointment.DoesNotExist:  # type: ignore
         messages.error(request, 'Appointment not found!')
     
     return redirect('clinic:view_appointment')
@@ -512,9 +512,9 @@ def Delete_Appointment(request, aid):
 @login_required
 def View_Schedules(request):
     """View all doctor schedules"""
-    schedules = DoctorSchedule.objects.select_related('doctor', 'service').order_by('date', 'start_time')
-    doctors = Doctor.objects.all()
-    services = Service.objects.all()
+    schedules = DoctorSchedule.objects.select_related('doctor', 'service').order_by('date', 'start_time')  # type: ignore
+    doctors = Doctor.objects.all()  # type: ignore
+    services = Service.objects.all()  # type: ignore
     
     context = {
         'schedules': schedules,
@@ -526,22 +526,22 @@ def View_Schedules(request):
 @login_required
 def Manage_Schedules(request):
     """Manage doctor schedules - add/edit/delete"""
-    doctors = Doctor.objects.all()
-    services = Service.objects.all()
+    doctors = Doctor.objects.all()  # type: ignore
+    services = Service.objects.all()  # type: ignore
     
     if request.method == 'POST':
         action = request.POST.get('action')
         
         if action == 'add':
             try:
-                DoctorSchedule.objects.create(
+                DoctorSchedule.objects.create( # type: ignore
                     doctor_id=request.POST.get('doctor'),
                     service_id=request.POST.get('service'),
                     date=request.POST.get('date'),
                     start_time=request.POST.get('start_time'),
                     end_time=request.POST.get('end_time'),
                     is_available=request.POST.get('is_available') == 'on'
-                )
+                )  # type: ignore
                 messages.success(request, 'Schedule added successfully!')
             except Exception as e:
                 messages.error(request, f'Error adding schedule: {str(e)}')
@@ -549,7 +549,7 @@ def Manage_Schedules(request):
         elif action == 'update':
             schedule_id = request.POST.get('schedule_id')
             try:
-                schedule = DoctorSchedule.objects.get(id=schedule_id)
+                schedule = DoctorSchedule.objects.get(id=schedule_id)  # type: ignore
                 schedule.doctor_id = request.POST.get('doctor')
                 schedule.service_id = request.POST.get('service')
                 schedule.date = request.POST.get('date')
@@ -558,7 +558,7 @@ def Manage_Schedules(request):
                 schedule.is_available = request.POST.get('is_available') == 'on'
                 schedule.save()
                 messages.success(request, 'Schedule updated successfully!')
-            except DoctorSchedule.DoesNotExist:
+            except DoctorSchedule.DoesNotExist:  # type: ignore
                 messages.error(request, 'Schedule not found!')
             except Exception as e:
                 messages.error(request, f'Error updating schedule: {str(e)}')
@@ -566,17 +566,17 @@ def Manage_Schedules(request):
         elif action == 'delete':
             schedule_id = request.POST.get('schedule_id')
             try:
-                schedule = DoctorSchedule.objects.get(id=schedule_id)
+                schedule = DoctorSchedule.objects.get(id=schedule_id)  # type: ignore
                 schedule.delete()
                 messages.success(request, 'Schedule deleted successfully!')
-            except DoctorSchedule.DoesNotExist:
+            except DoctorSchedule.DoesNotExist:  # type: ignore
                 messages.error(request, 'Schedule not found!')
             except Exception as e:
                 messages.error(request, f'Error deleting schedule: {str(e)}')
         
         return redirect('clinic:manage_schedules')
     
-    schedules = DoctorSchedule.objects.select_related('doctor', 'service').order_by('date', 'start_time')
+    schedules = DoctorSchedule.objects.select_related('doctor', 'service').order_by('date', 'start_time')  # type: ignore
     
     context = {
         'schedules': schedules,
@@ -589,31 +589,31 @@ def Manage_Schedules(request):
 def Update_Doctor_Availability(request, doctor_id):
     """Update doctor availability for specific dates"""
     try:
-        doctor = Doctor.objects.get(id=doctor_id)
-    except Doctor.DoesNotExist:
+        doctor = Doctor.objects.get(id=doctor_id)  # type: ignore
+    except Doctor.DoesNotExist:  # type: ignore
         messages.error(request, 'Doctor not found!')
         return redirect('clinic:manage_schedules')
     
     if request.method == 'POST':
-        date = request.POST.get('date')
+        schedule_date = request.POST.get('date')
         is_available = request.POST.get('is_available') == 'on'
         
         # Update all schedules for this doctor on this date
-        schedules = DoctorSchedule.objects.filter(doctor=doctor, date=date)
+        schedules = DoctorSchedule.objects.filter(doctor=doctor, date=schedule_date)  # type: ignore
         schedules.update(is_available=is_available)
         
         status = "available" if is_available else "unavailable"
-        messages.success(request, f'Dr. {doctor.name} marked as {status} for {date}')
+        messages.success(request, f'Dr. {doctor.name} marked as {status} for {schedule_date}')
         return redirect('clinic:manage_schedules')
     
     # Get doctor's schedules for the next 30 days
     today = date.today()
     end_date = today + timedelta(days=30)
-    schedules = DoctorSchedule.objects.filter(
+    schedules = DoctorSchedule.objects.filter( # type: ignore
         doctor=doctor,
         date__gte=today,
         date__lte=end_date
-    ).order_by('date')
+    ).order_by('date')  # type: ignore
     
     context = {
         'doctor': doctor,
@@ -629,12 +629,12 @@ def Manage_Services(request):
         
         if action == 'add':
             try:
-                Service.objects.create(
+                Service.objects.create( # type: ignore
                     name=request.POST.get('name'),
                     description=request.POST.get('description', ''),
                     duration_minutes=request.POST.get('duration_minutes', 30),
                     price=request.POST.get('price', 0.00)
-                )
+                )  # type: ignore
                 messages.success(request, 'Service added successfully!')
             except Exception as e:
                 messages.error(request, f'Error adding service: {str(e)}')
@@ -642,14 +642,14 @@ def Manage_Services(request):
         elif action == 'update':
             service_id = request.POST.get('service_id')
             try:
-                service = Service.objects.get(id=service_id)
+                service = Service.objects.get(id=service_id)  # type: ignore
                 service.name = request.POST.get('name')
                 service.description = request.POST.get('description', '')
                 service.duration_minutes = request.POST.get('duration_minutes', 30)
                 service.price = request.POST.get('price', 0.00)
                 service.save()
                 messages.success(request, 'Service updated successfully!')
-            except Service.DoesNotExist:
+            except Service.DoesNotExist:  # type: ignore
                 messages.error(request, 'Service not found!')
             except Exception as e:
                 messages.error(request, f'Error updating service: {str(e)}')
@@ -657,17 +657,17 @@ def Manage_Services(request):
         elif action == 'delete':
             service_id = request.POST.get('service_id')
             try:
-                service = Service.objects.get(id=service_id)
+                service = Service.objects.get(id=service_id)  # type: ignore
                 service.delete()
                 messages.success(request, 'Service deleted successfully!')
-            except Service.DoesNotExist:
+            except Service.DoesNotExist:  # type: ignore
                 messages.error(request, 'Service not found!')
             except Exception as e:
                 messages.error(request, f'Error deleting service: {str(e)}')
         
         return redirect('clinic:manage_services')
     
-    services = Service.objects.all().order_by('name')
+    services = Service.objects.all().order_by('name')  # type: ignore
     
     context = {
         'services': services
@@ -678,7 +678,7 @@ def Manage_Services(request):
 def Edit_Doctor(request, doctor_id):
     """Edit doctor information"""
     try:
-        doctor = Doctor.objects.get(id=doctor_id)
+        doctor = Doctor.objects.get(id=doctor_id)  # type: ignore
         if request.method == 'POST':
             doctor.name = request.POST.get('name')
             doctor.mobile = request.POST.get('mobile')
@@ -693,7 +693,7 @@ def Edit_Doctor(request, doctor_id):
         
         context = {'doctor': doctor}
         return render(request, 'edit_doctor.html', context)
-    except Doctor.DoesNotExist:
+    except Doctor.DoesNotExist:  # type: ignore
         messages.error(request, 'Doctor not found!')
         return redirect('clinic:view_doctor')
 
@@ -701,7 +701,7 @@ def Edit_Doctor(request, doctor_id):
 def Edit_Patient(request, patient_id):
     """Edit patient information"""
     try:
-        patient = Patient.objects.get(id=patient_id)
+        patient = Patient.objects.get(id=patient_id)  # type: ignore
         if request.method == 'POST':
             patient.name = request.POST.get('name')
             patient.gender = request.POST.get('gender')
@@ -718,7 +718,7 @@ def Edit_Patient(request, patient_id):
         
         context = {'patient': patient}
         return render(request, 'edit_patient.html', context)
-    except Patient.DoesNotExist:
+    except Patient.DoesNotExist:  # type: ignore
         messages.error(request, 'Patient not found!')
         return redirect('clinic:view_patient')
 
@@ -726,7 +726,7 @@ def Edit_Patient(request, patient_id):
 def Edit_Appointment(request, appointment_id):
     """Edit appointment information"""
     try:
-        appointment = PublicAppointment.objects.get(id=appointment_id)
+        appointment = PublicAppointment.objects.get(id=appointment_id)  # type: ignore
         if request.method == 'POST':
             appointment.patient_name = request.POST.get('patient_name')
             appointment.patient_age = request.POST.get('patient_age')
@@ -745,15 +745,15 @@ def Edit_Appointment(request, appointment_id):
             messages.success(request, 'Appointment updated successfully!')
             return redirect('clinic:view_appointment')
         
-        doctors = Doctor.objects.all()
-        services = Service.objects.all()
+        doctors = Doctor.objects.all()  # type: ignore
+        services = Service.objects.all()  # type: ignore
         context = {
             'appointment': appointment,
             'doctors': doctors,
             'services': services,
         }
         return render(request, 'edit_appointment.html', context)
-    except PublicAppointment.DoesNotExist:
+    except PublicAppointment.DoesNotExist:  # type: ignore
         messages.error(request, 'Appointment not found!')
         return redirect('clinic:view_appointment')
 
