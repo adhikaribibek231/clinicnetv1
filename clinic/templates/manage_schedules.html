@@ -122,10 +122,20 @@
             </div>
             <div class="col-md-3">
               <div class="btn-group" role="group">
-                <button class="btn btn-outline-primary btn-sm btn-custom" onclick="editSchedule({{ schedule.id }}, {{ schedule.doctor.id }}, {{ schedule.service.id }}, '{{ schedule.date|date:"Y-m-d" }}', '{{ schedule.start_time|time:"H:i" }}', '{{ schedule.end_time|time:"H:i" }}', {{ schedule.is_available|yesno:"true,false" }})">
+                <button class="btn btn-outline-primary btn-sm btn-custom edit-schedule-btn" 
+                        data-id="{{ schedule.id }}" 
+                        data-doctor="{{ schedule.doctor.id }}" 
+                        data-service="{{ schedule.service.id }}" 
+                        data-date="{{ schedule.date|date:'Y-m-d' }}" 
+                        data-start-time="{{ schedule.start_time|time:'H:i' }}" 
+                        data-end-time="{{ schedule.end_time|time:'H:i' }}" 
+                        data-available="{{ schedule.is_available|yesno:'true,false' }}">
                   <i class="fas fa-edit"></i> Edit
                 </button>
-                <button class="btn btn-outline-danger btn-sm btn-custom" onclick="deleteSchedule({{ schedule.id }}, '{{ schedule.doctor.name }}', '{{ schedule.date|date:"M d, Y" }}')">
+                <button class="btn btn-outline-danger btn-sm btn-custom delete-schedule-btn" 
+                        data-id="{{ schedule.id }}" 
+                        data-doctor="{{ schedule.doctor.name }}" 
+                        data-date="{{ schedule.date|date:'M d, Y' }}">
                   <i class="fas fa-trash"></i> Delete
                 </button>
               </div>
@@ -293,22 +303,42 @@
 
 {% block extra_js %}
 <script>
-  function editSchedule(id, doctorId, serviceId, date, startTime, endTime, isAvailable) {
-    document.getElementById('edit_schedule_id').value = id;
-    document.getElementById('edit_doctor').value = doctorId;
-    document.getElementById('edit_service').value = serviceId;
-    document.getElementById('edit_date').value = date;
-    document.getElementById('edit_start_time').value = startTime;
-    document.getElementById('edit_end_time').value = endTime;
-    document.getElementById('edit_is_available').checked = isAvailable;
-    $('#editScheduleModal').modal('show');
-  }
+  document.addEventListener('DOMContentLoaded', function() {
+    // Edit schedule functionality
+    document.querySelectorAll('.edit-schedule-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        const id = this.getAttribute('data-id');
+        const doctorId = this.getAttribute('data-doctor');
+        const serviceId = this.getAttribute('data-service');
+        const date = this.getAttribute('data-date');
+        const startTime = this.getAttribute('data-start-time');
+        const endTime = this.getAttribute('data-end-time');
+        const isAvailable = this.getAttribute('data-available');
+        
+        document.getElementById('edit_schedule_id').value = id;
+        document.getElementById('edit_doctor').value = doctorId;
+        document.getElementById('edit_service').value = serviceId;
+        document.getElementById('edit_date').value = date;
+        document.getElementById('edit_start_time').value = startTime;
+        document.getElementById('edit_end_time').value = endTime;
+        document.getElementById('edit_is_available').checked = isAvailable === 'true';
+        $('#editScheduleModal').modal('show');
+      });
+    });
 
-  function deleteSchedule(id, doctorName, date) {
-    document.getElementById('delete_schedule_id').value = id;
-    document.getElementById('delete_schedule_doctor').textContent = doctorName;
-    document.getElementById('delete_schedule_date').textContent = date;
-    $('#deleteScheduleModal').modal('show');
-  }
+    // Delete schedule functionality
+    document.querySelectorAll('.delete-schedule-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        const id = this.getAttribute('data-id');
+        const doctorName = this.getAttribute('data-doctor');
+        const date = this.getAttribute('data-date');
+        
+        document.getElementById('delete_schedule_id').value = id;
+        document.getElementById('delete_schedule_doctor').textContent = doctorName;
+        document.getElementById('delete_schedule_date').textContent = date;
+        $('#deleteScheduleModal').modal('show');
+      });
+    });
+  });
 </script>
 {% endblock %} 
