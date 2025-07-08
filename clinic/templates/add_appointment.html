@@ -1,4 +1,4 @@
-{% include 'admin_navigation.html' %}
+{% include 'navigation.html' %}
 {% load static %}
 
 <!doctype html>
@@ -478,6 +478,7 @@
     integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
   
   <script>
+    var userIsAuthenticated = "{{ user.is_authenticated|yesno:'true,false' }}";
     let currentStep = 1;
     let patientType = null;
     let selectedPatient = null;
@@ -743,7 +744,11 @@
       .done(function(response) {
         $('#loadingModal').modal('hide');
         if (response.success) {
-          window.location.href = `{% url 'clinic:appointment_confirmation' 'TOKEN' %}`.replace('TOKEN', response.token);
+          if (userIsAuthenticated === 'true') {
+            window.location.href = '{% url "clinic:dashboard" %}';
+          } else {
+            window.location.href = `{% url 'clinic:appointment_confirmation' 'TOKEN' %}`.replace('TOKEN', response.token);
+          }
         } else {
           alert('Error: ' + response.error);
         }
