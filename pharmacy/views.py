@@ -21,21 +21,21 @@ def Pharmacy(request):
     for product in products:
         for batch in product.batches.all():
             batch.total_value = str((batch.quantity or 0) * (product.unit_price or 0))
-            print(f"DEBUG: {product.item_name} | Qty: {batch.quantity} | Price: {product.unit_price} | Total: {batch.total_value}")
     return render(request, 'products/index.html', {'products': products, 'expiring_batches': expiring_batches})
 
 @login_required
 def home(request):
     """Home dashboard view"""
-    products = Product.objects.all().order_by('-id')[:5]  # Show latest 5 products
+    from datetime import date, timedelta
+    today = date.today()
+    soon = today + timedelta(days=30)
+    expiring_batches = MedicineBatch.objects.filter(expiry_date__lte=soon, expiry_date__gte=today, quantity__gt=0).order_by('expiry_date')
     total_products = Product.objects.count()
     total_sales = Sale.objects.count()
-    
     # Calculate total inventory value
     total_value = sum(product.get_total_value() for product in Product.objects.all())
-    
     context = {
-        'products': products,
+        'expiring_batches': expiring_batches,
         'total_products': total_products,
         'total_sales': total_sales,
         'total_value': total_value,
@@ -75,49 +75,6 @@ def all_sales(request):
         'total': total,
         'change': change, 
         'net': net,
-    })
-
-@login_required
-def issue_item(request, pk):
-    """Process item sale"""
-    issued_item = get_object_or_404(Product, id=pk)
-    
-    if request.method == 'POST':
-        sales_form = SaleForm(request.POST)
-        if sales_form.is_valid():
-            try:
-                with transaction.atomic():
-                    new_sale = sales_form.save(commit=False)
-                    new_sale.item = issued_item
-                    new_sale.unit_price = issued_item.unit_price
-                    
-                    # Check if enough stock is available
-                    requested_quantity = new_sale.quantity
-                    if requested_quantity > issued_item.total_quantity:
-                        messages.error(request, f'Insufficient stock. Only {issued_item.total_quantity} items available.')
-                        return render(request, 'products/issue_item.html', {'sales_form': sales_form})
-                    
-                    # Update stock
-                    issued_item.total_quantity -= requested_quantity
-                    issued_item.issued_quantity += requested_quantity
-                    
-                    # Save both objects
-                    new_sale.save()
-                    issued_item.save()
-                    
-                    messages.success(request, f'Successfully sold {requested_quantity} {issued_item.item_name} to {new_sale.issued_to}')
-                    return redirect('pharmacy:receipt')
-                    
-            except Exception as e:
-                messages.error(request, f'Error processing sale: {str(e)}')
-        else:
-            messages.error(request, 'Please correct the errors below.')
-    else:
-        sales_form = SaleForm()
-
-    return render(request, 'products/issue_item.html', {
-        'sales_form': sales_form,
-        'product': issued_item,
     })
 
 @login_required

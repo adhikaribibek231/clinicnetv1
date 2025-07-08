@@ -10,7 +10,6 @@ urlpatterns = [
     path('receipt/', receipt, name='receipt'),
     path('all_sales/', all_sales, name='all_sales'),
     path('product/<int:product_id>/', product_detail, name='product_detail'),
-    path('issue_item/<int:pk>/', issue_item, name='issue_item'),
     path('add_to_stock/<int:pk>/', add_to_stock, name='add_to_stock'),
     path('add_medicine/', add_medicine, name='add_medicine'),
     path('add_medicine_batch/', add_medicine_batch, name='add_medicine_batch'),
