@@ -12,6 +12,14 @@ urlpatterns = [
     path('product/<int:product_id>/', product_detail, name='product_detail'),
     path('issue_item/<int:pk>/', issue_item, name='issue_item'),
     path('add_to_stock/<int:pk>/', add_to_stock, name='add_to_stock'),
+    path('add_medicine/', add_medicine, name='add_medicine'),
+    path('add_medicine_batch/', add_medicine_batch, name='add_medicine_batch'),
+    path('sell_medicine/', sell_medicine, name='sell_medicine'),
+    path('receipt_print/<int:sale_id>/', lambda request, sale_id: None, name='receipt_print'),
     path('logout/', logout_view, name='logout'),
+    path('edit_medicine/<int:product_id>/', edit_medicine, name='edit_medicine'),
+    path('delete_medicine/<int:product_id>/', delete_medicine, name='delete_medicine'),
+    path('edit_batch/<int:batch_id>/', edit_batch, name='edit_batch'),
+    path('delete_batch/<int:batch_id>/', delete_batch, name='delete_batch'),
 ]
 

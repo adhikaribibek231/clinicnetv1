@@ -315,14 +315,14 @@
         const endTime = this.getAttribute('data-end-time');
         const isAvailable = this.getAttribute('data-available');
         
-        document.getElementById('edit_schedule_id').value = id;
-        document.getElementById('edit_doctor').value = doctorId;
-        document.getElementById('edit_service').value = serviceId;
-        document.getElementById('edit_date').value = date;
-        document.getElementById('edit_start_time').value = startTime;
-        document.getElementById('edit_end_time').value = endTime;
+    document.getElementById('edit_schedule_id').value = id;
+    document.getElementById('edit_doctor').value = doctorId;
+    document.getElementById('edit_service').value = serviceId;
+    document.getElementById('edit_date').value = date;
+    document.getElementById('edit_start_time').value = startTime;
+    document.getElementById('edit_end_time').value = endTime;
         document.getElementById('edit_is_available').checked = isAvailable === 'true';
-        $('#editScheduleModal').modal('show');
+    $('#editScheduleModal').modal('show');
       });
     });
 
@@ -333,10 +333,10 @@
         const doctorName = this.getAttribute('data-doctor');
         const date = this.getAttribute('data-date');
         
-        document.getElementById('delete_schedule_id').value = id;
-        document.getElementById('delete_schedule_doctor').textContent = doctorName;
-        document.getElementById('delete_schedule_date').textContent = date;
-        $('#deleteScheduleModal').modal('show');
+    document.getElementById('delete_schedule_id').value = id;
+    document.getElementById('delete_schedule_doctor').textContent = doctorName;
+    document.getElementById('delete_schedule_date').textContent = date;
+    $('#deleteScheduleModal').modal('show');
       });
     });
   });

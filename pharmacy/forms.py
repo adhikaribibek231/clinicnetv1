@@ -1,5 +1,5 @@
 from django import forms
-from .models import Product, Sale
+from .models import Product, Sale, MedicineBatch
 
 class AddForm(forms.Form):
     """Form for adding items to stock"""
@@ -56,3 +56,29 @@ class SaleForm(forms.ModelForm):
         if not issued_to or len(issued_to.strip()) == 0:
             raise forms.ValidationError("Customer name is required.")
         return issued_to.strip()
+
+
+class ProductForm(forms.ModelForm):
+    """Form for adding new medicines/products"""
+    class Meta:
+        model = Product
+        fields = ["category_name", "item_name", "unit_price"]
+        widgets = {
+            'category_name': forms.Select(attrs={'class': 'form-control'}),
+            'item_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter medicine name'}),
+            'unit_price': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter unit price'}),
+        }
+
+
+class MedicineBatchForm(forms.ModelForm):
+    """Form for adding a new batch of medicine"""
+    class Meta:
+        model = MedicineBatch
+        fields = ["product", "batch_number", "manufacture_date", "expiry_date", "quantity"]
+        widgets = {
+            'product': forms.Select(attrs={'class': 'form-control'}),
+            'batch_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Batch number (optional)'}),
+            'manufacture_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'expiry_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'quantity': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter batch quantity'}),
+        }

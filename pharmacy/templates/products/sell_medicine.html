@@ -1,0 +1,62 @@
+{% extends 'products/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">Sell Medicine</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="batch">Select Medicine Batch</label>
+                            <select class="form-control" id="batch" name="batch" required>
+                                <option value="">-- Select Batch --</option>
+                                {% for batch in batches %}
+                                <option value="{{ batch.id }}">
+                                    {{ batch.product.item_name }} | Batch: {{ batch.batch_number|default:'-' }} | Exp: {{ batch.expiry_date|date:'Y-m-d' }} | Qty: {{ batch.quantity }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="quantity">Quantity</label>
+                            <input type="number" class="form-control" id="quantity" name="quantity" min="1" required>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input type="checkbox" class="form-check-input" id="is_patient" name="is_patient" onchange="toggleCustomerFields()">
+                            <label class="form-check-label" for="is_patient">Customer is a registered patient</label>
+                        </div>
+                        <div class="form-group" id="patient_select" style="display:none;">
+                            <label for="patient">Select Patient</label>
+                            <select class="form-control" id="patient" name="patient">
+                                <option value="">-- Select Patient --</option>
+                                {% for patient in patients %}
+                                <option value="{{ patient.id }}">{{ patient.name }} ({{ patient.mobile }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group" id="customer_name_group">
+                            <label for="customer_name">Customer Name</label>
+                            <input type="text" class="form-control" id="customer_name" name="customer_name" placeholder="Enter customer name">
+                        </div>
+                        <button type="submit" class="btn btn-success">Sell</button>
+                        <a href="{% url 'pharmacy:index' %}" class="btn btn-secondary ml-2">Cancel</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+function toggleCustomerFields() {
+    var isPatient = document.getElementById('is_patient').checked;
+    document.getElementById('patient_select').style.display = isPatient ? 'block' : 'none';
+    document.getElementById('customer_name_group').style.display = isPatient ? 'none' : 'block';
+}
+</script>
+{% endblock %} 
