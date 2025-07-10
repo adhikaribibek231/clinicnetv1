@@ -11,6 +11,7 @@
     <h4>Total Price: Rs. {{ sale.get_total }}</h4>
     <p>Change Collected: Rs. {{ sale.get_change }}</p>
     <p><strong>Date:</strong> {{ sale.date_created|date:"F j, Y, g:i a" }}</p>
+    <a href="{% url 'pharmacy:receipt_print' sale.id %}" target="_blank" class="print-link">Print</a>
   </div>
   {% empty %}
   <div class="card">
