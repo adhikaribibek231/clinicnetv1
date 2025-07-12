@@ -227,7 +227,7 @@
                                     <option value="">Select Service</option>
                                     {% for service in services %}
                                         <option value="{{ service.id }}" {% if appointment.service.id == service.id %}selected{% endif %}>
-                                            {{ service.name }} - NPR {{ service.price }}
+                                            {{ service.name }} - Rs. {{ service.price }}
                                         </option>
                                     {% endfor %}
                                 </select>

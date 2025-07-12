@@ -523,67 +523,7 @@ def View_Schedules(request):
     }
     return render(request, 'view_schedules.html', context)
 
-@login_required
-def Manage_Schedules(request):
-    """Manage doctor schedules - add/edit/delete"""
-    doctors = Doctor.objects.all()  # type: ignore
-    services = Service.objects.all()  # type: ignore
-    
-    if request.method == 'POST':
-        action = request.POST.get('action')
-        
-        if action == 'add':
-            try:
-                DoctorSchedule.objects.create( # type: ignore
-                    doctor_id=request.POST.get('doctor'),
-                    service_id=request.POST.get('service'),
-                    date=request.POST.get('date'),
-                    start_time=request.POST.get('start_time'),
-                    end_time=request.POST.get('end_time'),
-                    is_available=request.POST.get('is_available') == 'on'
-                )  # type: ignore
-                messages.success(request, 'Schedule added successfully!')
-            except Exception as e:
-                messages.error(request, f'Error adding schedule: {str(e)}')
-        
-        elif action == 'update':
-            schedule_id = request.POST.get('schedule_id')
-            try:
-                schedule = DoctorSchedule.objects.get(id=schedule_id)  # type: ignore
-                schedule.doctor_id = request.POST.get('doctor')
-                schedule.service_id = request.POST.get('service')
-                schedule.date = request.POST.get('date')
-                schedule.start_time = request.POST.get('start_time')
-                schedule.end_time = request.POST.get('end_time')
-                schedule.is_available = request.POST.get('is_available') == 'on'
-                schedule.save()
-                messages.success(request, 'Schedule updated successfully!')
-            except DoctorSchedule.DoesNotExist:  # type: ignore
-                messages.error(request, 'Schedule not found!')
-            except Exception as e:
-                messages.error(request, f'Error updating schedule: {str(e)}')
-        
-        elif action == 'delete':
-            schedule_id = request.POST.get('schedule_id')
-            try:
-                schedule = DoctorSchedule.objects.get(id=schedule_id)  # type: ignore
-                schedule.delete()
-                messages.success(request, 'Schedule deleted successfully!')
-            except DoctorSchedule.DoesNotExist:  # type: ignore
-                messages.error(request, 'Schedule not found!')
-            except Exception as e:
-                messages.error(request, f'Error deleting schedule: {str(e)}')
-        
-        return redirect('clinic:manage_schedules')
-    
-    schedules = DoctorSchedule.objects.select_related('doctor', 'service').order_by('date', 'start_time')  # type: ignore
-    
-    context = {
-        'schedules': schedules,
-        'doctors': doctors,
-        'services': services
-    }
-    return render(request, 'manage_schedules.html', context)
+
 
 @login_required
 def Update_Doctor_Availability(request, doctor_id):
@@ -592,7 +532,7 @@ def Update_Doctor_Availability(request, doctor_id):
         doctor = Doctor.objects.get(id=doctor_id)  # type: ignore
     except Doctor.DoesNotExist:  # type: ignore
         messages.error(request, 'Doctor not found!')
-        return redirect('clinic:manage_schedules')
+        return redirect('clinic:doctor_schedules_overview')
     
     if request.method == 'POST':
         schedule_date = request.POST.get('date')
@@ -604,7 +544,7 @@ def Update_Doctor_Availability(request, doctor_id):
         
         status = "available" if is_available else "unavailable"
         messages.success(request, f'Dr. {doctor.name} marked as {status} for {schedule_date}')
-        return redirect('clinic:manage_schedules')
+        return redirect('clinic:doctor_schedules_overview')
     
     # Get doctor's schedules for the next 30 days
     today = date.today()
@@ -756,6 +696,275 @@ def Edit_Appointment(request, appointment_id):
     except PublicAppointment.DoesNotExist:  # type: ignore
         messages.error(request, 'Appointment not found!')
         return redirect('clinic:view_appointment')
+
+@login_required
+def doctor_schedules_overview(request):
+    """Overview page showing all doctors with their schedule summaries"""
+    doctors = Doctor.objects.all().prefetch_related('doctorschedule_set')  # type: ignore
+    services = Service.objects.all()  # type: ignore
+    
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        
+        if action == 'add':
+            try:
+                DoctorSchedule.objects.create( # type: ignore
+                    doctor_id=request.POST.get('doctor'),
+                    service_id=request.POST.get('service'),
+                    date=request.POST.get('date'),
+                    start_time=request.POST.get('start_time'),
+                    end_time=request.POST.get('end_time'),
+                    is_available=request.POST.get('is_available') == 'on'
+                )  # type: ignore
+                messages.success(request, 'Schedule added successfully!')
+            except Exception as e:
+                messages.error(request, f'Error adding schedule: {str(e)}')
+        
+        return redirect('clinic:doctor_schedules_overview')
+    
+    # Get schedule statistics for each doctor
+    for doctor in doctors:
+        today = date.today()
+        end_date = today + timedelta(days=30)
+        
+        # Get upcoming schedules
+        upcoming_schedules = DoctorSchedule.objects.filter( # type: ignore
+            doctor=doctor,
+            date__gte=today,
+            date__lte=end_date,
+            is_available=True
+        ).count()
+        
+        # Get total schedules this month
+        total_schedules = DoctorSchedule.objects.filter( # type: ignore
+            doctor=doctor,
+            date__gte=today,
+            date__lte=end_date
+        ).count()
+        
+        doctor.upcoming_schedules = upcoming_schedules
+        doctor.total_schedules = total_schedules
+    
+    context = {
+        'doctors': doctors,
+        'services': services
+    }
+    return render(request, 'doctor_schedules_overview.html', context)
+
+@login_required
+def doctor_schedule_calendar(request, doctor_id):
+    """Individual doctor schedule calendar view"""
+    try:
+        doctor = Doctor.objects.get(id=doctor_id)  # type: ignore
+    except Doctor.DoesNotExist:  # type: ignore
+        messages.error(request, 'Doctor not found!')
+        return redirect('clinic:doctor_schedules_overview')
+    
+    # Get current month/year from request or use current date
+    year = int(request.GET.get('year', date.today().year))
+    month = int(request.GET.get('month', date.today().month))
+    
+    # Get all schedules for this doctor in the specified month
+    start_date = date(year, month, 1)
+    if month == 12:
+        end_date = date(year + 1, 1, 1) - timedelta(days=1)
+    else:
+        end_date = date(year, month + 1, 1) - timedelta(days=1)
+    
+    schedules = DoctorSchedule.objects.filter( # type: ignore
+        doctor=doctor,
+        date__gte=start_date,
+        date__lte=end_date
+    ).select_related('service').order_by('date', 'start_time')
+    
+    # Group schedules by date for calendar display
+    calendar_data = {}
+    for schedule in schedules:
+        date_str = schedule.date.strftime('%Y-%m-%d')
+        if date_str not in calendar_data:
+            calendar_data[date_str] = []
+        calendar_data[date_str].append(schedule)
+    
+    # Generate calendar days
+    import calendar
+    cal = calendar.monthcalendar(year, month)
+    calendar_days = []
+    today = date.today()
+    
+    for week in cal:
+        for day in week:
+            if day == 0:
+                # Empty day (from previous/next month)
+                calendar_days.append({
+                    'day': '',
+                    'date': None,
+                    'is_other_month': True,
+                    'is_today': False,
+                    'schedules': []
+                })
+            else:
+                current_date = date(year, month, day)
+                date_str = current_date.strftime('%Y-%m-%d')
+                day_schedules = calendar_data.get(date_str, [])
+                
+                calendar_days.append({
+                    'day': day,
+                    'date': current_date,
+                    'is_other_month': False,
+                    'is_today': current_date == today,
+                    'schedules': day_schedules
+                })
+    
+    # Get services for adding new schedules
+    services = Service.objects.all()  # type: ignore
+    
+    context = {
+        'doctor': doctor,
+        'year': year,
+        'month': month,
+        'calendar_days': calendar_days,
+        'calendar_data': calendar_data,
+        'services': services,
+        'start_date': start_date,
+        'end_date': end_date
+    }
+    return render(request, 'doctor_schedule_calendar.html', context)
+
+@login_required
+def add_schedule_ajax(request, doctor_id):
+    """AJAX endpoint to add a new schedule for a doctor"""
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Invalid request method'})
+    
+    try:
+        doctor = Doctor.objects.get(id=doctor_id)  # type: ignore
+    except Doctor.DoesNotExist:  # type: ignore
+        return JsonResponse({'success': False, 'error': 'Doctor not found'})
+    
+    try:
+        data = json.loads(request.body)
+        
+        # Validate required fields
+        required_fields = ['service_id', 'date', 'start_time', 'end_time']
+        for field in required_fields:
+            if not data.get(field):
+                return JsonResponse({'success': False, 'error': f'{field} is required'})
+        
+        # Convert string date to date object
+        from datetime import datetime
+        date_obj = datetime.strptime(data['date'], '%Y-%m-%d').date()
+        
+        # Create the schedule
+        schedule = DoctorSchedule.objects.create( # type: ignore
+            doctor=doctor,
+            service_id=data['service_id'],
+            date=date_obj,
+            start_time=data['start_time'],
+            end_time=data['end_time'],
+            is_available=data.get('is_available', True)
+        )
+        
+        return JsonResponse({
+            'success': True,
+            'schedule': {
+                'id': schedule.id,
+                'service_name': schedule.service.name,
+                'date': schedule.date.strftime('%Y-%m-%d'),
+                'start_time': schedule.start_time.strftime('%H:%M'),
+                'end_time': schedule.end_time.strftime('%H:%M'),
+                'is_available': schedule.is_available
+            }
+        })
+        
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+@login_required
+def update_schedule_ajax(request, doctor_id, schedule_id):
+    """AJAX endpoint to update an existing schedule"""
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Invalid request method'})
+    
+    try:
+        doctor = Doctor.objects.get(id=doctor_id)  # type: ignore
+        schedule = DoctorSchedule.objects.get(id=schedule_id, doctor=doctor)  # type: ignore
+    except (Doctor.DoesNotExist, DoctorSchedule.DoesNotExist):  # type: ignore
+        return JsonResponse({'success': False, 'error': 'Doctor or schedule not found'})
+    
+    try:
+        data = json.loads(request.body)
+        
+        # Update schedule fields
+        if 'service_id' in data:
+            schedule.service_id = data['service_id']
+        if 'date' in data:
+            # Convert string date to date object
+            from datetime import datetime
+            date_obj = datetime.strptime(data['date'], '%Y-%m-%d').date()
+            schedule.date = date_obj
+        if 'start_time' in data:
+            schedule.start_time = data['start_time']
+        if 'end_time' in data:
+            schedule.end_time = data['end_time']
+        if 'is_available' in data:
+            schedule.is_available = data['is_available']
+        
+        schedule.save()
+        
+        return JsonResponse({
+            'success': True,
+            'schedule': {
+                'id': schedule.id,
+                'service_name': schedule.service.name,
+                'date': schedule.date.strftime('%Y-%m-%d'),
+                'start_time': schedule.start_time.strftime('%H:%M'),
+                'end_time': schedule.end_time.strftime('%H:%M'),
+                'is_available': schedule.is_available
+            }
+        })
+        
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+@login_required
+def delete_schedule_ajax(request, doctor_id, schedule_id):
+    """AJAX endpoint to delete a schedule"""
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Invalid request method'})
+    
+    try:
+        doctor = Doctor.objects.get(id=doctor_id)  # type: ignore
+        schedule = DoctorSchedule.objects.get(id=schedule_id, doctor=doctor)  # type: ignore
+    except (Doctor.DoesNotExist, DoctorSchedule.DoesNotExist):  # type: ignore
+        return JsonResponse({'success': False, 'error': 'Doctor or schedule not found'})
+    
+    try:
+        schedule.delete()
+        return JsonResponse({'success': True})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+@login_required
+def get_schedule_details_ajax(request, doctor_id, schedule_id):
+    """AJAX endpoint to get schedule details for editing"""
+    try:
+        doctor = Doctor.objects.get(id=doctor_id)  # type: ignore
+        schedule = DoctorSchedule.objects.get(id=schedule_id, doctor=doctor)  # type: ignore
+    except (Doctor.DoesNotExist, DoctorSchedule.DoesNotExist):  # type: ignore
+        return JsonResponse({'success': False, 'error': 'Doctor or schedule not found'})
+    
+    return JsonResponse({
+        'success': True,
+        'schedule': {
+            'id': schedule.id,
+            'service_id': schedule.service.id,
+            'service_name': schedule.service.name,
+            'date': schedule.date.strftime('%Y-%m-%d'),
+            'start_time': schedule.start_time.strftime('%H:%M'),
+            'end_time': schedule.end_time.strftime('%H:%M'),
+            'is_available': schedule.is_available
+        }
+    })
 
 def test_modal(request):
     return render(request, 'test_modal.html')

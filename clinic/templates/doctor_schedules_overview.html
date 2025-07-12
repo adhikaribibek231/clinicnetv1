@@ -1,0 +1,333 @@
+{% include 'navigation.html' %}
+{% load static %}
+
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Doctor Schedules Overview - ClinicNet</title>
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+    body {
+      background-color: #f8f9fa;
+    }
+
+    .doctor-card {
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+      border: none;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .doctor-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .doctor-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 25px;
+      border-radius: 15px 15px 0 0;
+    }
+
+    .doctor-body {
+      padding: 25px;
+    }
+
+    .stats-card {
+      background: #f8f9fa;
+      border-radius: 10px;
+      padding: 15px;
+      text-align: center;
+      margin: 10px 0;
+    }
+
+    .stats-number {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #667eea;
+    }
+
+    .stats-label {
+      color: #6c757d;
+      font-size: 0.9rem;
+      margin-top: 5px;
+    }
+
+    .btn-custom {
+      border-radius: 25px;
+      padding: 10px 25px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .btn-custom:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    .page-header {
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      margin-bottom: 30px;
+    }
+
+    .specialty-badge {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      padding: 5px 12px;
+      border-radius: 15px;
+      font-size: 0.8rem;
+      display: inline-block;
+      margin-top: 5px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+    }
+
+    .empty-state i {
+      font-size: 4rem;
+      color: #dee2e6;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container-fluid py-4">
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="row align-items-center">
+        <div class="col-md-8">
+          <h2><i class="fas fa-calendar-alt"></i> Doctor Schedules Overview</h2>
+          <p class="text-muted mb-0">Manage individual doctor schedules and availability</p>
+        </div>
+        <div class="col-md-4 text-right">
+          <button class="btn btn-primary btn-custom" data-toggle="modal" data-target="#addScheduleModal">
+            <i class="fas fa-plus"></i> Add New Schedule
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Messages -->
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    <!-- Doctors Grid -->
+    {% if doctors %}
+      <div class="row">
+        {% for doctor in doctors %}
+        <div class="col-lg-4 col-md-6">
+          <div class="doctor-card">
+            <div class="doctor-header">
+              <div class="d-flex align-items-center">
+                <div class="flex-grow-1">
+                  <h5 class="mb-1">
+                    <i class="fas fa-user-md"></i> Dr. {{ doctor.name }}
+                  </h5>
+                  <span class="specialty-badge">{{ doctor.special }}</span>
+                </div>
+                <div class="ml-3">
+                  <i class="fas fa-calendar-check fa-2x"></i>
+                </div>
+              </div>
+            </div>
+            <div class="doctor-body">
+              <div class="row">
+                <div class="col-6">
+                  <div class="stats-card">
+                    <div class="stats-number">{{ doctor.upcoming_schedules }}</div>
+                    <div class="stats-label">Available Slots</div>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="stats-card">
+                    <div class="stats-number">{{ doctor.total_schedules }}</div>
+                    <div class="stats-label">Total Schedules</div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="mt-3">
+                <div class="row">
+                  <div class="col-6">
+                    <small class="text-muted">
+                      <i class="fas fa-phone"></i> {{ doctor.mobile }}
+                    </small>
+                  </div>
+                  <div class="col-6 text-right">
+                    <small class="text-muted">
+                      <i class="fas fa-rupee-sign"></i> Rs. {{ doctor.consultation_fee }}
+                    </small>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="mt-4">
+                <div class="row">
+                  <div class="col-6">
+                    <a href="{% url 'clinic:doctor_schedule_calendar' doctor.id %}" class="btn btn-primary btn-custom btn-block">
+                      <i class="fas fa-calendar-alt"></i> View Calendar
+                    </a>
+                  </div>
+                  <div class="col-6">
+                    <button class="btn btn-success btn-custom btn-block" 
+                            data-toggle="modal" 
+                            data-target="#addScheduleModal"
+                            data-doctor="{{ doctor.id }}"
+                            data-doctor-name="{{ doctor.name }}">
+                      <i class="fas fa-plus"></i> Quick Add
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-state">
+        <i class="fas fa-user-md"></i>
+        <h4 class="text-muted">No Doctors Found</h4>
+        <p class="text-muted">Add some doctors first to manage their schedules.</p>
+        <a href="{% url 'clinic:add_doctor' %}" class="btn btn-primary btn-custom">
+          <i class="fas fa-plus"></i> Add Doctor
+        </a>
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Add Schedule Modal -->
+  <div class="modal" id="addScheduleModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Add New Schedule</h5>
+          <button type="button" class="close" data-dismiss="modal">
+            <span>&times;</span>
+          </button>
+        </div>
+        <form method="post">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="add">
+          <div class="modal-body">
+            <div class="form-group">
+              <label for="doctor">Doctor</label>
+              <select class="form-control" id="doctor" name="doctor" required>
+                <option value="">Select Doctor</option>
+                {% for doctor in doctors %}
+                <option value="{{ doctor.id }}">Dr. {{ doctor.name }} - {{ doctor.special }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="service">Service</label>
+              <select class="form-control" id="service" name="service" required>
+                <option value="">Select Service</option>
+                {% for service in services %}
+                <option value="{{ service.id }}">{{ service.name }} ({{ service.duration_minutes }} min)</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="date">Date</label>
+              <input type="date" class="form-control" id="date" name="date" required>
+              <small class="form-text text-muted">Select a date for the schedule</small>
+            </div>
+            <div class="form-group">
+              <label for="start_time">Start Time</label>
+              <input type="time" class="form-control" id="start_time" name="start_time" required>
+            </div>
+            <div class="form-group">
+              <label for="end_time">End Time</label>
+              <input type="time" class="form-control" id="end_time" name="end_time" required>
+            </div>
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" id="is_available" name="is_available" checked>
+              <label class="form-check-label" for="is_available">Available</label>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary">Add Schedule</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  <script>
+    $(document).ready(function() {
+      // Set today's date when opening add modal
+      $('#addScheduleModal').on('show.bs.modal', function (e) {
+        var button = $(e.relatedTarget);
+        var date = button.data('date');
+        var doctorId = button.data('doctor');
+        var doctorName = button.data('doctor-name');
+        
+        // Set doctor if provided
+        if (doctorId) {
+          $('#doctor').val(doctorId);
+          $('#doctor').css('background-color', '#e9ecef');
+        } else {
+          $('#doctor').css('background-color', '');
+        }
+        
+        // Set date if provided
+        if (date) {
+          $('#date').val(date);
+          $('#date').css('background-color', '#e9ecef');
+          $('.form-text').text('Date is automatically set based on your selection');
+        } else {
+          $('#date').val(new Date().toISOString().split('T')[0]);
+          $('#date').css('background-color', '');
+          $('.form-text').text('Select a date for the schedule');
+        }
+      });
+
+      // Handle form submission to ensure date is properly set
+      $('#addScheduleModal form').on('submit', function(e) {
+        if (!$('#date').val()) {
+          e.preventDefault();
+          alert('Please select a date for the schedule');
+          return false;
+        }
+      });
+    });
+  </script>
+</body>
+
+</html> 

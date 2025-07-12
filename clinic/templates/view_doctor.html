@@ -239,7 +239,7 @@
                         <th style="width: 15%;"><i class="fas fa-envelope me-1"></i>Email</th>
                         <th style="width: 12%;"><i class="fas fa-graduation-cap me-1"></i>Qualification</th>
                         <th style="width: 10%;"><i class="fas fa-clock me-1"></i>Experience</th>
-                        <th style="width: 10%;"><i class="fas fa-money-bill me-1"></i>Fee (NPR)</th>
+                        <th style="width: 10%;"><i class="fas fa-money-bill me-1"></i>Fee (Rs.)</th>
                         {% if request.user.is_staff %}
                         <th style="width: 6%;"><i class="fas fa-cogs me-1"></i>Actions</th>
                         {% endif %}
@@ -259,7 +259,7 @@
                         <td class="email-cell">{{ doctor.email|default:"-" }}</td>
                         <td class="qualification-cell">{{ doctor.qualification|default:"-"|truncatechars:25 }}</td>
                         <td><span class="experience-badge">{{ doctor.experience }} years</span></td>
-                        <td><span class="fee-badge">NPR {{ doctor.consultation_fee }}</span></td>
+                        <td><span class="fee-badge">Rs. {{ doctor.consultation_fee }}</span></td>
                         {% if request.user.is_staff %}
                         <td>
                             <div class="action-buttons">

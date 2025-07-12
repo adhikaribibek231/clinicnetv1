@@ -37,11 +37,18 @@ urlpatterns = [
     
     # Schedule Management URLs
     path('schedules/', View_Schedules, name='view_schedules'),
-    path('manage-schedules/', Manage_Schedules, name='manage_schedules'),
     path('update-availability/<int:doctor_id>/', Update_Doctor_Availability, name='update_doctor_availability'),
     
     # Service Management URLs
     path('manage-services/', Manage_Services, name='manage_services'),
+
+    # Doctor Schedule Management URLs
+    path('doctor-schedules/', doctor_schedules_overview, name='doctor_schedules_overview'),
+    path('doctor-schedules/<int:doctor_id>/', doctor_schedule_calendar, name='doctor_schedule_calendar'),
+    path('doctor-schedules/<int:doctor_id>/add/', add_schedule_ajax, name='add_schedule_ajax'),
+    path('doctor-schedules/<int:doctor_id>/update/<int:schedule_id>/', update_schedule_ajax, name='update_schedule_ajax'),
+    path('doctor-schedules/<int:doctor_id>/delete/<int:schedule_id>/', delete_schedule_ajax, name='delete_schedule_ajax'),
+    path('doctor-schedules/<int:doctor_id>/details/<int:schedule_id>/', get_schedule_details_ajax, name='get_schedule_details_ajax'),
 
     #test modal
     path('test-modal/', test_modal, name='test_modal'),

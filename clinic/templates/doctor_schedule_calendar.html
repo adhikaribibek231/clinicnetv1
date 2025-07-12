@@ -1,0 +1,546 @@
+{% include 'navigation.html' %}
+{% load static %}
+
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dr. {{ doctor.name }} - Schedule Calendar - ClinicNet</title>
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+    body {
+      background-color: #f8f9fa;
+    }
+
+    .calendar-container {
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      padding: 25px;
+      margin-bottom: 25px;
+    }
+
+    .calendar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid #e9ecef;
+    }
+
+    .calendar-nav {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .calendar-nav button {
+      background: #667eea;
+      border: none;
+      color: white;
+      padding: 8px 15px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .calendar-nav button:hover {
+      background: #5a6fd8;
+      transform: translateY(-1px);
+    }
+
+    .calendar-nav h4 {
+      margin: 0;
+      color: #333;
+      font-weight: 600;
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 1px;
+      background: #e9ecef;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .calendar-day-header {
+      background: #667eea;
+      color: white;
+      padding: 15px 10px;
+      text-align: center;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .calendar-day {
+      background: white;
+      min-height: 120px;
+      padding: 10px;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .calendar-day:hover {
+      background: #f8f9fa;
+      transform: scale(1.02);
+    }
+
+    .calendar-day.other-month {
+      background: #f8f9fa;
+      color: #adb5bd;
+    }
+
+    .calendar-day.today {
+      background: #e3f2fd;
+      border: 2px solid #2196f3;
+    }
+
+    .day-number {
+      font-weight: 600;
+      margin-bottom: 5px;
+      color: #333;
+    }
+
+    .schedule-item {
+      background: #667eea;
+      color: white;
+      padding: 3px 6px;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      margin: 2px 0;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .schedule-item:hover {
+      background: #5a6fd8;
+      transform: scale(1.05);
+    }
+
+    .schedule-item.unavailable {
+      background: #dc3545;
+    }
+
+    .schedule-item.unavailable:hover {
+      background: #c82333;
+    }
+
+    .add-schedule-btn {
+      position: absolute;
+      bottom: 5px;
+      right: 5px;
+      background: #28a745;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 25px;
+      height: 25px;
+      font-size: 12px;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .calendar-day:hover .add-schedule-btn {
+      opacity: 1;
+    }
+
+    .calendar-day.add-schedule-hint {
+      position: relative;
+    }
+
+    .calendar-day.add-schedule-hint::after {
+      content: "Click to add schedule";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 5px 10px;
+      border-radius: 5px;
+      font-size: 0.8rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      z-index: 10;
+    }
+
+    .calendar-day.add-schedule-hint:hover::after {
+      opacity: 1;
+    }
+
+    .modal-content {
+      border-radius: 15px;
+      border: none;
+    }
+
+    .modal-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-radius: 15px 15px 0 0;
+    }
+
+    .btn-custom {
+      border-radius: 25px;
+      padding: 8px 20px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .btn-custom:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    .doctor-info {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-radius: 15px;
+      padding: 20px;
+      margin-bottom: 25px;
+    }
+
+    .schedule-details {
+      background: #f8f9fa;
+      border-radius: 10px;
+      padding: 15px;
+      margin-top: 10px;
+    }
+
+    .schedule-time {
+      font-weight: 600;
+      color: #667eea;
+    }
+
+    .schedule-service {
+      color: #6c757d;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container-fluid py-4">
+    <!-- Doctor Info Header -->
+    <div class="doctor-info">
+      <div class="row align-items-center">
+        <div class="col-md-8">
+          <h3><i class="fas fa-user-md"></i> Dr. {{ doctor.name }}</h3>
+          <p class="mb-1">{{ doctor.special }}</p>
+          <small><i class="fas fa-phone"></i> {{ doctor.mobile }} | <i class="fas fa-rupee-sign"></i> Rs. {{ doctor.consultation_fee }}</small>
+        </div>
+        <div class="col-md-4 text-right">
+          <a href="{% url 'clinic:doctor_schedules_overview' %}" class="btn btn-outline-light btn-custom">
+            <i class="fas fa-arrow-left"></i> Back to Overview
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Calendar Container -->
+    <div class="calendar-container">
+      <!-- Calendar Navigation -->
+      <div class="calendar-header">
+        <div class="calendar-nav">
+          <a href="?year={{ year }}&month={{ month|add:'-1' }}" class="btn btn-outline-primary btn-custom">
+            <i class="fas fa-chevron-left"></i> Previous
+          </a>
+          <h4>{{ month|date:"F Y" }}</h4>
+          <a href="?year={{ year }}&month={{ month|add:'1' }}" class="btn btn-outline-primary btn-custom">
+            Next <i class="fas fa-chevron-right"></i>
+          </a>
+        </div>
+        <button class="btn btn-primary btn-custom" data-toggle="modal" data-target="#addScheduleModal">
+          <i class="fas fa-plus"></i> Add Schedule
+        </button>
+      </div>
+
+      <!-- Calendar Grid -->
+      <div class="calendar-grid">
+        <!-- Day Headers -->
+        <div class="calendar-day-header">Sun</div>
+        <div class="calendar-day-header">Mon</div>
+        <div class="calendar-day-header">Tue</div>
+        <div class="calendar-day-header">Wed</div>
+        <div class="calendar-day-header">Thu</div>
+        <div class="calendar-day-header">Fri</div>
+        <div class="calendar-day-header">Sat</div>
+
+        <!-- Calendar Days -->
+        {% for day in calendar_days %}
+        <div class="calendar-day {% if day.is_other_month %}other-month{% endif %} {% if day.is_today %}today{% endif %} {% if not day.is_other_month %}add-schedule-hint{% endif %}" 
+             data-date="{{ day.date|date:'Y-m-d' }}">
+          <div class="day-number">{{ day.day }}</div>
+          
+          {% for schedule in day.schedules %}
+          <div class="schedule-item {% if not schedule.is_available %}unavailable{% endif %}"
+               data-schedule-id="{{ schedule.id }}"
+               data-toggle="modal" 
+               data-target="#editScheduleModal">
+            {{ schedule.start_time|time:"g:i" }} - {{ schedule.service.name }}
+          </div>
+          {% endfor %}
+          
+          <button class="add-schedule-btn" 
+                  data-date="{{ day.date|date:'Y-m-d' }}"
+                  data-toggle="modal" 
+                  data-target="#addScheduleModal">
+            <i class="fas fa-plus"></i>
+          </button>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Schedule Modal -->
+  <div class="modal fade" id="addScheduleModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"><i class="fas fa-plus"></i> Add Schedule</h5>
+          <button type="button" class="close text-white" data-dismiss="modal">
+            <span>&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form id="addScheduleForm">
+            <div class="form-group">
+              <label for="service">Service</label>
+              <select class="form-control" id="service" name="service" required>
+                <option value="">Select Service</option>
+                {% for service in services %}
+                <option value="{{ service.id }}">{{ service.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="date">Date</label>
+              <input type="date" class="form-control" id="date" name="date" required>
+              <small class="form-text text-muted">Date is automatically set based on your selection</small>
+            </div>
+            <div class="form-group">
+              <label for="start_time">Start Time</label>
+              <input type="time" class="form-control" id="start_time" name="start_time" required>
+            </div>
+            <div class="form-group">
+              <label for="end_time">End Time</label>
+              <input type="time" class="form-control" id="end_time" name="end_time" required>
+            </div>
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" id="is_available" name="is_available" checked>
+              <label class="form-check-label" for="is_available">Available</label>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" id="saveScheduleBtn">Save Schedule</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Schedule Modal -->
+  <div class="modal fade" id="editScheduleModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"><i class="fas fa-edit"></i> Edit Schedule</h5>
+          <button type="button" class="close text-white" data-dismiss="modal">
+            <span>&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form id="editScheduleForm">
+            <input type="hidden" id="edit_schedule_id" name="schedule_id">
+            <div class="form-group">
+              <label for="edit_service">Service</label>
+              <select class="form-control" id="edit_service" name="service" required>
+                <option value="">Select Service</option>
+                {% for service in services %}
+                <option value="{{ service.id }}">{{ service.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="edit_date">Date</label>
+              <input type="date" class="form-control" id="edit_date" name="date" required>
+            </div>
+            <div class="form-group">
+              <label for="edit_start_time">Start Time</label>
+              <input type="time" class="form-control" id="edit_start_time" name="start_time" required>
+            </div>
+            <div class="form-group">
+              <label for="edit_end_time">End Time</label>
+              <input type="time" class="form-control" id="edit_end_time" name="end_time" required>
+            </div>
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" id="edit_is_available" name="is_available">
+              <label class="form-check-label" for="edit_is_available">Available</label>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger" id="deleteScheduleBtn">Delete</button>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" id="updateScheduleBtn">Update Schedule</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  <script>
+    $(document).ready(function() {
+      // Set date when opening add modal
+      $('#addScheduleModal').on('show.bs.modal', function (e) {
+        var button = $(e.relatedTarget);
+        var date = button.data('date');
+        if (date) {
+          $('#date').val(date);
+          $('#date').css('background-color', '#e9ecef');
+          $('.form-text').text('Date is automatically set based on your selection');
+        } else {
+          $('#date').val(new Date().toISOString().split('T')[0]);
+          $('#date').css('background-color', '');
+          $('.form-text').text('Select a date for the schedule');
+        }
+      });
+
+      // Load schedule details when opening edit modal
+      $('#editScheduleModal').on('show.bs.modal', function (e) {
+        var button = $(e.relatedTarget);
+        var scheduleId = button.data('schedule-id');
+        
+        if (scheduleId) {
+          $.get(`{% url 'clinic:get_schedule_details_ajax' doctor.id 0 %}`.replace('0', scheduleId))
+            .done(function(data) {
+              if (data.success) {
+                var schedule = data.schedule;
+                $('#edit_schedule_id').val(schedule.id);
+                $('#edit_service').val(schedule.service_id);
+                $('#edit_date').val(schedule.date);
+                $('#edit_start_time').val(schedule.start_time);
+                $('#edit_end_time').val(schedule.end_time);
+                $('#edit_is_available').prop('checked', schedule.is_available);
+              }
+            });
+        }
+      });
+
+      // Save new schedule
+      $('#saveScheduleBtn').click(function() {
+        var formData = {
+          service_id: $('#service').val(),
+          date: $('#date').val(),
+          start_time: $('#start_time').val(),
+          end_time: $('#end_time').val(),
+          is_available: $('#is_available').is(':checked')
+        };
+
+        $.ajax({
+          url: `{% url 'clinic:add_schedule_ajax' doctor.id %}`,
+          method: 'POST',
+          data: JSON.stringify(formData),
+          contentType: 'application/json',
+          headers: {
+            'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()
+          }
+        })
+        .done(function(data) {
+          if (data.success) {
+            location.reload();
+          } else {
+            alert('Error: ' + data.error);
+          }
+        })
+        .fail(function() {
+          alert('Error saving schedule');
+        });
+      });
+
+      // Update schedule
+      $('#updateScheduleBtn').click(function() {
+        var scheduleId = $('#edit_schedule_id').val();
+        var formData = {
+          service_id: $('#edit_service').val(),
+          date: $('#edit_date').val(),
+          start_time: $('#edit_start_time').val(),
+          end_time: $('#edit_end_time').val(),
+          is_available: $('#edit_is_available').is(':checked')
+        };
+
+        $.ajax({
+          url: `{% url 'clinic:update_schedule_ajax' doctor.id 0 %}`.replace('0', scheduleId),
+          method: 'POST',
+          data: JSON.stringify(formData),
+          contentType: 'application/json',
+          headers: {
+            'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()
+          }
+        })
+        .done(function(data) {
+          if (data.success) {
+            location.reload();
+          } else {
+            alert('Error: ' + data.error);
+          }
+        })
+        .fail(function() {
+          alert('Error updating schedule');
+        });
+      });
+
+      // Delete schedule
+      $('#deleteScheduleBtn').click(function() {
+        if (confirm('Are you sure you want to delete this schedule?')) {
+          var scheduleId = $('#edit_schedule_id').val();
+
+          $.ajax({
+            url: `{% url 'clinic:delete_schedule_ajax' doctor.id 0 %}`.replace('0', scheduleId),
+            method: 'POST',
+            headers: {
+              'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()
+            }
+          })
+          .done(function(data) {
+            if (data.success) {
+              location.reload();
+            } else {
+              alert('Error: ' + data.error);
+            }
+          })
+          .fail(function() {
+            alert('Error deleting schedule');
+          });
+        }
+      });
+    });
+  </script>
+
+  <!-- CSRF Token -->
+  {% csrf_token %}
+</body>
+
+</html> 

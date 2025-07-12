@@ -93,6 +93,17 @@
               <a class="dropdown-item" href="{% url 'clinic:view_appointment' %}">View Appointments</a>
             </div>
           </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="scheduleDropdown" role="button" data-toggle="dropdown"
+              aria-haspopup="true" aria-expanded="false">
+              Schedule Management
+            </a>
+            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="scheduleDropdown">
+              <a class="dropdown-item" href="{% url 'clinic:doctor_schedules_overview' %}">Doctor Schedules Overview</a>
+              <a class="dropdown-item" href="{% url 'clinic:view_schedules' %}">View All Schedules</a>
+              <a class="dropdown-item" href="{% url 'clinic:manage_services' %}">Manage Services</a>
+            </div>
+          </li>
           <li class="nav-item">
             <a class="nav-link text-danger" href="{% url 'unified_logout' %}">Logout</a>
           </li>
