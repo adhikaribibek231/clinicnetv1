@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.models import User
 from .models import *
 from django.contrib.auth import authenticate, logout, login
@@ -15,6 +15,7 @@ import sqlite3
 from django.db import connection
 from PIL import Image, ImageDraw, ImageFont  # type: ignore
 from django.db.models import Count, Q
+from django.db.models import Q, Exists, OuterRef
 
 # Database performance monitoring
 def get_db_stats():
@@ -357,20 +358,32 @@ def View_Doctor(request):
 def View_Patient(request):
     patients = Patient.objects.all()  # type: ignore
     total_patients = patients.count()
-    # Active = patients with at least one appointment in last 30 days
-    last_30_days = date.today() - timedelta(days=30)
-    active_patients = Patient.objects.filter(
-        appointment__date1__gte=last_30_days
-    ).distinct().count()
+    # Active = patients with at least one uncompleted Appointment or matching PublicAppointment
+    # Uncompleted Appointments
+    appt_qs = Patient.objects.filter(appointment__status__in=['pending', 'confirmed']).values_list('id', flat=True)
+    # Uncompleted PublicAppointments (match by name+mobile)
+    public_qs = Patient.objects.annotate(
+        has_uncompleted_public=Exists(
+            PublicAppointment.objects.filter(
+                patient_name=OuterRef('name'),
+                patient_mobile=OuterRef('mobile'),
+                status__in=['pending', 'confirmed']
+            )
+        )
+    ).filter(has_uncompleted_public=True).values_list('id', flat=True)
+    active_patients = Patient.objects.filter(Q(id__in=appt_qs) | Q(id__in=public_qs)).distinct().count()
     # This month = patients created this month
     this_month_patients = patients.filter(
         created_at__year=date.today().year,
         created_at__month=date.today().month
     ).count()
+    # List of active patients (for display)
+    active_patients_list = Patient.objects.filter(Q(id__in=appt_qs) | Q(id__in=public_qs)).distinct()
     context = {
         'patients': patients,
         'total_patients': total_patients,
         'active_patients': active_patients,
+        'active_patients_list': active_patients_list,
         'this_month_patients': this_month_patients,
     }
     return render(request, 'view_patient.html', context)
@@ -510,7 +523,20 @@ def confirm_admin_appointment(request):
                 time=data['time'],
                 status='confirmed',  # Admin bookings are confirmed by default
                 payment_status='paid'  # Admin bookings are paid by default
-            )  # type: ignore
+            )
+            # If appointment is created as completed, or status is set to completed, ensure patient exists
+            if appointment.status == 'completed':
+                ensure_patient_from_appointment(
+                    appointment.patient_name,
+                    appointment.patient_age,
+                    appointment.patient_gender,
+                    appointment.patient_mobile,
+                    appointment.patient_address,
+                    email=None,
+                    blood_group=None,
+                    emergency_contact=appointment.emergency_contact,
+                    medical_history=None
+                )
             
             return JsonResponse({
                 'success': True,
@@ -728,6 +754,19 @@ def Edit_Appointment(request, appointment_id):
             appointment.payment_status = request.POST.get('payment_status')
             appointment.notes = request.POST.get('notes', '')
             appointment.save()
+            # If status is now completed, ensure patient exists
+            if appointment.status == 'completed':
+                ensure_patient_from_appointment(
+                    appointment.patient_name,
+                    appointment.patient_age,
+                    appointment.patient_gender,
+                    appointment.patient_mobile,
+                    appointment.patient_address,
+                    email=None,
+                    blood_group=None,
+                    emergency_contact=appointment.emergency_contact,
+                    medical_history=None
+                )
             messages.success(request, 'Appointment updated successfully!')
             return redirect('clinic:view_appointment')
         
@@ -1012,5 +1051,38 @@ def get_schedule_details_ajax(request, doctor_id, schedule_id):
         }
     })
 
+@login_required
+def view_patient_detail(request, patient_id):
+    patient = get_object_or_404(Patient, id=patient_id)
+    appointments = Appointment.objects.filter(patient=patient).select_related('doctor').order_by('-date1', '-time1')
+    return render(request, 'view_patient_detail.html', {
+        'patient': patient,
+        'appointments': appointments,
+    })
+
 def test_modal(request):
     return render(request, 'test_modal.html')
+
+# Utility function to add patient from appointment if not exists
+
+def ensure_patient_from_appointment(patient_name, patient_age, patient_gender, patient_mobile, patient_address, email=None, blood_group=None, emergency_contact=None, medical_history=None):
+    # Try to find a matching patient (by name, age, gender, mobile)
+    patient = Patient.objects.filter(
+        name=patient_name.strip(),
+        age=patient_age,
+        gender=patient_gender,
+        mobile=patient_mobile.strip()
+    ).first()
+    if not patient:
+        patient = Patient.objects.create(
+            name=patient_name.strip(),
+            age=patient_age,
+            gender=patient_gender,
+            mobile=patient_mobile.strip(),
+            address=patient_address,
+            email=email or '',
+            blood_group=blood_group or '',
+            emergency_contact=emergency_contact or '',
+            medical_history=medical_history or ''
+        )
+    return patient

@@ -232,6 +232,28 @@
       </div>
     </div>
 
+    <h4>Active Patients (with uncompleted appointments)</h4>
+    <table class="table table-bordered table-striped">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Mobile</th>
+          <th>Details</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for patient in active_patients_list %}
+        <tr>
+          <td>{{ patient.name }}</td>
+          <td>{{ patient.mobile }}</td>
+          <td><a href="{% url 'clinic:view_patient_detail' patient.id %}" class="btn btn-info btn-sm">View</a></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="3">No active patients.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
     <div class="table-responsive">
       <table class="table table-bordered table-striped" id="example">
         <thead>
@@ -274,6 +296,9 @@
             {% if request.user.is_staff %}
             <td>
               <div class="action-buttons">
+                <a href="{% url 'clinic:view_patient_detail' patient.id %}" class="btn btn-info">
+                  <i class="fas fa-info-circle"></i> Details
+                </a>
                 <a href="{% url 'clinic:edit_patient' patient.id %}" class="btn-edit">
                   <i class="fas fa-edit"></i> Edit
                 </a>

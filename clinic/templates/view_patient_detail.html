@@ -1,0 +1,39 @@
+{% extends 'clinic_base.html' %}
+{% block content %}
+<h2>Patient Details: {{ patient.name }}</h2>
+<ul>
+  <li>Gender: {{ patient.gender }}</li>
+  <li>Age: {{ patient.age }}</li>
+  <li>Mobile: {{ patient.mobile }}</li>
+  <li>Address: {{ patient.address }}</li>
+  <li>Email: {{ patient.email }}</li>
+  <li>Blood Group: {{ patient.blood_group }}</li>
+  <li>Emergency Contact: {{ patient.emergency_contact }}</li>
+  <li>Medical History: {{ patient.medical_history }}</li>
+</ul>
+
+<h3>Appointment History</h3>
+<table class="table table-bordered table-striped">
+  <tr>
+    <th>Date</th>
+    <th>Time</th>
+    <th>Doctor</th>
+  </tr>
+  {% for appt in appointments %}
+  <tr>
+    <td>{{ appt.date1 }}</td>
+    <td>{{ appt.time1 }}</td>
+    <td>
+      {% if appt.doctor.name|slice:":3"|lower == "dr." %}
+        {{ appt.doctor.name }}
+      {% else %}
+        Dr. {{ appt.doctor.name }}
+      {% endif %}
+    </td>
+  </tr>
+  {% empty %}
+  <tr><td colspan="3">No appointments found.</td></tr>
+  {% endfor %}
+</table>
+<a href="{% url 'clinic:view_patient' %}" class="btn btn-secondary">Back to Patient List</a>
+{% endblock %} 
