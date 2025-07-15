@@ -12,12 +12,13 @@
   <li>Medical History: {{ patient.medical_history }}</li>
 </ul>
 
-<h3>Appointment History</h3>
+<h3>Appointment History (Admin-side)</h3>
 <table class="table table-bordered table-striped">
   <tr>
     <th>Date</th>
     <th>Time</th>
     <th>Doctor</th>
+    <th>Status</th>
   </tr>
   {% for appt in appointments %}
   <tr>
@@ -30,9 +31,38 @@
         Dr. {{ appt.doctor.name }}
       {% endif %}
     </td>
+    <td>{{ appt.status|title }}</td>
   </tr>
   {% empty %}
-  <tr><td colspan="3">No appointments found.</td></tr>
+  <tr><td colspan="4">No admin-side appointments found.</td></tr>
+  {% endfor %}
+</table>
+
+<h3>Appointment History (Public bookings)</h3>
+<table class="table table-bordered table-striped">
+  <tr>
+    <th>Date</th>
+    <th>Time</th>
+    <th>Doctor</th>
+    <th>Service</th>
+    <th>Status</th>
+  </tr>
+  {% for appt in public_appointments %}
+  <tr>
+    <td>{{ appt.date }}</td>
+    <td>{{ appt.time }}</td>
+    <td>
+      {% if appt.doctor.name|slice:":3"|lower == "dr." %}
+        {{ appt.doctor.name }}
+      {% else %}
+        Dr. {{ appt.doctor.name }}
+      {% endif %}
+    </td>
+    <td>{{ appt.service.name }}</td>
+    <td>{{ appt.status|title }}</td>
+  </tr>
+  {% empty %}
+  <tr><td colspan="5">No public appointments found.</td></tr>
   {% endfor %}
 </table>
 <a href="{% url 'clinic:view_patient' %}" class="btn btn-secondary">Back to Patient List</a>

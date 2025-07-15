@@ -1055,9 +1055,15 @@ def get_schedule_details_ajax(request, doctor_id, schedule_id):
 def view_patient_detail(request, patient_id):
     patient = get_object_or_404(Patient, id=patient_id)
     appointments = Appointment.objects.filter(patient=patient).select_related('doctor').order_by('-date1', '-time1')
+    # Also fetch matching PublicAppointments (by name and mobile)
+    public_appointments = PublicAppointment.objects.filter(
+        patient_name=patient.name,
+        patient_mobile=patient.mobile
+    ).order_by('-date', '-time')
     return render(request, 'view_patient_detail.html', {
         'patient': patient,
         'appointments': appointments,
+        'public_appointments': public_appointments,
     })
 
 def test_modal(request):
