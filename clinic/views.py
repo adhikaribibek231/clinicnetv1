@@ -235,7 +235,11 @@ def download_token(request, token):
         # Appointment details
         draw.text((50, y_position), "APPOINTMENT DETAILS:", fill='black', font=font_medium)
         y_position += 30
-        draw.text((50, y_position), f"Doctor: Dr. {appointment.doctor.name} ({appointment.doctor.special})", fill='black', font=font_small)
+        # Doctor details
+        doctor_name = appointment.doctor.name
+        if not doctor_name.lower().startswith('dr.'):
+            doctor_name = f"Dr. {doctor_name}"
+        draw.text((50, y_position), f"Doctor: {doctor_name} ({appointment.doctor.special})", fill='black', font=font_small)
         y_position += 25
         draw.text((50, y_position), f"Service: {appointment.service.name}", fill='black', font=font_small)
         y_position += 25

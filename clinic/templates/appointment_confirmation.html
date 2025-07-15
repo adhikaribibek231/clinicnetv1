@@ -213,7 +213,13 @@
                     <h5><i class="fas fa-calendar-alt"></i> Appointment Details</h5>
                     <div class="detail-row">
                         <span class="detail-label">Doctor:</span>
-                        <span class="detail-value">Dr. {{ appointment.doctor.name }} ({{ appointment.doctor.special }})</span>
+                        <span class="detail-value">
+                          {% if appointment.doctor.name|slice:':3'|lower == 'dr.' %}
+                            {{ appointment.doctor.name }} ({{ appointment.doctor.special }})
+                          {% else %}
+                            Dr. {{ appointment.doctor.name }} ({{ appointment.doctor.special }})
+                          {% endif %}
+                        </span>
                     </div>
                     <div class="detail-row">
                         <span class="detail-label">Service:</span>

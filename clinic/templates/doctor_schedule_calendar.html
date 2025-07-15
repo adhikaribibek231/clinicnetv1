@@ -240,7 +240,13 @@
     <div class="doctor-info">
       <div class="row align-items-center">
         <div class="col-md-8">
-          <h3><i class="fas fa-user-md"></i> Dr. {{ doctor.name }}</h3>
+          <h3><i class="fas fa-user-md"></i> 
+            {% if doctor.name|slice:':3'|lower == 'dr.' %}
+              {{ doctor.name }}
+            {% else %}
+              Dr. {{ doctor.name }}
+            {% endif %}
+          </h3>
           <p class="mb-1">{{ doctor.special }}</p>
           <small><i class="fas fa-phone"></i> {{ doctor.mobile }} | <i class="fas fa-rupee-sign"></i> Rs. {{ doctor.consultation_fee }}</small>
         </div>

@@ -149,7 +149,12 @@
               <div class="d-flex align-items-center">
                 <div class="flex-grow-1">
                   <h5 class="mb-1">
-                    <i class="fas fa-user-md"></i> Dr. {{ doctor.name }}
+                    <i class="fas fa-user-md"></i> 
+                    {% if doctor.name|slice:':3'|lower == 'dr.' %}
+                      {{ doctor.name }}
+                    {% else %}
+                      Dr. {{ doctor.name }}
+                    {% endif %}
                   </h5>
                   <span class="specialty-badge">{{ doctor.special }}</span>
                 </div>

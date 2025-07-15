@@ -618,7 +618,12 @@
         .done(function(data) {
           let options = '<option value="">Select a doctor...</option>';
           data.doctors.forEach(function(doctor) {
-            options += `<option value="${doctor.id}">Dr. ${doctor.name} - ${doctor.special}</option>`;
+            // Only prepend Dr. if not already present
+            let displayName = doctor.name.trim();
+            if (displayName.slice(0,3).toLowerCase() !== 'dr.') {
+              displayName = 'Dr. ' + displayName;
+            }
+            options += `<option value="${doctor.id}">${displayName} - ${doctor.special}</option>`;
           });
           $('#doctor').html(options);
         })
@@ -701,7 +706,13 @@
         $('#summary-patient').text(`${name} (${age} years, ${gender})`);
       }
       $('#summary-service').text(selectedService);
-      $('#summary-doctor').text(selectedDoctor);
+      // Fix Dr. in summary
+      let doctorText = $('#doctor option:selected').text();
+      let doctorName = doctorText.split(' - ')[0].trim();
+      if (doctorName.slice(0,3).toLowerCase() !== 'dr.') {
+        doctorName = 'Dr. ' + doctorName;
+      }
+      $('#summary-doctor').text(doctorName);
       $('#summary-date').text(selectedDate);
       $('#summary-time').text(selectedTime);
     }
