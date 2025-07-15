@@ -253,28 +253,40 @@
     {% if appointments %}
     <!-- Statistics Cards -->
     <div class="row mb-4">
-      <div class="col-md-3">
+      <div class="col-md-2">
         <div class="stats-card">
-          <div class="stats-number">{{ appointments.count }}</div>
+          <div class="stats-number">{{ total_appointments }}</div>
           <div class="stats-label">Total Appointments</div>
         </div>
       </div>
-      <div class="col-md-3">
+      <div class="col-md-2">
         <div class="stats-card">
-          <div class="stats-number">{{ appointments|length }}</div>
-          <div class="stats-label">Today's Appointments</div>
-        </div>
-      </div>
-      <div class="col-md-3">
-        <div class="stats-card">
-          <div class="stats-number">{{ appointments|length }}</div>
+          <div class="stats-number">{{ pending_appointments }}</div>
           <div class="stats-label">Pending</div>
         </div>
       </div>
-      <div class="col-md-3">
+      <div class="col-md-2">
         <div class="stats-card">
-          <div class="stats-number">{{ appointments|length }}</div>
+          <div class="stats-number">{{ confirmed_appointments }}</div>
+          <div class="stats-label">Confirmed</div>
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="stats-card">
+          <div class="stats-number">{{ completed_appointments }}</div>
           <div class="stats-label">Completed</div>
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="stats-card">
+          <div class="stats-number">{{ cancelled_appointments }}</div>
+          <div class="stats-label">Cancelled</div>
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="stats-card">
+          <div class="stats-number">{{ todays_appointments }}</div>
+          <div class="stats-label">Today's Appointments</div>
         </div>
       </div>
     </div>

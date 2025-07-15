@@ -210,20 +210,20 @@
         <div class="row mb-4">
             <div class="col-md-4">
                 <div class="stats-card">
-                    <div class="stats-number">{{ doctors.count }}</div>
+                    <div class="stats-number">{{ total_doctors }}</div>
                     <div class="stats-label">Total Doctors</div>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="stats-card">
-                    <div class="stats-number">{{ doctors|length }}</div>
+                    <div class="stats-number">{{ active_doctors }}</div>
                     <div class="stats-label">Active Doctors</div>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="stats-card">
-                    <div class="stats-number">{{ doctors|length }}</div>
-                    <div class="stats-label">Specializations</div>
+                    <div class="stats-number">{{ this_month_doctors }}</div>
+                    <div class="stats-label">This Month</div>
                 </div>
             </div>
         </div>

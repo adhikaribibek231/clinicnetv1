@@ -18,6 +18,7 @@ class Doctor(models.Model):
     qualification = models.CharField(max_length=100, blank=True, null=True)
     experience = models.IntegerField(default=0, validators=[MinValueValidator(0), MaxValueValidator(50)])
     consultation_fee = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -77,6 +78,7 @@ class Patient(models.Model):
                                          ('AB+', 'AB+'), ('AB-', 'AB-'), ('O+', 'O+'), ('O-', 'O-')])
     emergency_contact = models.CharField(max_length=15, blank=True, null=True)
     medical_history = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     
     def __str__(self):
         return self.name

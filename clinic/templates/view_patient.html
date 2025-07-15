@@ -214,19 +214,19 @@
     <div class="row mb-4">
       <div class="col-md-4">
         <div class="stats-card">
-          <div class="stats-number">{{ patients.count }}</div>
+          <div class="stats-number">{{ total_patients }}</div>
           <div class="stats-label">Total Patients</div>
         </div>
       </div>
       <div class="col-md-4">
         <div class="stats-card">
-          <div class="stats-number">{{ patients|length }}</div>
+          <div class="stats-number">{{ active_patients }}</div>
           <div class="stats-label">Active Patients</div>
         </div>
       </div>
       <div class="col-md-4">
         <div class="stats-card">
-          <div class="stats-number">{{ patients|length }}</div>
+          <div class="stats-number">{{ this_month_patients }}</div>
           <div class="stats-label">This Month</div>
         </div>
       </div>

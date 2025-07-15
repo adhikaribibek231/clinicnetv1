@@ -14,6 +14,7 @@ import time
 import sqlite3
 from django.db import connection
 from PIL import Image, ImageDraw, ImageFont  # type: ignore
+from django.db.models import Count, Q
 
 # Database performance monitoring
 def get_db_stats():
@@ -329,14 +330,44 @@ def Logout_admin(request):
 @login_required
 def View_Doctor(request):
     doctors = Doctor.objects.all()  # type: ignore
-    context = {'doctors': doctors}
+    total_doctors = doctors.count()
+    # Active = doctors with at least one appointment in last 30 days
+    last_30_days = date.today() - timedelta(days=30)
+    active_doctors = Doctor.objects.filter(
+        publicappointment__date__gte=last_30_days
+    ).distinct().count()
+    # This month = doctors created this month
+    this_month_doctors = doctors.filter(
+        created_at__year=date.today().year,
+        created_at__month=date.today().month
+    ).count()
+    context = {
+        'doctors': doctors,
+        'total_doctors': total_doctors,
+        'active_doctors': active_doctors,
+        'this_month_doctors': this_month_doctors,
+    }
     return render(request, 'view_doctor.html', context)
 
 @login_required
 def View_Patient(request):
     patients = Patient.objects.all()  # type: ignore
+    total_patients = patients.count()
+    # Active = patients with at least one appointment in last 30 days
+    last_30_days = date.today() - timedelta(days=30)
+    active_patients = Patient.objects.filter(
+        appointment__date1__gte=last_30_days
+    ).distinct().count()
+    # This month = patients created this month
+    this_month_patients = patients.filter(
+        created_at__year=date.today().year,
+        created_at__month=date.today().month
+    ).count()
     context = {
-        'patients': patients
+        'patients': patients,
+        'total_patients': total_patients,
+        'active_patients': active_patients,
+        'this_month_patients': this_month_patients,
     }
     return render(request, 'view_patient.html', context)
 
@@ -490,11 +521,22 @@ def confirm_admin_appointment(request):
 
 @login_required
 def View_Appointment(request):
-    # Get only new appointments
-    appointments = PublicAppointment.objects.select_related('doctor', 'service').all().order_by('-created_at')  # type: ignore
-    
+    today = date.today()
+    appointments = PublicAppointment.objects.select_related('doctor', 'service').all().order_by('-created_at')
+    total_appointments = appointments.count()
+    pending_appointments = appointments.filter(status='pending').count()
+    confirmed_appointments = appointments.filter(status='confirmed').count()
+    completed_appointments = appointments.filter(status='completed').count()
+    cancelled_appointments = appointments.filter(status='cancelled').count()
+    todays_appointments = appointments.filter(date=today).count()
     context = {
-        'appointments': appointments
+        'appointments': appointments,
+        'total_appointments': total_appointments,
+        'pending_appointments': pending_appointments,
+        'confirmed_appointments': confirmed_appointments,
+        'completed_appointments': completed_appointments,
+        'cancelled_appointments': cancelled_appointments,
+        'todays_appointments': todays_appointments,
     }
     return render(request, 'view_appointment.html', context)
 
