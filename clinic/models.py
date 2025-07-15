@@ -12,9 +12,9 @@ from datetime import datetime, timedelta
 # Create your models here.
 class Doctor(models.Model):
     name = models.CharField(max_length=100)
-    mobile = models.CharField(max_length=15, default='')
+    mobile = models.CharField(max_length=15, default='', unique=True)
     special = models.CharField(max_length=100)
-    email = models.EmailField(blank=True, null=True)
+    email = models.EmailField(blank=True, null=True, unique=True)
     qualification = models.CharField(max_length=100, blank=True, null=True)
     experience = models.IntegerField(default=0, validators=[MinValueValidator(0), MaxValueValidator(50)])
     consultation_fee = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
@@ -69,10 +69,10 @@ class DoctorSchedule(models.Model):
 class Patient(models.Model):
     name = models.CharField(max_length=100)
     gender = models.CharField(max_length=10, choices=[('Male', 'Male'), ('Female', 'Female'), ('Other', 'Other')])
-    mobile = models.CharField(max_length=15, default='')
+    mobile = models.CharField(max_length=15, default='', unique=True)
     age = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(150)])
     address = models.TextField()
-    email = models.EmailField(blank=True, null=True)
+    email = models.EmailField(blank=True, null=True, unique=True)
     blood_group = models.CharField(max_length=5, blank=True, null=True, 
                                  choices=[('A+', 'A+'), ('A-', 'A-'), ('B+', 'B+'), ('B-', 'B-'), 
                                          ('AB+', 'AB+'), ('AB-', 'AB-'), ('O+', 'O+'), ('O-', 'O-')])
@@ -92,6 +92,8 @@ class PublicAppointment(models.Model):
     ]
     
     token = models.CharField(max_length=10, unique=True, default=uuid.uuid4().hex[:10].upper())
+    # New: Link to Patient if possible
+    patient = models.ForeignKey('Patient', on_delete=models.SET_NULL, null=True, blank=True, related_name='public_appointments')
     patient_name = models.CharField(max_length=100)
     patient_age = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(150)])
     patient_gender = models.CharField(max_length=10, choices=[('Male', 'Male'), ('Female', 'Female'), ('Other', 'Other')])
@@ -116,8 +118,15 @@ class PublicAppointment(models.Model):
         return f"{self.token} - {self.patient_name} - {self.doctor.name}"
     
     def save(self, *args, **kwargs):
-        if not self.token:
-            self.token = uuid.uuid4().hex[:10].upper()
+        if not self.token or PublicAppointment.objects.filter(token=self.token).exclude(pk=self.pk).exists():
+            # Ensure unique token
+            for _ in range(5):  # Try up to 5 times
+                token = uuid.uuid4().hex[:10].upper()
+                if not PublicAppointment.objects.filter(token=token).exists():
+                    self.token = token
+                    break
+            else:
+                raise ValueError("Could not generate a unique token for the appointment.")
         super().save(*args, **kwargs)
 
 class Appointment(models.Model):

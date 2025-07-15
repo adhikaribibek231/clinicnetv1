@@ -4,7 +4,7 @@ from django.utils import timezone
 # Create your models here.
 
 class Category(models.Model):
-    name = models.CharField(max_length=50, null=True, blank=True)
+    name = models.CharField(max_length=50, null=True, blank=True, unique=True)
 
     def __str__(self):
         return self.name
@@ -15,7 +15,7 @@ class Category(models.Model):
 
 class Product(models.Model):
     category_name = models.ForeignKey(Category, on_delete=models.CASCADE, null=True, blank=True)
-    item_name = models.CharField(max_length=50, null=True, blank=True)
+    item_name = models.CharField(max_length=50, null=True, blank=True, unique=True)
     unit_price = models.IntegerField(default=0, null=True, blank=True)  # type: ignore
     date_created = models.DateTimeField(default=timezone.now)
 
@@ -55,6 +55,9 @@ class MedicineBatch(models.Model):
     manufacture_date = models.DateField(null=True, blank=True)
     expiry_date = models.DateField(null=True, blank=True)
     quantity = models.IntegerField(default=0)  # type: ignore
+
+    class Meta:
+        unique_together = ('product', 'batch_number')
 
     def __str__(self):
         return f"{self.product.item_name} (Batch: {self.batch_number or 'N/A'}) - Exp: {self.expiry_date}"  # type: ignore

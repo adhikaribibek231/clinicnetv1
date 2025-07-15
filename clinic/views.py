@@ -155,9 +155,23 @@ def confirm_appointment(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
-            
-            # Create the appointment
+            # Find or create patient
+            patient = Patient.objects.filter(mobile=data['patient_mobile'].strip()).first()
+            if not patient:
+                patient = Patient.objects.create(
+                    name=data['patient_name'].strip(),
+                    age=data['patient_age'],
+                    gender=data['patient_gender'],
+                    mobile=data['patient_mobile'].strip(),
+                    address=data['patient_address'],
+                    emergency_contact=data.get('emergency_contact', ''),
+                    email='',
+                    blood_group='',
+                    medical_history=''
+                )
+            # Create the appointment and link patient
             appointment = PublicAppointment.objects.create( # type: ignore
+                patient=patient,
                 patient_name=data['patient_name'],
                 patient_age=data['patient_age'],
                 patient_gender=data['patient_gender'],
@@ -169,7 +183,6 @@ def confirm_appointment(request):
                 date=data['date'],
                 time=data['time']
             )  # type: ignore
-            
             return JsonResponse({
                 'success': True,
                 'token': appointment.token,
@@ -177,7 +190,6 @@ def confirm_appointment(request):
             })
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)})
-    
     return JsonResponse({'success': False, 'error': 'Invalid request method'})
 
 def appointment_confirmation(request, token):
@@ -488,35 +500,35 @@ def confirm_admin_appointment(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
-            
             # Check if patient exists, if not create one
-            patient_name = data.get('patient_name', '')
             patient_id = data.get('patient_id', '')
-            
             if patient_id:
                 # Use existing patient
                 patient = Patient.objects.get(id=patient_id)  # type: ignore
-                patient_name = patient.name
-                patient_age = patient.age
-                patient_gender = patient.gender
-                patient_mobile = patient.mobile
-                patient_address = patient.address
             else:
-                # Use provided patient details
-                patient_name = data['patient_name']
-                patient_age = data['patient_age']
-                patient_gender = data['patient_gender']
-                patient_mobile = data['patient_mobile']
-                patient_address = data['patient_address']
-            
-            # Create the appointment
+                # Try to find by mobile
+                patient = Patient.objects.filter(mobile=data['patient_mobile'].strip()).first()
+                if not patient:
+                    patient = Patient.objects.create(
+                        name=data['patient_name'].strip(),
+                        age=data['patient_age'],
+                        gender=data['patient_gender'],
+                        mobile=data['patient_mobile'].strip(),
+                        address=data['patient_address'],
+                        emergency_contact=data.get('emergency_contact', ''),
+                        email='',
+                        blood_group='',
+                        medical_history=''
+                    )
+            # Create the appointment and link patient
             appointment = PublicAppointment.objects.create( # type: ignore
-                patient_name=patient_name,
-                patient_age=patient_age,
-                patient_gender=patient_gender,
-                patient_mobile=patient_mobile,
-                patient_address=patient_address,
-                emergency_contact=data.get('emergency_contact', ''),
+                patient=patient,
+                patient_name=patient.name,
+                patient_age=patient.age,
+                patient_gender=patient.gender,
+                patient_mobile=patient.mobile,
+                patient_address=patient.address,
+                emergency_contact=patient.emergency_contact or '',
                 doctor_id=data['doctor_id'],
                 service_id=data['service_id'],
                 date=data['date'],
@@ -524,20 +536,6 @@ def confirm_admin_appointment(request):
                 status='confirmed',  # Admin bookings are confirmed by default
                 payment_status='paid'  # Admin bookings are paid by default
             )
-            # If appointment is created as completed, or status is set to completed, ensure patient exists
-            if appointment.status == 'completed':
-                ensure_patient_from_appointment(
-                    appointment.patient_name,
-                    appointment.patient_age,
-                    appointment.patient_gender,
-                    appointment.patient_mobile,
-                    appointment.patient_address,
-                    email=None,
-                    blood_group=None,
-                    emergency_contact=appointment.emergency_contact,
-                    medical_history=None
-                )
-            
             return JsonResponse({
                 'success': True,
                 'token': appointment.token,
@@ -545,7 +543,6 @@ def confirm_admin_appointment(request):
             })
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)})
-    
     return JsonResponse({'success': False, 'error': 'Invalid request method'})
 
 

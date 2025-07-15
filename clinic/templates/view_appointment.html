@@ -304,6 +304,7 @@
             <th style="width: 8%;"><i class="fas fa-clock me-1"></i>Time</th>
             <th style="width: 10%;"><i class="fas fa-info-circle me-1"></i>Status</th>
             <th style="width: 10%;"><i class="fas fa-credit-card me-1"></i>Payment</th>
+            <th style="width: 10%;"><i class="fas fa-calendar-check me-1"></i>Booked At</th>
             {% if request.user.is_staff %}
             <th style="width: 8%;"><i class="fas fa-cogs me-1"></i>Actions</th>
             {% endif %}
@@ -332,6 +333,7 @@
             </td>
             <td class="date-time-info">{{ appointment.date|date:"M d, Y" }}</td>
             <td class="date-time-info">{{ appointment.time|time:"H:i" }}</td>
+            <td class="date-time-info">{{ appointment.created_at|date:"M d, Y H:i" }}</td>
             <td>
               <span class="status-badge status-{{ appointment.status }}">
                 <i class="fas fa-{% if appointment.status == 'pending' %}clock{% elif appointment.status == 'confirmed' %}check{% elif appointment.status == 'completed' %}check-double{% else %}times{% endif %} me-1"></i>
