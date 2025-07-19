@@ -283,4 +283,15 @@
         </div>
     </div>
 </body>
+<script>
+  // Automatically download the token image on page load
+  window.addEventListener('DOMContentLoaded', function() {
+    var link = document.createElement('a');
+    link.href = "{% url 'clinic:download_token' appointment.token %}";
+    link.download = "appointment_token_{{ appointment.token }}.jpg";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  });
+</script>
 </html> 
