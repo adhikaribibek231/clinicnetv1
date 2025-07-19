@@ -165,7 +165,7 @@ def confirm_appointment(request):
                     mobile=data['patient_mobile'].strip(),
                     address=data['patient_address'],
                     emergency_contact=data.get('emergency_contact', ''),
-                    email='',
+                    email=data['patient_email'],
                     blood_group='',
                     medical_history=''
                 )
@@ -176,6 +176,7 @@ def confirm_appointment(request):
                 patient_age=data['patient_age'],
                 patient_gender=data['patient_gender'],
                 patient_mobile=data['patient_mobile'],
+                patient_email=data['patient_email'],
                 patient_address=data['patient_address'],
                 emergency_contact=data.get('emergency_contact', ''),
                 doctor_id=data['doctor_id'],
@@ -516,7 +517,7 @@ def confirm_admin_appointment(request):
                         mobile=data['patient_mobile'].strip(),
                         address=data['patient_address'],
                         emergency_contact=data.get('emergency_contact', ''),
-                        email='',
+                        email=data['patient_email'],
                         blood_group='',
                         medical_history=''
                     )
@@ -527,6 +528,7 @@ def confirm_admin_appointment(request):
                 patient_age=patient.age,
                 patient_gender=patient.gender,
                 patient_mobile=patient.mobile,
+                patient_email=patient.email,
                 patient_address=patient.address,
                 emergency_contact=patient.emergency_contact or '',
                 doctor_id=data['doctor_id'],

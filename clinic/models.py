@@ -99,6 +99,7 @@ class PublicAppointment(models.Model):
     patient_gender = models.CharField(max_length=10, choices=[('Male', 'Male'), ('Female', 'Female'), ('Other', 'Other')])
     patient_mobile = models.CharField(max_length=15)
     patient_address = models.TextField()
+    patient_email = models.EmailField(blank=True, null=True)
     emergency_contact = models.CharField(max_length=15, blank=True)
     
     doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)

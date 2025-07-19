@@ -311,15 +311,25 @@
               </div>
               <div class="col-md-6">
                 <div class="form-group">
-                  <label for="patient_mobile">Mobile Number *</label>
-                  <input type="tel" class="form-control" id="patient_mobile" required>
+                  <label for="patient_email">Email Address *</label>
+                  <input type="email" class="form-control" id="patient_email" required>
                 </div>
               </div>
             </div>
             
-            <div class="form-group">
-              <label for="patient_address">Address *</label>
-              <textarea class="form-control" id="patient_address" rows="3" required></textarea>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="patient_mobile">Mobile Number *</label>
+                  <input type="tel" class="form-control" id="patient_mobile" required>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="patient_address">Address *</label>
+                  <textarea class="form-control" id="patient_address" rows="3" required></textarea>
+                </div>
+              </div>
             </div>
             
             <div class="form-group">
@@ -738,6 +748,7 @@
         bookingData.patient_age = $('#patient_age').val();
         bookingData.patient_gender = $('#patient_gender').val();
         bookingData.patient_mobile = $('#patient_mobile').val();
+        bookingData.patient_email = $('#patient_email').val();
         bookingData.patient_address = $('#patient_address').val();
         bookingData.emergency_contact = $('#emergency_contact').val();
       }

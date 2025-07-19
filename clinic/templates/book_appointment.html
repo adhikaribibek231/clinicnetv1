@@ -334,15 +334,25 @@
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="patient_mobile">Mobile Number *</label>
-                                <input type="tel" class="form-control" id="patient_mobile" required>
+                                <label for="patient_email">Email Address *</label>
+                                <input type="email" class="form-control" id="patient_email" required>
                             </div>
                         </div>
                     </div>
                     
-                    <div class="form-group">
-                        <label for="patient_address">Address *</label>
-                        <textarea class="form-control" id="patient_address" rows="3" required></textarea>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="patient_mobile">Mobile Number *</label>
+                                <input type="tel" class="form-control" id="patient_mobile" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="patient_address">Address *</label>
+                                <textarea class="form-control" id="patient_address" rows="3" required></textarea>
+                            </div>
+                        </div>
                     </div>
                     
                     <div class="form-group">
@@ -471,7 +481,7 @@
                 .done(function(data) {
                     let options = '<option value="">Select a doctor...</option>';
                     data.doctors.forEach(function(doctor) {
-                        options += `<option value="${doctor.id}">Dr. ${doctor.name} - ${doctor.special}</option>`;
+                        options += `<option value="${doctor.id}">${doctor.name.startsWith('Dr.') ? doctor.name : 'Dr. ' + doctor.name} - ${doctor.special}</option>`;
                     });
                     $('#doctor').html(options);
                 })
@@ -571,6 +581,7 @@
                 patient_age: $('#patient_age').val(),
                 patient_gender: $('#patient_gender').val(),
                 patient_mobile: $('#patient_mobile').val(),
+                patient_email: $('#patient_email').val(),
                 patient_address: $('#patient_address').val(),
                 emergency_contact: $('#emergency_contact').val(),
                 doctor_id: $('#doctor').val(),
