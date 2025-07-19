@@ -223,6 +223,16 @@
 {% endblock %}
 
 {% block content %}
+<div class="row mb-4">
+  <div class="col-md-12 text-right">
+    <a href="{% url 'clinic:admin_inbox' %}" class="btn btn-lg btn-info position-relative" style="font-weight:600;">
+      <i class="fas fa-inbox"></i> Inbox
+      {% if unread_count and unread_count > 0 %}
+        <span class="badge badge-danger position-absolute" style="top:0;right:-10px;">{{ unread_count }}</span>
+      {% endif %}
+    </a>
+  </div>
+</div>
 <!-- Welcome Section -->
 <div class="welcome-section">
     <h1><i class="fas fa-hospital-alt"></i> Welcome to ClinicNet</h1>

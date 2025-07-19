@@ -1,0 +1,18 @@
+{% extends 'clinic_base.html' %}
+{% block content %}
+<div class="container mt-5">
+    <h2>Message Details</h2>
+    <div class="card mt-4">
+        <div class="card-body">
+            <p><strong>Name:</strong> {{ msg.name }}</p>
+            <p><strong>Email:</strong> {{ msg.email }}</p>
+            <p><strong>Phone:</strong> {{ msg.phone }}</p>
+            <p><strong>Date:</strong> {{ msg.created_at|date:'Y-m-d H:i' }}</p>
+            <hr>
+            <p><strong>Message:</strong></p>
+            <div class="border p-3 bg-light">{{ msg.message }}</div>
+        </div>
+    </div>
+    <a href="{% url 'clinic:admin_inbox' %}" class="btn btn-secondary mt-3">Back to Inbox</a>
+</div>
+{% endblock %} 

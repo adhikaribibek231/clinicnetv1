@@ -53,4 +53,6 @@ urlpatterns = [
 
     #test modal
     path('test-modal/', test_modal, name='test_modal'),
+    path('admin/inbox/', admin_inbox, name='admin_inbox'),
+    path('admin/message/<int:msg_id>/', admin_message_detail, name='admin_message_detail'),
 ]

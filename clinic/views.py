@@ -16,6 +16,13 @@ from django.db import connection
 from PIL import Image, ImageDraw, ImageFont  # type: ignore
 from django.db.models import Count, Q
 from django.db.models import Q, Exists, OuterRef
+from .models import ContactMessage
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
+from django.contrib.admin.views.decorators import staff_member_required
+from ClinicNet0.models import UserProfile
+from functools import wraps
+from django.http import HttpResponseForbidden
 
 # Database performance monitoring
 def get_db_stats():
@@ -58,8 +65,34 @@ def About_Public(request):
     return render(request, 'about_public.html')
 
 def Contact_Public(request):
-    """Public contact page accessible without login"""
-    return render(request, 'contact_public.html')
+    if request.method == 'POST':
+        name = request.POST.get('name', '').strip()
+        email = request.POST.get('email', '').strip()
+        phone = request.POST.get('phone', '').strip()
+        message = request.POST.get('message', '').strip()
+        errors = []
+        # Validate all fields
+        if not name or not email or not phone or not message:
+            errors.append('All fields are required.')
+        # Validate phone: only digits allowed
+        if not phone.isdigit():
+            errors.append('Phone number must contain only numbers.')
+        # Validate email
+        try:
+            validate_email(email)
+        except ValidationError:
+            errors.append('Invalid email address.')
+        if errors or 'verify' not in request.POST:
+            # Show verification page if no errors and not yet verified
+            if not errors and 'verify' not in request.POST:
+                return render(request, 'verify_contact_message.html', {
+                    'name': name, 'email': email, 'phone': phone, 'message': message
+                })
+            return render(request, 'contact.html', {'errors': errors, 'name': name, 'email': email, 'phone': phone, 'message': message})
+        # Save message
+        ContactMessage.objects.create(name=name, email=email, phone=phone, message=message)
+        return render(request, 'contact.html', {'success': True})
+    return render(request, 'contact.html')
 
 def BookAppointment(request):
     """Public appointment booking page"""
@@ -291,7 +324,61 @@ def About(request):
     return render(request, 'about.html')
 @login_required
 def Contact(request):
+    if request.method == 'POST':
+        name = request.POST.get('name', '').strip()
+        email = request.POST.get('email', '').strip()
+        phone = request.POST.get('phone', '').strip()
+        message = request.POST.get('message', '').strip()
+        errors = []
+        # Validate all fields
+        if not name or not email or not phone or not message:
+            errors.append('All fields are required.')
+        # Validate phone: must start with 9, 10 digits, all numeric
+        if not (phone.isdigit() and len(phone) == 10 and phone.startswith('9')):
+            errors.append('Phone number must start with 9 and be exactly 10 digits.')
+        # Validate email
+        try:
+            validate_email(email)
+        except ValidationError:
+            errors.append('Invalid email address.')
+        if errors or 'verify' not in request.POST:
+            # Show verification page if no errors and not yet verified
+            if not errors and 'verify' not in request.POST:
+                return render(request, 'verify_contact_message.html', {
+                    'name': name, 'email': email, 'phone': phone, 'message': message
+                })
+            return render(request, 'contact.html', {'errors': errors, 'name': name, 'email': email, 'phone': phone, 'message': message})
+        # Save message
+        ContactMessage.objects.create(name=name, email=email, phone=phone, message=message)
+        return render(request, 'contact.html', {'success': True})
     return render(request, 'contact.html')
+
+from django.contrib.admin.views.decorators import staff_member_required
+
+def clinic_user_required(view_func):
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return HttpResponseForbidden('You must be logged in.')
+        if not hasattr(request.user, 'userprofile') or request.user.userprofile.user_type != 'clinic':
+            return HttpResponseForbidden('You do not have permission to view this page.')
+        return view_func(request, *args, **kwargs)
+    return _wrapped_view
+
+@clinic_user_required
+def admin_inbox(request):
+    messages = ContactMessage.objects.order_by('is_read', '-created_at')
+    unread_count = ContactMessage.objects.filter(is_read=False).count()
+    return render(request, 'admin_inbox.html', {'messages': messages, 'unread_count': unread_count})
+
+@clinic_user_required
+def admin_message_detail(request, msg_id):
+    msg = ContactMessage.objects.get(id=msg_id)
+    if not msg.is_read:
+        msg.is_read = True
+        msg.save()
+    return render(request, 'admin_message_detail.html', {'msg': msg})
+
 # def Service(request):
 #     return render(request, 'service.html')
 @login_required
@@ -312,13 +399,15 @@ def Index(request):
     # Get database statistics
     db_stats = get_db_stats()
     
+    unread_count = ContactMessage.objects.filter(is_read=False).count()
     context = {
         'd': d, 
         'p': p, 
         'a': a,
         'services_count': services_count,
         'recent_appointments': recent_appointments,
-        'db_stats': db_stats
+        'db_stats': db_stats,
+        'unread_count': unread_count,
     }
     return render(request, 'index.html', context)
 

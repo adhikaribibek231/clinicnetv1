@@ -80,17 +80,6 @@
           <li class="nav-item{% if request.path == '/contact/' %} active{% endif %}">
             <a class="nav-link" href="{% url 'contact' %}">Contact Us</a>
           </li>
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="servicesDropdown" role="button" data-toggle="dropdown"
-              aria-haspopup="true" aria-expanded="false">
-              Our Services
-            </a>
-            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="servicesDropdown">
-              <a class="dropdown-item" href="#">General Checkup</a>
-              <a class="dropdown-item" href="#">Specialist Care</a>
-              <a class="dropdown-item" href="#">Emergency Services</a>
-            </div>
-          </li>
           <li class="nav-item">
             <a class="nav-link btn btn-primary text-white px-3" href="{% url 'unified_login' %}">Login</a>
           </li>

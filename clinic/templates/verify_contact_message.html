@@ -1,0 +1,26 @@
+{% extends 'clinic_base.html' %}
+{% block content %}
+<div class="container mt-5">
+    <h2>Verify Your Message</h2>
+    <p>Please review your message details before sending:</p>
+    <form method="post" action="{% url 'contact' %}">
+        {% csrf_token %}
+        <input type="hidden" name="name" value="{{ name }}">
+        <input type="hidden" name="email" value="{{ email }}">
+        <input type="hidden" name="phone" value="{{ phone }}">
+        <input type="hidden" name="message" value="{{ message }}">
+        <input type="hidden" name="verify" value="1">
+        <div class="card mb-4">
+            <div class="card-body">
+                <p><strong>Name:</strong> {{ name }}</p>
+                <p><strong>Email:</strong> {{ email }}</p>
+                <p><strong>Phone:</strong> {{ phone }}</p>
+                <p><strong>Message:</strong></p>
+                <div class="border p-3 bg-light">{{ message }}</div>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-success">Send Message</button>
+        <a href="{% url 'contact' %}" class="btn btn-secondary">Edit</a>
+    </form>
+</div>
+{% endblock %} 
