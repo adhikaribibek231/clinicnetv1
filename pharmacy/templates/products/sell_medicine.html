@@ -17,7 +17,7 @@
                             <select class="form-control" id="batch" name="batch" required>
                                 <option value="">-- Select Batch --</option>
                                 {% for batch in batches %}
-                                <option value="{{ batch.id }}">
+                                <option value="{{ batch.id }}" data-price="{{ batch.product.unit_price }}">
                                     {{ batch.product.item_name }} | Batch: {{ batch.batch_number|default:'-' }} | Exp: {{ batch.expiry_date|date:'Y-m-d' }} | Qty: {{ batch.quantity }}
                                 </option>
                                 {% endfor %}
@@ -26,6 +26,18 @@
                         <div class="form-group">
                             <label for="quantity">Quantity</label>
                             <input type="number" class="form-control" id="quantity" name="quantity" min="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="total_cost">Total Cost</label>
+                            <input type="text" class="form-control" id="total_cost" readonly style="background-color: #e9ecef;">
+                        </div>
+                        <div class="form-group">
+                            <label for="amount_received">Amount Received</label>
+                            <input type="number" class="form-control" id="amount_received" name="amount_received" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="return_amount">Return Amount</label>
+                            <input type="text" class="form-control" id="return_amount" readonly style="background-color: #e9ecef;">
                         </div>
                         <div class="form-check mb-2">
                             <input type="checkbox" class="form-check-input" id="is_patient" name="is_patient" onchange="toggleCustomerFields()">
@@ -53,6 +65,33 @@
     </div>
 </div>
 <script>
+document.addEventListener('DOMContentLoaded', function() {
+    const batchSelect = document.getElementById('batch');
+    const quantityInput = document.getElementById('quantity');
+    const totalCostInput = document.getElementById('total_cost');
+    const amountReceivedInput = document.getElementById('amount_received');
+    const returnAmountInput = document.getElementById('return_amount');
+
+    function calculate() {
+        const selectedOption = batchSelect.options[batchSelect.selectedIndex];
+        const unitPrice = parseFloat(selectedOption.getAttribute('data-price')) || 0;
+        const quantity = parseInt(quantityInput.value) || 0;
+        const totalCost = unitPrice * quantity;
+        totalCostInput.value = 'Rs. ' + totalCost.toFixed(2);
+
+        const amountReceived = parseFloat(amountReceivedInput.value) || 0;
+        let returnAmount = 0;
+        if (amountReceived >= totalCost) {
+            returnAmount = amountReceived - totalCost;
+        }
+        returnAmountInput.value = 'Rs. ' + returnAmount.toFixed(2);
+    }
+
+    batchSelect.addEventListener('change', calculate);
+    quantityInput.addEventListener('input', calculate);
+    amountReceivedInput.addEventListener('input', calculate);
+});
+
 function toggleCustomerFields() {
     var isPatient = document.getElementById('is_patient').checked;
     document.getElementById('patient_select').style.display = isPatient ? 'block' : 'none';

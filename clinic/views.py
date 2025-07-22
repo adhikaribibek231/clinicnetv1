@@ -319,10 +319,10 @@ def download_token(request, token):
     except PublicAppointment.DoesNotExist:  # type: ignore
         return HttpResponse("Appointment not found", status=404)  # type: ignore
 
-@login_required
+@staff_member_required
 def About(request):
     return render(request, 'about.html')
-@login_required
+@staff_member_required
 def Contact(request):
     if request.method == 'POST':
         name = request.POST.get('name', '').strip()
@@ -355,23 +355,13 @@ def Contact(request):
 
 from django.contrib.admin.views.decorators import staff_member_required
 
-def clinic_user_required(view_func):
-    @wraps(view_func)
-    def _wrapped_view(request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            return HttpResponseForbidden('You must be logged in.')
-        if not hasattr(request.user, 'userprofile') or request.user.userprofile.user_type != 'clinic':
-            return HttpResponseForbidden('You do not have permission to view this page.')
-        return view_func(request, *args, **kwargs)
-    return _wrapped_view
-
-@clinic_user_required
+@staff_member_required
 def admin_inbox(request):
     messages = ContactMessage.objects.order_by('is_read', '-created_at')
     unread_count = ContactMessage.objects.filter(is_read=False).count()
     return render(request, 'admin_inbox.html', {'messages': messages, 'unread_count': unread_count})
 
-@clinic_user_required
+@staff_member_required
 def admin_message_detail(request, msg_id):
     msg = ContactMessage.objects.get(id=msg_id)
     if not msg.is_read:
@@ -381,7 +371,7 @@ def admin_message_detail(request, msg_id):
 
 # def Service(request):
 #     return render(request, 'service.html')
-@login_required
+@staff_member_required
 def Index(request):
     doctors = Doctor.objects.all()  # type: ignore
     patients = Patient.objects.all()  # type: ignore
@@ -434,7 +424,7 @@ def Logout_admin(request):
     return redirect('unified_login')
 
 
-@login_required
+@staff_member_required
 def View_Doctor(request):
     doctors = Doctor.objects.all()  # type: ignore
     total_doctors = doctors.count()
@@ -456,7 +446,7 @@ def View_Doctor(request):
     }
     return render(request, 'view_doctor.html', context)
 
-@login_required
+@staff_member_required
 def View_Patient(request):
     patients = Patient.objects.all()  # type: ignore
     total_patients = patients.count()
@@ -490,7 +480,7 @@ def View_Patient(request):
     }
     return render(request, 'view_patient.html', context)
 
-@login_required
+@staff_member_required
 def Add_Doctor(request):
     error = ""
     if request.method == 'POST':
@@ -522,13 +512,13 @@ def Add_Doctor(request):
 
     return render(request, 'add_doctor.html', {'error': error})
 
-@login_required
+@staff_member_required
 def Delete_Doctor(request,pid):
     doctor = Doctor.objects.get(id=pid)  # type: ignore
     doctor.delete()
     return redirect('clinic:view_doctor')
 
-@login_required
+@staff_member_required
 def Add_Patient(request):
     error = ""
     if request.method == 'POST':
@@ -564,13 +554,13 @@ def Add_Patient(request):
 
     return render(request, 'add_patient.html', {'error': error})
 
-@login_required
+@staff_member_required
 def Delete_Patient(request,pid):
     patient = Patient.objects.get(id=pid)  # type: ignore
     patient.delete()
     return redirect('clinic:view_patient')
 
-@login_required
+@staff_member_required
 def Add_Appointment(request):
     """Admin appointment booking with new unified system"""
     services = Service.objects.all()  # type: ignore
@@ -584,7 +574,7 @@ def Add_Appointment(request):
     }
     return render(request, 'add_appointment.html', context)
 
-@login_required
+@staff_member_required
 def confirm_admin_appointment(request):
     """Handle admin appointment confirmation and create the appointment"""
     if request.method == 'POST':
@@ -637,7 +627,7 @@ def confirm_admin_appointment(request):
     return JsonResponse({'success': False, 'error': 'Invalid request method'})
 
 
-@login_required
+@staff_member_required
 def View_Appointment(request):
     today = date.today()
     appointments = PublicAppointment.objects.select_related('doctor', 'service').all().order_by('-created_at')
@@ -658,7 +648,7 @@ def View_Appointment(request):
     }
     return render(request, 'view_appointment.html', context)
 
-@login_required
+@staff_member_required
 def Delete_Appointment(request, aid):
     try:
         appointment = PublicAppointment.objects.get(id=aid)  # type: ignore
@@ -669,7 +659,7 @@ def Delete_Appointment(request, aid):
     
     return redirect('clinic:view_appointment')
 
-@login_required
+@staff_member_required
 def View_Schedules(request):
     """View all doctor schedules"""
     schedules = DoctorSchedule.objects.select_related('doctor', 'service').order_by('date', 'start_time')  # type: ignore
@@ -685,7 +675,7 @@ def View_Schedules(request):
 
 
 
-@login_required
+@staff_member_required
 def Update_Doctor_Availability(request, doctor_id):
     """Update doctor availability for specific dates"""
     try:
@@ -721,7 +711,7 @@ def Update_Doctor_Availability(request, doctor_id):
     }
     return render(request, 'update_doctor_availability.html', context)
 
-@login_required
+@staff_member_required
 def Manage_Services(request):
     """Manage services - add/edit/delete"""
     if request.method == 'POST':
@@ -774,7 +764,7 @@ def Manage_Services(request):
     }
     return render(request, 'manage_services.html', context)
 
-@login_required
+@staff_member_required
 def Edit_Doctor(request, doctor_id):
     """Edit doctor information"""
     try:
@@ -797,7 +787,7 @@ def Edit_Doctor(request, doctor_id):
         messages.error(request, 'Doctor not found!')
         return redirect('clinic:view_doctor')
 
-@login_required
+@staff_member_required
 def Edit_Patient(request, patient_id):
     """Edit patient information"""
     try:
@@ -822,7 +812,7 @@ def Edit_Patient(request, patient_id):
         messages.error(request, 'Patient not found!')
         return redirect('clinic:view_patient')
 
-@login_required
+@staff_member_required
 def Edit_Appointment(request, appointment_id):
     """Edit appointment information"""
     try:
@@ -870,7 +860,7 @@ def Edit_Appointment(request, appointment_id):
         messages.error(request, 'Appointment not found!')
         return redirect('clinic:view_appointment')
 
-@login_required
+@staff_member_required
 def doctor_schedules_overview(request):
     """Overview page showing all doctors with their schedule summaries"""
     doctors = Doctor.objects.all().prefetch_related('doctorschedule_set')  # type: ignore
@@ -924,7 +914,7 @@ def doctor_schedules_overview(request):
     }
     return render(request, 'doctor_schedules_overview.html', context)
 
-@login_required
+@staff_member_required
 def doctor_schedule_calendar(request, doctor_id):
     """Individual doctor schedule calendar view"""
     try:
@@ -1003,7 +993,7 @@ def doctor_schedule_calendar(request, doctor_id):
     }
     return render(request, 'doctor_schedule_calendar.html', context)
 
-@login_required
+@staff_member_required
 def add_schedule_ajax(request, doctor_id):
     """AJAX endpoint to add a new schedule for a doctor"""
     if request.method != 'POST':
@@ -1052,7 +1042,7 @@ def add_schedule_ajax(request, doctor_id):
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
 
-@login_required
+@staff_member_required
 def update_schedule_ajax(request, doctor_id, schedule_id):
     """AJAX endpoint to update an existing schedule"""
     if request.method != 'POST':
@@ -1099,7 +1089,7 @@ def update_schedule_ajax(request, doctor_id, schedule_id):
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
 
-@login_required
+@staff_member_required
 def delete_schedule_ajax(request, doctor_id, schedule_id):
     """AJAX endpoint to delete a schedule"""
     if request.method != 'POST':
@@ -1117,7 +1107,7 @@ def delete_schedule_ajax(request, doctor_id, schedule_id):
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
 
-@login_required
+@staff_member_required
 def get_schedule_details_ajax(request, doctor_id, schedule_id):
     """AJAX endpoint to get schedule details for editing"""
     try:
@@ -1139,7 +1129,7 @@ def get_schedule_details_ajax(request, doctor_id, schedule_id):
         }
     })
 
-@login_required
+@staff_member_required
 def view_patient_detail(request, patient_id):
     patient = get_object_or_404(Patient, id=patient_id)
     appointments = Appointment.objects.filter(patient=patient).select_related('doctor').order_by('-date1', '-time1')

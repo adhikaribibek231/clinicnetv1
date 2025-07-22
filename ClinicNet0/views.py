@@ -26,25 +26,21 @@ def unified_login(request):
         
         if user is not None and user.is_active:
             if user.is_staff:
-                login(request, user)
-                
-                # Create or update user profile
                 from .models import UserProfile
-                profile, created = UserProfile.objects.get_or_create(
-                    user=user,
-                    defaults={'user_type': user_type}
-                )
-                if not created:
-                    profile.user_type = user_type
-                    profile.save()
+                profile, created = UserProfile.objects.get_or_create(user=user, defaults={'user_type': user_type})
                 
-                messages.success(request, f'Welcome to {user_type.title()} Management System!')
-                
-                # Redirect based on user type
-                if user_type == 'pharmacy':
-                    return redirect('pharmacy:home')
+                # Check if the user's profile type matches the selected user_type
+                if profile.user_type != user_type:
+                    error = f"You are not authorized to access the {user_type} system."
                 else:
-                    return redirect('clinic:dashboard')
+                    login(request, user)
+                    messages.success(request, f'Welcome to {user_type.title()} Management System!')
+                    
+                    # Redirect based on user type
+                    if user_type == 'pharmacy':
+                        return redirect('pharmacy:home')
+                    else:
+                        return redirect('clinic:dashboard')
             else:
                 error = "Access denied. Staff privileges required."
         else:

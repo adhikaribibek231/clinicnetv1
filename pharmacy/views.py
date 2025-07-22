@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import logout
 from django.contrib import messages
 from django.db import transaction
@@ -9,7 +9,7 @@ from clinic.models import Patient  # Import Patient for customer selection
 from datetime import date, timedelta
 # Create your views here.
 
-@login_required
+@staff_member_required
 def Pharmacy(request):
     """Main inventory view"""
     products = Product.objects.all().order_by('-id')
@@ -23,7 +23,7 @@ def Pharmacy(request):
             batch.total_value = str((batch.quantity or 0) * (product.unit_price or 0))
     return render(request, 'products/index.html', {'products': products, 'expiring_batches': expiring_batches})
 
-@login_required
+@staff_member_required
 def home(request):
     """Home dashboard view"""
     from datetime import date, timedelta
@@ -42,13 +42,13 @@ def home(request):
     }
     return render(request, 'products/home.html', context)
 
-@login_required
+@staff_member_required
 def receipt(request): 
     """View all sales receipts"""
     sales = Sale.objects.all().order_by('-date_created')
     return render(request, 'products/receipt.html', {'sales': sales})
 
-@login_required
+@staff_member_required
 def receipt_print(request, sale_id):
     sale = get_object_or_404(Sale, id=sale_id)
     batch = MedicineBatch.objects.filter(product=sale.item).order_by('expiry_date').first()
@@ -57,13 +57,13 @@ def receipt_print(request, sale_id):
         'batch': batch,
     })
 
-@login_required
+@staff_member_required
 def product_detail(request, product_id):
     """View individual product details"""
     product = get_object_or_404(Product, id=product_id)
     return render(request, 'products/product_detail.html', {'product': product})
 
-@login_required
+@staff_member_required
 def all_sales(request):
     """View comprehensive sales report"""
     sales = Sale.objects.all().order_by('-date_created')
@@ -77,7 +77,7 @@ def all_sales(request):
         'net': net,
     })
 
-@login_required
+@staff_member_required
 def add_to_stock(request, pk):
     """Add items to stock"""
     issued_item = get_object_or_404(Product, id=pk)
@@ -109,7 +109,7 @@ def add_to_stock(request, pk):
         'product': issued_item,
     })
 
-@login_required
+@staff_member_required
 def add_medicine(request):
     """Add a new medicine/product to the inventory"""
     if request.method == 'POST':
@@ -124,7 +124,7 @@ def add_medicine(request):
         form = ProductForm()
     return render(request, 'products/add_medicine.html', {'form': form})
 
-@login_required
+@staff_member_required
 def add_medicine_batch(request):
     """Add a new batch of medicine to the inventory"""
     if request.method == 'POST':
@@ -139,7 +139,7 @@ def add_medicine_batch(request):
         form = MedicineBatchForm()
     return render(request, 'products/add_medicine_batch.html', {'form': form})
 
-@login_required
+@staff_member_required
 def sell_medicine(request):
     """Sell medicine from a batch, select patient or enter customer name, and generate receipt"""
     batches = MedicineBatch.objects.select_related('product').filter(quantity__gt=0).order_by('product__item_name', 'expiry_date')
@@ -147,36 +147,49 @@ def sell_medicine(request):
     if request.method == 'POST':
         batch_id = request.POST.get('batch')
         quantity = int(request.POST.get('quantity', 0))
+        amount_received = int(request.POST.get('amount_received', 0))
         is_patient = request.POST.get('is_patient') == 'on'
         patient_id = request.POST.get('patient')
         customer_name = request.POST.get('customer_name')
-        batch = MedicineBatch.objects.get(id=batch_id)
-        if is_patient and patient_id:
-            patient = Patient.objects.get(id=patient_id)
-            issued_to = patient.name
-        else:
-            issued_to = customer_name
-        if quantity <= 0 or quantity > batch.quantity:
-            messages.error(request, f'Invalid quantity. Only {batch.quantity} available.')
-        else:
-            # Create sale
-            sale = Sale.objects.create(
-                item=batch.product,
-                quantity=quantity,
-                amount_received=quantity * batch.product.unit_price,
-                issued_to=issued_to,
-                unit_price=batch.product.unit_price
-            )
-            # Update batch
-            batch.quantity -= quantity
-            batch.save()
-            return redirect('pharmacy:receipt_print', sale_id=sale.id)
+        
+        try:
+            batch = MedicineBatch.objects.get(id=batch_id)
+            total_cost = quantity * batch.product.unit_price
+
+            if is_patient and patient_id:
+                patient = Patient.objects.get(id=patient_id)
+                issued_to = patient.name
+            else:
+                issued_to = customer_name
+
+            if quantity <= 0 or quantity > batch.quantity:
+                messages.error(request, f'Invalid quantity. Only {batch.quantity} available.')
+            elif amount_received < total_cost:
+                messages.error(request, 'Amount received is less than the total cost.')
+            else:
+                # Create sale
+                sale = Sale.objects.create(
+                    item=batch.product,
+                    quantity=quantity,
+                    amount_received=amount_received,
+                    issued_to=issued_to,
+                    unit_price=batch.product.unit_price
+                )
+                # Update batch
+                batch.quantity -= quantity
+                batch.save()
+                return redirect('pharmacy:receipt_print', sale_id=sale.id)
+        except MedicineBatch.DoesNotExist:
+            messages.error(request, 'Selected medicine batch not found.')
+        except Patient.DoesNotExist:
+            messages.error(request, 'Selected patient not found.')
+
     return render(request, 'products/sell_medicine.html', {
         'batches': batches,
         'patients': patients,
     })
 
-@login_required
+@staff_member_required
 def edit_medicine(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     if request.method == 'POST':
@@ -191,7 +204,7 @@ def edit_medicine(request, product_id):
         form = ProductForm(instance=product)
     return render(request, 'products/add_medicine.html', {'form': form, 'edit': True, 'product': product})
 
-@login_required
+@staff_member_required
 def delete_medicine(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     if request.method == 'POST':
@@ -200,7 +213,7 @@ def delete_medicine(request, product_id):
         return redirect('pharmacy:index')
     return render(request, 'products/confirm_delete.html', {'object': product, 'type': 'medicine'})
 
-@login_required
+@staff_member_required
 def edit_batch(request, batch_id):
     batch = get_object_or_404(MedicineBatch, id=batch_id)
     if request.method == 'POST':
@@ -215,7 +228,7 @@ def edit_batch(request, batch_id):
         form = MedicineBatchForm(instance=batch)
     return render(request, 'products/add_medicine_batch.html', {'form': form, 'edit': True, 'batch': batch})
 
-@login_required
+@staff_member_required
 def delete_batch(request, batch_id):
     batch = get_object_or_404(MedicineBatch, id=batch_id)
     if request.method == 'POST':
