@@ -1,0 +1,114 @@
+{% extends 'clinic_base.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Lab Analysis Form</h2>
+  <form method="post">
+    {% csrf_token %}
+    <div class="form-group">
+      <label for="patient">Select Patient:</label>
+      <select class="form-control" id="patient" name="patient" required>
+        <option value="">-- Select Patient --</option>
+        {% for patient in patients %}
+          <option value="{{ patient.id }}">{{ patient.name }} ({{ patient.age }}, {{ patient.gender }})</option>
+        {% endfor %}
+      </select>
+    </div>
+    <hr>
+    <h4>Select Tests</h4>
+    <div id="tests-list">
+      {% for section, items in reference_data.items %}
+        <h5 class="mt-3">{{ section|title|cut:"_" }}</h5>
+        {% if items.items %} {# biochemistry subgroups #}
+          {% for subgroup, subitems in items.items %}
+            <strong>{{ subgroup|title|cut:"_" }}</strong>
+            <div class="row">
+              {% for test in subitems %}
+                <div class="col-md-4 mb-2">
+                  {% if test.test %}
+                    <input type="checkbox" id="test_{{ test.test }}" name="selected_tests" value="{{ test.test }}" onchange="toggleTestInput('{{ test.test }}')">
+                    <label for="test_{{ test.test }}">{{ test.test }}</label>
+                    <span class="text-muted small">{{ test.unit }} (Ref: {{ test.reference }})</span>
+                    <input type="text" class="form-control mt-1" name="test_{{ test.test }}" id="input_{{ test.test }}" style="display:none;" placeholder="Enter value">
+                  {% else %}
+                    <input type="checkbox" id="test_{{ test.serotype }}" name="selected_tests" value="{{ test.serotype }}" onchange="toggleTestInput('{{ test.serotype }}')">
+                    <label for="test_{{ test.serotype }}">{{ test.serotype }}</label>
+                    <span class="text-muted small">{{ test.reaction }} (Titre: {{ test.titre }})</span>
+                    <input type="text" class="form-control mt-1" name="test_{{ test.serotype }}" id="input_{{ test.serotype }}" style="display:none;" placeholder="Enter value">
+                  {% endif %}
+                </div>
+              {% endfor %}
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="row">
+            {% for test in items %}
+              <div class="col-md-4 mb-2">
+                {% if test.test %}
+                  <input type="checkbox" id="test_{{ test.test }}" name="selected_tests" value="{{ test.test }}" onchange="toggleTestInput('{{ test.test }}')">
+                  <label for="test_{{ test.test }}">{{ test.test }}</label>
+                  <span class="text-muted small">{{ test.unit }} (Ref: {{ test.reference }})</span>
+                  <input type="text" class="form-control mt-1" name="test_{{ test.test }}" id="input_{{ test.test }}" style="display:none;" placeholder="Enter value">
+                {% else %}
+                  <input type="checkbox" id="test_{{ test.serotype }}" name="selected_tests" value="{{ test.serotype }}" onchange="toggleTestInput('{{ test.serotype }}')">
+                  <label for="test_{{ test.serotype }}">{{ test.serotype }}</label>
+                  <span class="text-muted small">{{ test.reaction }} (Titre: {{ test.titre }})</span>
+                  <input type="text" class="form-control mt-1" name="test_{{ test.serotype }}" id="input_{{ test.serotype }}" style="display:none;" placeholder="Enter value">
+                {% endif %}
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endfor %}
+      <h5 class="mt-3">Other Tests</h5>
+      <div class="row">
+        <div class="col-md-4 mb-2">
+          <input type="checkbox" id="extra_urine" name="selected_tests" value="Urine" onchange="toggleExtraInput('urine')">
+          <label for="extra_urine">Urine Test</label>
+          <input type="text" class="form-control mt-1" name="extra_urine" id="input_extra_urine" style="display:none;" placeholder="Enter urine test result">
+        </div>
+        <div class="col-md-4 mb-2">
+          <input type="checkbox" id="extra_stool" name="selected_tests" value="Stool" onchange="toggleExtraInput('stool')">
+          <label for="extra_stool">Stool Test</label>
+          <input type="text" class="form-control mt-1" name="extra_stool" id="input_extra_stool" style="display:none;" placeholder="Enter stool test result">
+        </div>
+        <div class="col-md-4 mb-2">
+          <input type="checkbox" id="extra_other" name="selected_tests" value="Other" onchange="toggleExtraInput('other')">
+          <label for="extra_other">Other Test</label>
+          <input type="text" class="form-control mt-1" name="extra_other" id="input_extra_other" style="display:none;" placeholder="Enter other test result">
+        </div>
+      </div>
+    </div>
+    <div class="form-group mt-3">
+      <label for="notes">Notes (optional):</label>
+      <textarea class="form-control" id="notes" name="notes" rows="2"></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary mt-3">Save & Print Report</button>
+  </form>
+</div>
+<script>
+function toggleTestInput(test) {
+  var cb = document.getElementById('test_' + test);
+  var input = document.getElementById('input_' + test);
+  if (cb.checked) {
+    input.style.display = '';
+    input.required = true;
+  } else {
+    input.style.display = 'none';
+    input.required = false;
+    input.value = '';
+  }
+}
+function toggleExtraInput(extra) {
+  var cb = document.getElementById('extra_' + extra);
+  var input = document.getElementById('input_extra_' + extra);
+  if (cb.checked) {
+    input.style.display = '';
+    input.required = true;
+  } else {
+    input.style.display = 'none';
+    input.required = false;
+    input.value = '';
+  }
+}
+</script>
+{% endblock %} 

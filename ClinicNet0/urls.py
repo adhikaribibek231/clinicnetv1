@@ -29,4 +29,5 @@ urlpatterns = [
     path('book-appointment/', BookAppointment, name='book_appointment_public'),  # Public booking page
     path('clinic/', include('clinic.urls', namespace='clinic')),
     path('pharmacy/', include('pharmacy.urls', namespace='pharmacy')),
+    path('labtest/', include('labtest.urls', namespace='labtest')),
 ]

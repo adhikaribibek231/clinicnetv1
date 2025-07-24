@@ -39,6 +39,13 @@
             <p>View detailed sales information</p>
             <a href="{% url 'pharmacy:all_sales' %}" class="btn-placeholder">View Sales</a>
         </div>
+        {% if request.user.is_staff %}
+        <div class="card">
+            <h3>Lab Test Module</h3>
+            <p>Access and record lab test results</p>
+            <a href="{% url 'labtest:lab_analysis_form' %}" class="btn-placeholder">Go to Lab Test</a>
+        </div>
+        {% endif %}
     </div>
 </section>
 
