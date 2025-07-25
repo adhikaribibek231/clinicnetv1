@@ -3,7 +3,7 @@
 {% block content %}
 <style>
 @media print {
-  .no-print { display: none; }
+  .no-print, nav, footer { display: none !important; }
   body { background: white !important; }
   .a4-sheet { box-shadow: none !important; margin: 0 !important; }
 }
@@ -25,6 +25,8 @@
     <strong>Patient:</strong> {{ record.patient.name }}<br>
     <strong>Age:</strong> {{ record.patient.age }}<br>
     <strong>Gender:</strong> {{ record.patient.gender }}<br>
+    <strong>Phone:</strong> {{ record.patient.mobile|default:'-' }}<br>
+    <strong>Email:</strong> {{ record.patient.email|default:'-' }}<br>
     <strong>Date:</strong> {{ record.date }}<br>
     {% if record.notes %}<strong>Notes:</strong> {{ record.notes }}<br>{% endif %}
   </div>

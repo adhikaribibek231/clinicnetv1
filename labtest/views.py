@@ -105,6 +105,16 @@ def delete_lab_record(request, record_id):
         return redirect('labtest:patient_lab_records', patient_id=patient_id)
     return render(request, 'labtest/confirm_delete_lab_record.html', {'record': record})
 
+def lab_reports_list(request):
+    from django.db.models import Q
+    query = request.GET.get('q', '')
+    # Get patients who have at least one lab record
+    patients = Patient.objects.filter(lab_records__isnull=False).distinct()
+    if query:
+        patients = patients.filter(Q(name__icontains=query) | Q(mobile__icontains=query) | Q(email__icontains=query))
+    patients = patients.order_by('name')
+    return render(request, 'labtest/lab_reports_list.html', {'patients': patients, 'query': query})
+
 __all__ = [
     'lab_analysis_form',
     'print_lab_report',

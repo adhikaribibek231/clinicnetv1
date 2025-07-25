@@ -45,6 +45,11 @@
             <p>Access and record lab test results</p>
             <a href="{% url 'labtest:lab_analysis_form' %}" class="btn-placeholder">Go to Lab Test</a>
         </div>
+        <div class="card">
+            <h3>Lab Reports</h3>
+            <p>View all patients' lab reports</p>
+            <a href="{% url 'labtest:lab_reports_list' %}" class="btn-placeholder">Go to Lab Reports</a>
+        </div>
         {% endif %}
     </div>
 </section>

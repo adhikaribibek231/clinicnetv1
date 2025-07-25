@@ -10,4 +10,5 @@ urlpatterns = [
     path('all-records/', views.all_lab_records, name='all_lab_records'),
     path('edit/<int:record_id>/', views.edit_lab_record, name='edit_lab_record'),
     path('delete/<int:record_id>/', views.delete_lab_record, name='delete_lab_record'),
+    path('lab-reports/', views.lab_reports_list, name='lab_reports_list'),
 ] 
