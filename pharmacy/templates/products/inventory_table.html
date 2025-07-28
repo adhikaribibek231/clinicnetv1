@@ -1,0 +1,133 @@
+{% comment %} Inventory Table Partial for AJAX {% endcomment %}
+{% if expired_batches %}
+<div class="alert alert-expired mb-4 d-flex align-items-center">
+    <span class="expired-icon mr-3"><i class="fas fa-ban"></i></span>
+    <div>
+        <strong>Expired Medicines:</strong> The following batches have expired and cannot be sold:
+        <table class="table table-bordered table-sm shadow-sm rounded mt-2 mb-0 bg-white">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Medicine Name</th>
+                    <th>Batch Number</th>
+                    <th>Expiry Date</th>
+                    <th>Batch Quantity</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for batch in expired_batches %}
+                <tr class="table-danger">
+                    <td>{{ batch.product.item_name }}</td>
+                    <td>{{ batch.batch_number|default:'-' }}</td>
+                    <td>{{ batch.expiry_date|date:'Y-m-d' }}</td>
+                    <td>{{ batch.quantity }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+{% if expiring_batches %}
+<div class="alert alert-expiring mb-4 d-flex align-items-center">
+    <span class="expiring-icon mr-3"><i class="fas fa-exclamation-triangle"></i></span>
+    <div>
+        <strong>Warning:</strong> The following medicine batches are expiring soon (within 30 days):
+        <ul class="mb-0 mt-2">
+            {% for batch in expiring_batches %}
+            <li>
+                <strong>{{ batch.product.item_name }}</strong>
+                (Batch: {{ batch.batch_number|default:'-' }}, Expiry: {{ batch.expiry_date|date:'Y-m-d' }}, Qty: {{ batch.quantity }})
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endif %}
+<table class="table table-striped table-hover shadow-sm rounded">
+    <thead>
+        <tr>
+            <th>Medicine Name</th>
+            <th>Category</th>
+            <th>Batch Number</th>
+            <th>Manufacture Date</th>
+            <th>Expiry Date</th>
+            <th>Batch Quantity</th>
+            <th>Unit Price</th>
+            <th>Total Value</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for product in products %}
+            {% for batch in product.non_expired_batches %}
+                <tr {% if batch in expiring_batches %}class="table-warning"{% endif %}>
+                    <td>{{ product.item_name }}
+                        {% if forloop.first %}
+                        <div class="mt-1">
+                            <a href="{% url 'pharmacy:edit_medicine' product.id %}" class="btn btn-sm btn-outline-primary">Edit</a>
+                            <a href="{% url 'pharmacy:delete_medicine' product.id %}" class="btn btn-sm btn-outline-danger">Delete</a>
+                        </div>
+                        {% endif %}
+                    </td>
+                    <td>{{ product.category_name }}</td>
+                    <td>{{ batch.batch_number|default:'-' }}</td>
+                    <td>{{ batch.manufacture_date|date:'Y-m-d' }}</td>
+                    <td>{{ batch.expiry_date|date:'Y-m-d' }}
+                        {% if batch in expiring_batches %}
+                            <span class="text-warning ml-1" title="Expiring soon!"><i class="fas fa-exclamation-triangle"></i></span>
+                        {% endif %}
+                    </td>
+                    <td>{{ batch.quantity }}</td>
+                    <td>{{ product.unit_price }}</td>
+                    <td>{{ batch.total_value }}</td>
+                    <td>
+                        <a href="{% url 'pharmacy:edit_batch' batch.id %}" class="btn btn-sm btn-outline-primary">Edit</a>
+                        <a href="{% url 'pharmacy:delete_batch' batch.id %}" class="btn btn-sm btn-outline-danger">Delete</a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td>{{ product.item_name }}</td>
+                    <td>{{ product.category_name }}</td>
+                    <td colspan="7" class="text-muted">No batches available</td>
+                </tr>
+            {% endfor %}
+        {% empty %}
+            <tr>
+                <td colspan="8" class="text-center text-muted">No medicines in inventory.</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<style>
+.alert-expired {
+    background: linear-gradient(90deg, #ffdde1 0%, #ee9ca7 100%);
+    color: #a94442;
+    border: 1.5px solid #e57373;
+    border-radius: 1rem;
+    padding: 1.5rem 2rem;
+    font-size: 1.1rem;
+    box-shadow: 0 2px 8px rgba(238, 156, 167, 0.08);
+    margin-bottom: 2rem;
+}
+.expired-icon {
+    font-size: 2.2rem;
+    color: #c0392b;
+    flex-shrink: 0;
+}
+.alert-expiring {
+    background: linear-gradient(90deg, #fceabb 0%, #f8b500 100%);
+    color: #856404;
+    border: 1.5px solid #ffe082;
+    border-radius: 1rem;
+    padding: 1.5rem 2rem;
+    font-size: 1.1rem;
+    box-shadow: 0 2px 8px rgba(248, 181, 0, 0.08);
+    margin-bottom: 2rem;
+}
+.expiring-icon {
+    font-size: 2.2rem;
+    color: #f8b500;
+    flex-shrink: 0;
+}
+</style> 
