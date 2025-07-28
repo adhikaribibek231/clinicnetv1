@@ -17,9 +17,9 @@ def Pharmacy(request):
     soon = today + timedelta(days=30)
     expiring_batches = MedicineBatch.objects.filter(expiry_date__lte=soon, expiry_date__gte=today, quantity__gt=0).order_by('expiry_date')
     expired_batches = MedicineBatch.objects.filter(expiry_date__lt=today, quantity__gt=0).order_by('expiry_date')
-    # Annotate each batch with total_value and filter non-expired batches
+    # Annotate each batch with total_value and filter non-expired, in-stock batches
     for product in products:
-        product.non_expired_batches = [batch for batch in product.batches.all() if batch not in expired_batches]
+        product.non_expired_batches = [batch for batch in product.batches.all() if batch not in expired_batches and batch.quantity > 0]
         for batch in product.batches.all():
             batch.total_value = str((batch.quantity or 0) * (product.unit_price or 0))
     return render(request, 'products/index.html', {
