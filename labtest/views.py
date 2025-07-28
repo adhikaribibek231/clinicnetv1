@@ -53,24 +53,18 @@ def lab_analysis_form(request):
 def print_lab_report(request, record_id):
     record = get_object_or_404(LabTestRecord, id=record_id)
     results = {r.test_name: r for r in record.results.all()}
-    reference_data = load_reference_values()
-    # Build a flat list of all possible tests for the report
-    all_tests = []
-    for section, items in reference_data.items():
-        if isinstance(items, list):
-            for t in items:
-                all_tests.append({'name': t.get('test', t.get('serotype')), 'unit': t.get('unit', ''), 'reference': t.get('reference', '')})
-        elif isinstance(items, dict):
-            for sublist in items.values():
-                for t in sublist:
-                    all_tests.append({'name': t.get('test'), 'unit': t.get('unit', ''), 'reference': t.get('reference', '')})
-    # Add urine, stool, other
-    for extra in ['Urine', 'Stool', 'Other']:
-        all_tests.append({'name': extra, 'unit': '', 'reference': ''})
+    # Only include tests that have results for this record
+    ticked_tests = []
+    for r in record.results.all():
+        ticked_tests.append({
+            'name': r.test_name,
+            'unit': r.unit,
+            'reference': r.reference,
+        })
     return render(request, 'labtest/print_lab_report.html', {
         'record': record,
         'results': results,
-        'all_tests': all_tests,
+        'all_tests': ticked_tests,
     })
 
 def patient_lab_records(request, patient_id):

@@ -13,15 +13,20 @@ from datetime import date, timedelta
 def Pharmacy(request):
     """Main inventory view"""
     products = Product.objects.all().order_by('-id')
-    # Find batches expiring within 30 days
     today = date.today()
     soon = today + timedelta(days=30)
     expiring_batches = MedicineBatch.objects.filter(expiry_date__lte=soon, expiry_date__gte=today, quantity__gt=0).order_by('expiry_date')
-    # Annotate each batch with total_value
+    expired_batches = MedicineBatch.objects.filter(expiry_date__lt=today, quantity__gt=0).order_by('expiry_date')
+    # Annotate each batch with total_value and filter non-expired batches
     for product in products:
+        product.non_expired_batches = [batch for batch in product.batches.all() if batch not in expired_batches]
         for batch in product.batches.all():
             batch.total_value = str((batch.quantity or 0) * (product.unit_price or 0))
-    return render(request, 'products/index.html', {'products': products, 'expiring_batches': expiring_batches})
+    return render(request, 'products/index.html', {
+        'products': products,
+        'expiring_batches': expiring_batches,
+        'expired_batches': expired_batches,
+    })
 
 @staff_member_required
 def home(request):

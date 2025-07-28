@@ -5,7 +5,14 @@
 @media print {
   .no-print, nav, footer { display: none !important; }
   body { background: white !important; }
-  .a4-sheet { box-shadow: none !important; margin: 0 !important; }
+  .a4-sheet {
+    box-shadow: none !important;
+    margin: 0 !important;
+    min-height: unset !important;
+    padding: 0 !important;
+    page-break-after: avoid !important;
+    page-break-inside: avoid !important;
+  }
 }
 .a4-sheet {
   width: 210mm;
@@ -30,6 +37,7 @@
     <strong>Date:</strong> {{ record.date }}<br>
     {% if record.notes %}<strong>Notes:</strong> {{ record.notes }}<br>{% endif %}
   </div>
+  <!-- Only ticked/selected tests are shown below -->
   <table class="table table-bordered table-sm">
     <thead>
       <tr>

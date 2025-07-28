@@ -46,8 +46,8 @@
             </thead>
             <tbody>
                 {% for product in products %}
-                    {% for batch in product.batches.all %}
-                        <tr>
+                    {% for batch in product.non_expired_batches %}
+                        <tr {% if batch in expiring_batches %}class="table-warning"{% endif %}>
                             <td>{{ product.item_name }}
                                 {% if forloop.first %}
                                 <div class="mt-1">
@@ -59,7 +59,11 @@
                             <td>{{ product.category_name }}</td>
                             <td>{{ batch.batch_number|default:'-' }}</td>
                             <td>{{ batch.manufacture_date|date:'Y-m-d' }}</td>
-                            <td>{{ batch.expiry_date|date:'Y-m-d' }}</td>
+                            <td>{{ batch.expiry_date|date:'Y-m-d' }}
+                                {% if batch in expiring_batches %}
+                                    <span class="text-warning ml-1" title="Expiring soon!"><i class="fas fa-exclamation-triangle"></i></span>
+                                {% endif %}
+                            </td>
                             <td>{{ batch.quantity }}</td>
                             <td>{{ product.unit_price }}</td>
                             <td>{{ batch.total_value }}</td>
@@ -83,5 +87,33 @@
             </tbody>
         </table>
     </div>
+
+    {% if expired_batches %}
+    <div class="alert alert-danger mt-5">
+        <strong>Expired Medicines:</strong> The following batches have expired and cannot be sold:
+    </div>
+    <div class="table-container mb-5">
+        <table class="table table-bordered table-sm">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Medicine Name</th>
+                    <th>Batch Number</th>
+                    <th>Expiry Date</th>
+                    <th>Batch Quantity</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for batch in expired_batches %}
+                <tr class="table-danger">
+                    <td>{{ batch.product.item_name }}</td>
+                    <td>{{ batch.batch_number|default:'-' }}</td>
+                    <td>{{ batch.expiry_date|date:'Y-m-d' }}</td>
+                    <td>{{ batch.quantity }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}
