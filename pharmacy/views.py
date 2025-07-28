@@ -147,27 +147,44 @@ def add_medicine_batch(request):
 @staff_member_required
 def sell_medicine(request):
     """Sell medicine from a batch, select patient or enter customer name, and generate receipt"""
-    batches = MedicineBatch.objects.select_related('product').filter(quantity__gt=0).order_by('product__item_name', 'expiry_date')
+    from datetime import date
+    products = Product.objects.all().order_by('item_name')
     patients = Patient.objects.all().order_by('name')
-    if request.method == 'POST':
+    selected_product_id = request.GET.get('product') or request.POST.get('product')
+    selected_product = None
+    available_batches = []
+    out_of_stock = False
+    expired_batches = []
+    if selected_product_id:
+        try:
+            selected_product = Product.objects.get(id=selected_product_id)
+            today = date.today()
+            # Separate available and expired batches
+            all_batches = selected_product.batches.all().order_by('expiry_date')
+            available_batches = [b for b in all_batches if b.expiry_date and b.expiry_date >= today and b.quantity > 0]
+            expired_batches = [b for b in all_batches if b.expiry_date and b.expiry_date < today and b.quantity > 0]
+            if not available_batches:
+                out_of_stock = True
+        except Product.DoesNotExist:
+            selected_product = None
+    if request.method == 'POST' and selected_product:
         batch_id = request.POST.get('batch')
         quantity = int(request.POST.get('quantity', 0))
         amount_received = int(request.POST.get('amount_received', 0))
         is_patient = request.POST.get('is_patient') == 'on'
         patient_id = request.POST.get('patient')
         customer_name = request.POST.get('customer_name')
-        
         try:
             batch = MedicineBatch.objects.get(id=batch_id)
             total_cost = quantity * batch.product.unit_price
-
             if is_patient and patient_id:
                 patient = Patient.objects.get(id=patient_id)
                 issued_to = patient.name
             else:
                 issued_to = customer_name
-
-            if quantity <= 0 or quantity > batch.quantity:
+            if batch.expiry_date and batch.expiry_date < date.today():
+                messages.error(request, 'This batch is already expired and cannot be sold.')
+            elif quantity <= 0 or quantity > batch.quantity:
                 messages.error(request, f'Invalid quantity. Only {batch.quantity} available.')
             elif amount_received < total_cost:
                 messages.error(request, 'Amount received is less than the total cost.')
@@ -188,9 +205,12 @@ def sell_medicine(request):
             messages.error(request, 'Selected medicine batch not found.')
         except Patient.DoesNotExist:
             messages.error(request, 'Selected patient not found.')
-
     return render(request, 'products/sell_medicine.html', {
-        'batches': batches,
+        'products': products,
+        'selected_product': selected_product,
+        'available_batches': available_batches,
+        'expired_batches': expired_batches,
+        'out_of_stock': out_of_stock,
         'patients': patients,
     })
 

@@ -10,55 +10,86 @@
                     <h4 class="mb-0">Sell Medicine</h4>
                 </div>
                 <div class="card-body">
-                    <form method="post">
-                        {% csrf_token %}
+                    <form method="get" class="mb-4">
                         <div class="form-group">
-                            <label for="batch">Select Medicine Batch</label>
-                            <select class="form-control" id="batch" name="batch" required>
-                                <option value="">-- Select Batch --</option>
-                                {% for batch in batches %}
-                                <option value="{{ batch.id }}" data-price="{{ batch.product.unit_price }}">
-                                    {{ batch.product.item_name }} | Batch: {{ batch.batch_number|default:'-' }} | Exp: {{ batch.expiry_date|date:'Y-m-d' }} | Qty: {{ batch.quantity }}
-                                </option>
+                            <label for="product">Select Medicine</label>
+                            <select class="form-control" id="product" name="product" required onchange="this.form.submit()">
+                                <option value="">-- Select Medicine --</option>
+                                {% for product in products %}
+                                <option value="{{ product.id }}" {% if selected_product and product.id == selected_product.id %}selected{% endif %}>{{ product.item_name }}</option>
                                 {% endfor %}
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label for="quantity">Quantity</label>
-                            <input type="number" class="form-control" id="quantity" name="quantity" min="1" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="total_cost">Total Cost</label>
-                            <input type="text" class="form-control" id="total_cost" readonly style="background-color: #e9ecef;">
-                        </div>
-                        <div class="form-group">
-                            <label for="amount_received">Amount Received</label>
-                            <input type="number" class="form-control" id="amount_received" name="amount_received" min="0" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="return_amount">Return Amount</label>
-                            <input type="text" class="form-control" id="return_amount" readonly style="background-color: #e9ecef;">
-                        </div>
-                        <div class="form-check mb-2">
-                            <input type="checkbox" class="form-check-input" id="is_patient" name="is_patient" onchange="toggleCustomerFields()">
-                            <label class="form-check-label" for="is_patient">Customer is a registered patient</label>
-                        </div>
-                        <div class="form-group" id="patient_select" style="display:none;">
-                            <label for="patient">Select Patient</label>
-                            <select class="form-control" id="patient" name="patient">
-                                <option value="">-- Select Patient --</option>
-                                {% for patient in patients %}
-                                <option value="{{ patient.id }}">{{ patient.name }} ({{ patient.mobile }})</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="form-group" id="customer_name_group">
-                            <label for="customer_name">Customer Name</label>
-                            <input type="text" class="form-control" id="customer_name" name="customer_name" placeholder="Enter customer name">
-                        </div>
-                        <button type="submit" class="btn btn-success">Sell</button>
-                        <a href="{% url 'pharmacy:index' %}" class="btn btn-secondary ml-2">Cancel</a>
                     </form>
+                    {% if selected_product %}
+                        {% if out_of_stock %}
+                            <div class="alert alert-danger">This medicine is <strong>out of stock</strong> for all available batches.</div>
+                        {% endif %}
+                        {% if available_batches %}
+                        <form method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="product" value="{{ selected_product.id }}">
+                            <div class="form-group">
+                                <label for="batch">Select Batch</label>
+                                <select class="form-control" id="batch" name="batch" required>
+                                    <option value="">-- Select Batch --</option>
+                                    {% for batch in available_batches %}
+                                    <option value="{{ batch.id }}" data-price="{{ batch.product.unit_price }}">
+                                        Batch: {{ batch.batch_number|default:'-' }} | Exp: {{ batch.expiry_date|date:'Y-m-d' }} | Qty: {{ batch.quantity }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="quantity">Quantity</label>
+                                <input type="number" class="form-control" id="quantity" name="quantity" min="1" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="total_cost">Total Cost</label>
+                                <input type="text" class="form-control" id="total_cost" readonly style="background-color: #e9ecef;">
+                            </div>
+                            <div class="form-group">
+                                <label for="amount_received">Amount Received</label>
+                                <input type="number" class="form-control" id="amount_received" name="amount_received" min="0" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="return_amount">Return Amount</label>
+                                <input type="text" class="form-control" id="return_amount" readonly style="background-color: #e9ecef;">
+                            </div>
+                            <div class="form-check mb-2">
+                                <input type="checkbox" class="form-check-input" id="is_patient" name="is_patient" onchange="toggleCustomerFields()">
+                                <label class="form-check-label" for="is_patient">Customer is a registered patient</label>
+                            </div>
+                            <div class="form-group" id="patient_select" style="display:none;">
+                                <label for="patient">Select Patient</label>
+                                <select class="form-control" id="patient" name="patient">
+                                    <option value="">-- Select Patient --</option>
+                                    {% for patient in patients %}
+                                    <option value="{{ patient.id }}">{{ patient.name }} ({{ patient.mobile }})</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group" id="customer_name_group">
+                                <label for="customer_name">Customer Name</label>
+                                <input type="text" class="form-control" id="customer_name" name="customer_name" placeholder="Enter customer name">
+                            </div>
+                            <button type="submit" class="btn btn-success">Sell</button>
+                            <a href="{% url 'pharmacy:index' %}" class="btn btn-secondary ml-2">Cancel</a>
+                        </form>
+                        {% endif %}
+                        {% if expired_batches %}
+                        <div class="alert alert-danger mt-4">
+                            <strong>Already Expired Batches (Cannot be sold):</strong>
+                            <ul class="mb-0">
+                                {% for batch in expired_batches %}
+                                <li>
+                                    Batch: {{ batch.batch_number|default:'-' }} | Exp: {{ batch.expiry_date|date:'Y-m-d' }} | Qty: {{ batch.quantity }}
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -73,23 +104,24 @@ document.addEventListener('DOMContentLoaded', function() {
     const returnAmountInput = document.getElementById('return_amount');
 
     function calculate() {
+        if (!batchSelect) return;
         const selectedOption = batchSelect.options[batchSelect.selectedIndex];
-        const unitPrice = parseFloat(selectedOption.getAttribute('data-price')) || 0;
-        const quantity = parseInt(quantityInput.value) || 0;
+        const unitPrice = parseFloat(selectedOption ? selectedOption.getAttribute('data-price') : 0) || 0;
+        const quantity = parseInt(quantityInput ? quantityInput.value : 0) || 0;
         const totalCost = unitPrice * quantity;
-        totalCostInput.value = 'Rs. ' + totalCost.toFixed(2);
+        if (totalCostInput) totalCostInput.value = 'Rs. ' + totalCost.toFixed(2);
 
-        const amountReceived = parseFloat(amountReceivedInput.value) || 0;
+        const amountReceived = parseFloat(amountReceivedInput ? amountReceivedInput.value : 0) || 0;
         let returnAmount = 0;
         if (amountReceived >= totalCost) {
             returnAmount = amountReceived - totalCost;
         }
-        returnAmountInput.value = 'Rs. ' + returnAmount.toFixed(2);
+        if (returnAmountInput) returnAmountInput.value = 'Rs. ' + returnAmount.toFixed(2);
     }
 
-    batchSelect.addEventListener('change', calculate);
-    quantityInput.addEventListener('input', calculate);
-    amountReceivedInput.addEventListener('input', calculate);
+    if (batchSelect) batchSelect.addEventListener('change', calculate);
+    if (quantityInput) quantityInput.addEventListener('input', calculate);
+    if (amountReceivedInput) amountReceivedInput.addEventListener('input', calculate);
 });
 
 function toggleCustomerFields() {
