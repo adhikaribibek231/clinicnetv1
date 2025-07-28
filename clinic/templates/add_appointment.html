@@ -19,6 +19,8 @@
   <!-- FontAwesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+  
   {% block extra_css %}
   <style>
     .booking-container {
@@ -487,7 +489,22 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
     integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
   
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+  
   <script>
+    $(document).ready(function() {
+      $('#existing-patient').select2({
+        width: '100%',
+        placeholder: 'Select a patient...',
+        allowClear: true,
+        language: {
+          noResults: function() {
+            return 'No result';
+          }
+        }
+      });
+    });
+
     var userIsAuthenticated = "{{ user.is_authenticated|yesno:'true,false' }}";
     let currentStep = 1;
     let patientType = null;
