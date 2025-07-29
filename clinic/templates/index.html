@@ -46,6 +46,22 @@
         background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
     }
 
+    .bg-emergency {
+        background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+    }
+
+    .bg-critical {
+        background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+    }
+
+    .bg-urgent {
+        background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+    }
+
+    .bg-active {
+        background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    }
+
     .card-body {
         color: white;
         text-align: center;
@@ -295,6 +311,59 @@
             </div>
         </div>
     </div>
+    
+    <!-- Emergency Services Row -->
+    <div class="row mt-4">
+        <div class="col-md-3">
+            <div class="card dashboard-card bg-emergency">
+                <div class="card-body">
+                    <div class="card-icon mb-3"><i class="fas fa-ambulance"></i></div>
+                    <div class="count">{{ e }}</div>
+                    <div class="label">Total Emergencies</div>
+                    <div class="mt-3">
+                        <a href="{% url 'clinic:emergency_services_overview' %}" class="action-btn">View All</a>
+                        <a href="{% url 'clinic:emergency_patient_registration' %}" class="action-btn">Register</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card dashboard-card bg-critical">
+                <div class="card-body">
+                    <div class="card-icon mb-3"><i class="fas fa-exclamation-triangle"></i></div>
+                    <div class="count">{{ critical_e }}</div>
+                    <div class="label">Critical Cases</div>
+                    <div class="mt-3">
+                        <a href="{% url 'clinic:emergency_services_overview' %}" class="action-btn">View Active</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card dashboard-card bg-urgent">
+                <div class="card-body">
+                    <div class="card-icon mb-3"><i class="fas fa-clock"></i></div>
+                    <div class="count">{{ urgent_e }}</div>
+                    <div class="label">Urgent Cases</div>
+                    <div class="mt-3">
+                        <a href="{% url 'clinic:emergency_services_overview' %}" class="action-btn">View Active</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card dashboard-card bg-active">
+                <div class="card-body">
+                    <div class="card-icon mb-3"><i class="fas fa-heartbeat"></i></div>
+                    <div class="count">{{ active_e }}</div>
+                    <div class="label">Active Cases</div>
+                    <div class="mt-3">
+                        <a href="{% url 'clinic:emergency_services_overview' %}" class="action-btn">Manage</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Quick Actions -->
@@ -347,6 +416,22 @@
                 <h5>View Reports</h5>
                 <p>Access detailed reports and analytics</p>
                 <a href="{% url 'clinic:view_appointment' %}" class="btn-action">View Reports</a>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="action-card">
+                <i class="fas fa-ambulance"></i>
+                <h5>Emergency Services</h5>
+                <p>Register and manage emergency patients</p>
+                <a href="{% url 'clinic:emergency_services_overview' %}" class="btn-action">Emergency Services</a>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="action-card">
+                <i class="fas fa-user-plus"></i>
+                <h5>Register Emergency</h5>
+                <p>Quick registration for emergency patients</p>
+                <a href="{% url 'clinic:emergency_patient_registration' %}" class="btn-action">Register Patient</a>
             </div>
         </div>
     </div>

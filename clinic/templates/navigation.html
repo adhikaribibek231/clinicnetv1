@@ -105,6 +105,9 @@
           <li class="nav-item{% if 'recurring' in request.resolver_match.url_name %} active{% endif %}">
             <a class="nav-link" href="{% url 'clinic:recurring_schedules_overview' %}">Recurring</a>
           </li>
+          <li class="nav-item{% if 'emergency' in request.resolver_match.url_name %} active{% endif %}">
+            <a class="nav-link" href="{% url 'clinic:emergency_services_overview' %}">Emergency</a>
+          </li>
           <li class="nav-item">
             <a class="nav-link text-danger" href="{% url 'unified_logout' %}">Logout</a>
           </li>

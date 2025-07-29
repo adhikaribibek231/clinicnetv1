@@ -381,10 +381,21 @@ def Index(request):
     # Get recent appointments (last 10)
     recent_appointments = PublicAppointment.objects.select_related('doctor', 'service').order_by('-created_at')[:10]  # type: ignore
     
+    # Get emergency services statistics
+    from .models import EmergencyService
+    emergency_services = EmergencyService.objects.all()
+    active_emergencies = emergency_services.filter(status='active')
+    critical_emergencies = active_emergencies.filter(priority='critical')
+    urgent_emergencies = active_emergencies.filter(priority='urgent')
+    
     d = doctors.count()
     p = patients.count()
     a = appointments.count()
     services_count = services.count()
+    e = emergency_services.count()
+    active_e = active_emergencies.count()
+    critical_e = critical_emergencies.count()
+    urgent_e = urgent_emergencies.count()
     
     # Get database statistics
     db_stats = get_db_stats()
@@ -394,7 +405,11 @@ def Index(request):
         'd': d, 
         'p': p, 
         'a': a,
-        'services_count': services_count,
+        's': services_count,
+        'e': e,
+        'active_e': active_e,
+        'critical_e': critical_e,
+        'urgent_e': urgent_e,
         'recent_appointments': recent_appointments,
         'db_stats': db_stats,
         'unread_count': unread_count,
@@ -1255,6 +1270,202 @@ def generate_monthly_schedules_ajax(request, doctor_id):
         
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
+
+@staff_member_required
+def emergency_services_overview(request):
+    """Overview page for emergency services"""
+    from .models import EmergencyService
+    
+    # Get active emergencies (not completed/discharged/transferred)
+    active_emergencies = EmergencyService.objects.filter(status='active').order_by('-arrival_time')
+    
+    # Get recent emergencies (last 24 hours)
+    from datetime import timedelta
+    from django.utils import timezone
+    last_24_hours = timezone.now() - timedelta(hours=24)
+    recent_emergencies = EmergencyService.objects.filter(arrival_time__gte=last_24_hours).order_by('-arrival_time')
+    
+    # Get statistics
+    total_emergencies = EmergencyService.objects.count()
+    critical_emergencies = EmergencyService.objects.filter(priority='critical', status='active').count()
+    urgent_emergencies = EmergencyService.objects.filter(priority='urgent', status='active').count()
+    
+    # Get available doctors for assignment
+    doctors = Doctor.objects.all()  # type: ignore
+    
+    context = {
+        'active_emergencies': active_emergencies,
+        'recent_emergencies': recent_emergencies,
+        'total_emergencies': total_emergencies,
+        'critical_emergencies': critical_emergencies,
+        'urgent_emergencies': urgent_emergencies,
+        'doctors': doctors,
+    }
+    return render(request, 'emergency_services_overview.html', context)
+
+@staff_member_required
+def emergency_patient_registration(request):
+    """Register a new emergency patient"""
+    from .models import EmergencyService
+    
+    if request.method == 'POST':
+        try:
+            # Create emergency service record
+            emergency = EmergencyService.objects.create(
+                patient_name=request.POST.get('patient_name'),
+                patient_age=request.POST.get('patient_age'),
+                patient_gender=request.POST.get('patient_gender'),
+                patient_mobile=request.POST.get('patient_mobile'),
+                patient_address=request.POST.get('patient_address'),
+                emergency_contact=request.POST.get('emergency_contact', ''),
+                patient_email=request.POST.get('patient_email', ''),
+                emergency_type=request.POST.get('emergency_type'),
+                symptoms=request.POST.get('symptoms'),
+                priority=request.POST.get('priority', 'stable'),
+                blood_pressure_systolic=request.POST.get('blood_pressure_systolic') or None,
+                blood_pressure_diastolic=request.POST.get('blood_pressure_diastolic') or None,
+                heart_rate=request.POST.get('heart_rate') or None,
+                temperature=request.POST.get('temperature') or None,
+                respiratory_rate=request.POST.get('respiratory_rate') or None,
+                oxygen_saturation=request.POST.get('oxygen_saturation') or None,
+                blood_sugar=request.POST.get('blood_sugar') or None,
+                allergies=request.POST.get('allergies', ''),
+                current_medications=request.POST.get('current_medications', ''),
+                medical_history=request.POST.get('medical_history', ''),
+                nurse_staff=request.POST.get('nurse_staff', ''),
+                notes=request.POST.get('notes', '')
+            )
+            
+            # Try to link to existing patient
+            try:
+                existing_patient = Patient.objects.get(
+                    name=emergency.patient_name,
+                    mobile=emergency.patient_mobile
+                )
+                emergency.patient = existing_patient
+                emergency.save()
+                messages.success(request, f'Emergency patient registered and linked to existing patient record.')
+            except Patient.DoesNotExist:
+                messages.success(request, f'Emergency patient registered successfully. New patient record created.')
+            
+            return redirect('clinic:emergency_services_overview')
+            
+        except Exception as e:
+            messages.error(request, f'Error registering emergency patient: {str(e)}')
+    
+    doctors = Doctor.objects.all()  # type: ignore
+    context = {
+        'doctors': doctors,
+    }
+    return render(request, 'emergency_patient_registration.html', context)
+
+@staff_member_required
+def emergency_patient_detail(request, emergency_id):
+    """View and update emergency patient details"""
+    from .models import EmergencyService
+    
+    try:
+        emergency = EmergencyService.objects.get(id=emergency_id)
+    except EmergencyService.DoesNotExist:
+        messages.error(request, 'Emergency case not found!')
+        return redirect('clinic:emergency_services_overview')
+    
+    if request.method == 'POST':
+        try:
+            # Update emergency information
+            emergency.patient_name = request.POST.get('patient_name')
+            emergency.patient_age = request.POST.get('patient_age')
+            emergency.patient_gender = request.POST.get('patient_gender')
+            emergency.patient_mobile = request.POST.get('patient_mobile')
+            emergency.patient_address = request.POST.get('patient_address')
+            emergency.emergency_contact = request.POST.get('emergency_contact', '')
+            emergency.patient_email = request.POST.get('patient_email', '')
+            emergency.emergency_type = request.POST.get('emergency_type')
+            emergency.symptoms = request.POST.get('symptoms')
+            emergency.priority = request.POST.get('priority')
+            emergency.status = request.POST.get('status')
+            
+            # Update vital signs
+            emergency.blood_pressure_systolic = request.POST.get('blood_pressure_systolic') or None
+            emergency.blood_pressure_diastolic = request.POST.get('blood_pressure_diastolic') or None
+            emergency.heart_rate = request.POST.get('heart_rate') or None
+            emergency.temperature = request.POST.get('temperature') or None
+            emergency.respiratory_rate = request.POST.get('respiratory_rate') or None
+            emergency.oxygen_saturation = request.POST.get('oxygen_saturation') or None
+            emergency.blood_sugar = request.POST.get('blood_sugar') or None
+            
+            # Update medical information
+            emergency.allergies = request.POST.get('allergies', '')
+            emergency.current_medications = request.POST.get('current_medications', '')
+            emergency.medical_history = request.POST.get('medical_history', '')
+            
+            # Update treatment information
+            emergency.treatment_plan = request.POST.get('treatment_plan', '')
+            emergency.notes = request.POST.get('notes', '')
+            
+            # Update staff information
+            doctor_id = request.POST.get('attending_doctor')
+            if doctor_id:
+                emergency.attending_doctor_id = doctor_id
+            emergency.nurse_staff = request.POST.get('nurse_staff', '')
+            
+            # Update timestamps
+            if request.POST.get('treatment_start_time'):
+                from django.utils import timezone
+                emergency.treatment_start_time = timezone.now()
+            
+            if request.POST.get('completion_time'):
+                from django.utils import timezone
+                emergency.completion_time = timezone.now()
+            
+            emergency.save()
+            messages.success(request, 'Emergency case updated successfully!')
+            return redirect('clinic:emergency_services_overview')
+            
+        except Exception as e:
+            messages.error(request, f'Error updating emergency case: {str(e)}')
+    
+    doctors = Doctor.objects.all()  # type: ignore
+    context = {
+        'emergency': emergency,
+        'doctors': doctors,
+    }
+    return render(request, 'emergency_patient_detail.html', context)
+
+@staff_member_required
+def emergency_patient_list(request):
+    """List all emergency patients with filtering"""
+    from .models import EmergencyService
+    
+    # Get filter parameters
+    status_filter = request.GET.get('status', '')
+    priority_filter = request.GET.get('priority', '')
+    date_filter = request.GET.get('date', '')
+    
+    # Build queryset
+    emergencies = EmergencyService.objects.all()
+    
+    if status_filter:
+        emergencies = emergencies.filter(status=status_filter)
+    if priority_filter:
+        emergencies = emergencies.filter(priority=priority_filter)
+    if date_filter:
+        emergencies = emergencies.filter(arrival_time__date=date_filter)
+    
+    # Pagination
+    from django.core.paginator import Paginator
+    paginator = Paginator(emergencies, 20)  # Show 20 per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        'page_obj': page_obj,
+        'status_filter': status_filter,
+        'priority_filter': priority_filter,
+        'date_filter': date_filter,
+        'total_count': emergencies.count(),
+    }
+    return render(request, 'emergency_patient_list.html', context)
 
 @staff_member_required
 def view_patient_detail(request, patient_id):

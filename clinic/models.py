@@ -236,6 +236,118 @@ class ContactMessage(models.Model):
     is_read = models.BooleanField(default=False)
     def __str__(self):
         return f"{self.name} ({self.email}) - {self.created_at.strftime('%Y-%m-%d %H:%M')}"
+
+class EmergencyService(models.Model):
+    """Model for emergency patient services and vital signs"""
+    PRIORITY_CHOICES = [
+        ('critical', 'Critical'),
+        ('urgent', 'Urgent'),
+        ('stable', 'Stable'),
+    ]
+    
+    STATUS_CHOICES = [
+        ('active', 'Active'),
+        ('completed', 'Completed'),
+        ('transferred', 'Transferred'),
+        ('discharged', 'Discharged'),
+    ]
+    
+    # Patient Information
+    patient_name = models.CharField(max_length=100)
+    patient_age = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(150)])
+    patient_gender = models.CharField(max_length=10, choices=[('Male', 'Male'), ('Female', 'Female'), ('Other', 'Other')])
+    patient_mobile = models.CharField(max_length=15)
+    patient_address = models.TextField()
+    emergency_contact = models.CharField(max_length=15, blank=True)
+    patient_email = models.EmailField(blank=True, null=True)
+    
+    # Emergency Information
+    emergency_type = models.CharField(max_length=100, help_text="Type of emergency (e.g., Chest Pain, Accident, Fever)")
+    symptoms = models.TextField(help_text="Patient's symptoms and complaints")
+    priority = models.CharField(max_length=20, choices=PRIORITY_CHOICES, default='stable')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')
+    
+    # Vital Signs
+    blood_pressure_systolic = models.IntegerField(blank=True, null=True, help_text="Systolic BP (mmHg)")
+    blood_pressure_diastolic = models.IntegerField(blank=True, null=True, help_text="Diastolic BP (mmHg)")
+    heart_rate = models.IntegerField(blank=True, null=True, help_text="Heart rate (bpm)")
+    temperature = models.DecimalField(max_digits=4, decimal_places=1, blank=True, null=True, help_text="Temperature (°C)")
+    respiratory_rate = models.IntegerField(blank=True, null=True, help_text="Respiratory rate (breaths/min)")
+    oxygen_saturation = models.IntegerField(blank=True, null=True, help_text="Oxygen saturation (%)")
+    blood_sugar = models.DecimalField(max_digits=5, decimal_places=1, blank=True, null=True, help_text="Blood sugar (mg/dL)")
+    
+    # Medical Information
+    allergies = models.TextField(blank=True, help_text="Known allergies")
+    current_medications = models.TextField(blank=True, help_text="Current medications")
+    medical_history = models.TextField(blank=True, help_text="Relevant medical history")
+    
+    # Treatment Information
+    treatment_plan = models.TextField(blank=True, help_text="Treatment plan and medications given")
+    notes = models.TextField(blank=True, help_text="Additional notes")
+    
+    # Staff Information
+    attending_doctor = models.ForeignKey(Doctor, on_delete=models.SET_NULL, null=True, blank=True)
+    nurse_staff = models.CharField(max_length=100, blank=True, help_text="Nurse or staff member on duty")
+    
+    # Timestamps
+    arrival_time = models.DateTimeField(auto_now_add=True)
+    treatment_start_time = models.DateTimeField(blank=True, null=True)
+    completion_time = models.DateTimeField(blank=True, null=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    # Link to Patient (if found)
+    patient = models.ForeignKey(Patient, on_delete=models.SET_NULL, null=True, blank=True, related_name='emergency_services')
+    
+    class Meta:
+        ordering = ['-arrival_time']
+    
+    def __str__(self):
+        return f"Emergency: {self.patient_name} - {self.emergency_type} ({self.priority})"
+    
+    def get_blood_pressure_display(self):
+        """Get formatted blood pressure display"""
+        if self.blood_pressure_systolic and self.blood_pressure_diastolic:
+            return f"{self.blood_pressure_systolic}/{self.blood_pressure_diastolic} mmHg"
+        return "Not recorded"
+    
+    def get_vital_signs_summary(self):
+        """Get a summary of vital signs"""
+        vitals = []
+        if self.blood_pressure_systolic and self.blood_pressure_diastolic:
+            vitals.append(f"BP: {self.blood_pressure_systolic}/{self.blood_pressure_diastolic}")
+        if self.heart_rate:
+            vitals.append(f"HR: {self.heart_rate} bpm")
+        if self.temperature:
+            vitals.append(f"Temp: {self.temperature}°C")
+        if self.oxygen_saturation:
+            vitals.append(f"O2: {self.oxygen_saturation}%")
+        return ", ".join(vitals) if vitals else "No vitals recorded"
+    
+    def get_priority_color(self):
+        """Get CSS color class for priority"""
+        colors = {
+            'critical': 'danger',
+            'urgent': 'warning', 
+            'stable': 'success'
+        }
+        return colors.get(self.priority, 'secondary')
+    
+    def get_status_color(self):
+        """Get CSS color class for status"""
+        colors = {
+            'active': 'primary',
+            'completed': 'success',
+            'transferred': 'info',
+            'discharged': 'secondary'
+        }
+        return colors.get(self.status, 'secondary')
+    
+    def duration_minutes(self):
+        """Calculate duration in minutes"""
+        if self.completion_time:
+            duration = self.completion_time - self.arrival_time
+            return int(duration.total_seconds() / 60)
+        return None
     
 
     

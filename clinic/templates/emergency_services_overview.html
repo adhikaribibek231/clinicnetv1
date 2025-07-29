@@ -1,0 +1,389 @@
+{% extends 'clinic_base.html' %}
+{% load static %}
+
+{% block title %}Emergency Services - ClinicNet{% endblock %}
+
+{% block extra_css %}
+<style>
+    .emergency-stats {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        text-align: center;
+        margin-bottom: 1rem;
+    }
+
+    .stat-card.critical {
+        background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+    }
+
+    .stat-card.urgent {
+        background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+    }
+
+    .stat-card.active {
+        background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    }
+
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        font-size: 1.1rem;
+        opacity: 0.9;
+    }
+
+    .emergency-list {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+    }
+
+    .emergency-item {
+        border-left: 4px solid #3498db;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        background: #f8f9fa;
+        border-radius: 0 8px 8px 0;
+        transition: all 0.3s ease;
+    }
+
+    .emergency-item:hover {
+        transform: translateX(5px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .emergency-item.critical {
+        border-left-color: #e74c3c;
+        background: #fdf2f2;
+    }
+
+    .emergency-item.urgent {
+        border-left-color: #f39c12;
+        background: #fef9e7;
+    }
+
+    .emergency-item.stable {
+        border-left-color: #27ae60;
+        background: #f0f9f0;
+    }
+
+    .priority-badge {
+        padding: 4px 12px;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .priority-critical {
+        background: #e74c3c;
+        color: white;
+    }
+
+    .priority-urgent {
+        background: #f39c12;
+        color: white;
+    }
+
+    .priority-stable {
+        background: #27ae60;
+        color: white;
+    }
+
+    .status-badge {
+        padding: 4px 12px;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .status-active {
+        background: #3498db;
+        color: white;
+    }
+
+    .status-completed {
+        background: #27ae60;
+        color: white;
+    }
+
+    .status-transferred {
+        background: #9b59b6;
+        color: white;
+    }
+
+    .status-discharged {
+        background: #95a5a6;
+        color: white;
+    }
+
+    .vital-signs {
+        font-size: 0.9rem;
+        color: #6c757d;
+        margin-top: 0.5rem;
+    }
+
+    .action-buttons {
+        margin-top: 1rem;
+    }
+
+    .btn-emergency {
+        background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        margin: 2px;
+    }
+
+    .btn-emergency:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+        color: white;
+        text-decoration: none;
+    }
+
+    .section-title {
+        color: #2c3e50;
+        font-weight: bold;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 3px solid #3498db;
+        display: inline-block;
+    }
+
+    .quick-actions {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+    }
+
+    .action-card {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1.5rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+        margin-bottom: 1rem;
+    }
+
+    .action-card:hover {
+        transform: translateY(-3px);
+        border-color: #ff6b6b;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .action-card i {
+        font-size: 2rem;
+        color: #ff6b6b;
+        margin-bottom: 1rem;
+    }
+
+    .action-card h5 {
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+    }
+
+    .action-card p {
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h2><i class="fas fa-ambulance"></i> Emergency Services Dashboard</h2>
+        <p class="text-muted">Manage emergency patients and track critical cases</p>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="quick-actions">
+    <h3 class="section-title"><i class="fas fa-bolt"></i> Quick Actions</h3>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="action-card">
+                <i class="fas fa-user-plus"></i>
+                <h5>Register Emergency Patient</h5>
+                <p>Quick registration for new emergency cases</p>
+                <a href="{% url 'clinic:emergency_patient_registration' %}" class="btn-emergency">
+                    <i class="fas fa-plus"></i> Register Patient
+                </a>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="action-card">
+                <i class="fas fa-list"></i>
+                <h5>View All Emergencies</h5>
+                <p>Browse complete emergency patient list</p>
+                <a href="{% url 'clinic:emergency_patient_list' %}" class="btn-emergency">
+                    <i class="fas fa-list"></i> View All
+                </a>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="action-card">
+                <i class="fas fa-chart-bar"></i>
+                <h5>Emergency Statistics</h5>
+                <p>View detailed emergency service analytics</p>
+                <a href="{% url 'clinic:emergency_patient_list' %}" class="btn-emergency">
+                    <i class="fas fa-chart-bar"></i> View Stats
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Emergency Statistics -->
+<div class="emergency-stats">
+    <h3 class="section-title"><i class="fas fa-chart-pie"></i> Emergency Statistics</h3>
+    <div class="row">
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-number">{{ total_emergencies }}</div>
+                <div class="stat-label">Total Emergencies</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card critical">
+                <div class="stat-number">{{ critical_emergencies }}</div>
+                <div class="stat-label">Critical Cases</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card urgent">
+                <div class="stat-number">{{ urgent_emergencies }}</div>
+                <div class="stat-label">Urgent Cases</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card active">
+                <div class="stat-number">{{ active_emergencies.count }}</div>
+                <div class="stat-label">Active Cases</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Active Emergencies -->
+{% if active_emergencies %}
+<div class="emergency-list">
+    <h3 class="section-title"><i class="fas fa-exclamation-triangle"></i> Active Emergency Cases</h3>
+    {% for emergency in active_emergencies %}
+    <div class="emergency-item {{ emergency.priority }}">
+        <div class="row align-items-center">
+            <div class="col-md-3">
+                <h5 class="mb-1">{{ emergency.patient_name }}</h5>
+                <small class="text-muted">{{ emergency.patient_age }} years, {{ emergency.patient_gender }}</small><br>
+                <small class="text-muted">{{ emergency.patient_mobile }}</small>
+            </div>
+            <div class="col-md-2">
+                <strong>{{ emergency.emergency_type }}</strong><br>
+                <small class="text-muted">{{ emergency.arrival_time|date:"M d, H:i" }}</small>
+            </div>
+            <div class="col-md-2">
+                <span class="priority-badge priority-{{ emergency.priority }}">
+                    {{ emergency.priority|title }}
+                </span>
+            </div>
+            <div class="col-md-2">
+                <span class="status-badge status-{{ emergency.status }}">
+                    {{ emergency.status|title }}
+                </span>
+            </div>
+            <div class="col-md-3">
+                <div class="vital-signs">
+                    {{ emergency.get_vital_signs_summary }}
+                </div>
+                <div class="action-buttons">
+                    <a href="{% url 'clinic:emergency_patient_detail' emergency.id %}" class="btn-emergency">
+                        <i class="fas fa-edit"></i> Update
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- Recent Emergencies -->
+{% if recent_emergencies %}
+<div class="emergency-list">
+    <h3 class="section-title"><i class="fas fa-clock"></i> Recent Emergency Cases (Last 24 Hours)</h3>
+    {% for emergency in recent_emergencies %}
+    <div class="emergency-item {{ emergency.priority }}">
+        <div class="row align-items-center">
+            <div class="col-md-3">
+                <h5 class="mb-1">{{ emergency.patient_name }}</h5>
+                <small class="text-muted">{{ emergency.patient_age }} years, {{ emergency.patient_gender }}</small><br>
+                <small class="text-muted">{{ emergency.patient_mobile }}</small>
+            </div>
+            <div class="col-md-2">
+                <strong>{{ emergency.emergency_type }}</strong><br>
+                <small class="text-muted">{{ emergency.arrival_time|date:"M d, H:i" }}</small>
+            </div>
+            <div class="col-md-2">
+                <span class="priority-badge priority-{{ emergency.priority }}">
+                    {{ emergency.priority|title }}
+                </span>
+            </div>
+            <div class="col-md-2">
+                <span class="status-badge status-{{ emergency.status }}">
+                    {{ emergency.status|title }}
+                </span>
+            </div>
+            <div class="col-md-3">
+                <div class="vital-signs">
+                    {{ emergency.get_vital_signs_summary }}
+                </div>
+                <div class="action-buttons">
+                    <a href="{% url 'clinic:emergency_patient_detail' emergency.id %}" class="btn-emergency">
+                        <i class="fas fa-eye"></i> View
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% if not active_emergencies and not recent_emergencies %}
+<div class="emergency-list">
+    <div class="text-center py-5">
+        <i class="fas fa-ambulance" style="font-size: 4rem; color: #6c757d;"></i>
+        <h4 class="mt-3">No Emergency Cases</h4>
+        <p class="text-muted">No active or recent emergency cases found.</p>
+        <a href="{% url 'clinic:emergency_patient_registration' %}" class="btn-emergency">
+            <i class="fas fa-plus"></i> Register First Emergency
+        </a>
+    </div>
+</div>
+{% endif %}
+{% endblock %} 

@@ -1,0 +1,511 @@
+{% extends 'clinic_base.html' %}
+{% load static %}
+
+{% block title %}Emergency Patient Detail - ClinicNet{% endblock %}
+
+{% block extra_css %}
+<style>
+    .detail-container {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+    }
+
+    .form-section {
+        border: 1px solid #e9ecef;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .section-title {
+        color: #2c3e50;
+        font-weight: bold;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #3498db;
+        display: inline-block;
+    }
+
+    .priority-critical {
+        background: #fdf2f2;
+        border-color: #e74c3c;
+    }
+
+    .priority-urgent {
+        background: #fef9e7;
+        border-color: #f39c12;
+    }
+
+    .priority-stable {
+        background: #f0f9f0;
+        border-color: #27ae60;
+    }
+
+    .vital-signs-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+
+    .vital-sign-item {
+        background: #f8f9fa;
+        padding: 1rem;
+        border-radius: 8px;
+        border-left: 4px solid #3498db;
+    }
+
+    .btn-emergency {
+        background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        margin: 2px;
+    }
+
+    .btn-emergency:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+        color: white;
+        text-decoration: none;
+    }
+
+    .btn-secondary-custom {
+        background: #6c757d;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        margin: 2px;
+    }
+
+    .btn-secondary-custom:hover {
+        background: #5a6268;
+        color: white;
+        text-decoration: none;
+    }
+
+    .status-badge {
+        padding: 6px 12px;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .status-active {
+        background: #3498db;
+        color: white;
+    }
+
+    .status-completed {
+        background: #27ae60;
+        color: white;
+    }
+
+    .status-transferred {
+        background: #9b59b6;
+        color: white;
+    }
+
+    .status-discharged {
+        background: #95a5a6;
+        color: white;
+    }
+
+    .priority-badge {
+        padding: 6px 12px;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .priority-critical {
+        background: #e74c3c;
+        color: white;
+    }
+
+    .priority-urgent {
+        background: #f39c12;
+        color: white;
+    }
+
+    .priority-stable {
+        background: #27ae60;
+        color: white;
+    }
+
+    .patient-info {
+        background: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 10px;
+        margin-bottom: 1.5rem;
+    }
+
+    .patient-info h4 {
+        color: #2c3e50;
+        margin-bottom: 1rem;
+    }
+
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .info-label {
+        font-weight: 600;
+        color: #6c757d;
+    }
+
+    .info-value {
+        color: #2c3e50;
+    }
+
+    .timeline {
+        background: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 10px;
+        margin-bottom: 1.5rem;
+    }
+
+    .timeline-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding: 0.5rem 0;
+    }
+
+    .timeline-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #3498db;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        flex-shrink: 0;
+    }
+
+    .timeline-content {
+        flex: 1;
+    }
+
+    .timeline-title {
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 0.25rem;
+    }
+
+    .timeline-time {
+        font-size: 0.9rem;
+        color: #6c757d;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h2><i class="fas fa-user-injured"></i> Emergency Patient Detail</h2>
+        <p class="text-muted">View and update emergency patient information</p>
+    </div>
+</div>
+
+<div class="detail-container">
+    <form method="post">
+        {% csrf_token %}
+        
+        <!-- Patient Information -->
+        <div class="patient-info">
+            <h4><i class="fas fa-user"></i> Patient Information</h4>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="info-row">
+                        <span class="info-label">Name:</span>
+                        <span class="info-value">{{ emergency.patient_name }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Age:</span>
+                        <span class="info-value">{{ emergency.patient_age }} years</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Gender:</span>
+                        <span class="info-value">{{ emergency.patient_gender }}</span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="info-row">
+                        <span class="info-label">Mobile:</span>
+                        <span class="info-value">{{ emergency.patient_mobile }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Emergency Contact:</span>
+                        <span class="info-value">{{ emergency.emergency_contact|default:"Not provided" }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Email:</span>
+                        <span class="info-value">{{ emergency.patient_email|default:"Not provided" }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Address:</span>
+                <span class="info-value">{{ emergency.patient_address }}</span>
+            </div>
+        </div>
+
+        <!-- Emergency Information -->
+        <div class="form-section">
+            <h4 class="section-title"><i class="fas fa-exclamation-triangle"></i> Emergency Information</h4>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="emergency_type">Type of Emergency</label>
+                        <input type="text" class="form-control" id="emergency_type" name="emergency_type" 
+                               value="{{ emergency.emergency_type }}" required>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="priority">Priority Level</label>
+                        <select class="form-control" id="priority" name="priority" required>
+                            <option value="stable" {% if emergency.priority == 'stable' %}selected{% endif %}>Stable</option>
+                            <option value="urgent" {% if emergency.priority == 'urgent' %}selected{% endif %}>Urgent</option>
+                            <option value="critical" {% if emergency.priority == 'critical' %}selected{% endif %}>Critical</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="status">Status</label>
+                        <select class="form-control" id="status" name="status" required>
+                            <option value="active" {% if emergency.status == 'active' %}selected{% endif %}>Active</option>
+                            <option value="completed" {% if emergency.status == 'completed' %}selected{% endif %}>Completed</option>
+                            <option value="transferred" {% if emergency.status == 'transferred' %}selected{% endif %}>Transferred</option>
+                            <option value="discharged" {% if emergency.status == 'discharged' %}selected{% endif %}>Discharged</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="symptoms">Symptoms and Complaints</label>
+                <textarea class="form-control" id="symptoms" name="symptoms" rows="3" required>{{ emergency.symptoms }}</textarea>
+            </div>
+        </div>
+
+        <!-- Vital Signs -->
+        <div class="form-section">
+            <h4 class="section-title"><i class="fas fa-heartbeat"></i> Vital Signs</h4>
+            <div class="vital-signs-grid">
+                <div class="vital-sign-item">
+                    <div class="form-group">
+                        <label for="blood_pressure_systolic">Blood Pressure (Systolic)</label>
+                        <input type="number" class="form-control" id="blood_pressure_systolic" name="blood_pressure_systolic" 
+                               value="{{ emergency.blood_pressure_systolic|default:'' }}" placeholder="mmHg" min="50" max="300">
+                    </div>
+                </div>
+                <div class="vital-sign-item">
+                    <div class="form-group">
+                        <label for="blood_pressure_diastolic">Blood Pressure (Diastolic)</label>
+                        <input type="number" class="form-control" id="blood_pressure_diastolic" name="blood_pressure_diastolic" 
+                               value="{{ emergency.blood_pressure_diastolic|default:'' }}" placeholder="mmHg" min="30" max="200">
+                    </div>
+                </div>
+                <div class="vital-sign-item">
+                    <div class="form-group">
+                        <label for="heart_rate">Heart Rate</label>
+                        <input type="number" class="form-control" id="heart_rate" name="heart_rate" 
+                               value="{{ emergency.heart_rate|default:'' }}" placeholder="bpm" min="30" max="300">
+                    </div>
+                </div>
+                <div class="vital-sign-item">
+                    <div class="form-group">
+                        <label for="temperature">Temperature</label>
+                        <input type="number" class="form-control" id="temperature" name="temperature" 
+                               value="{{ emergency.temperature|default:'' }}" placeholder="°C" min="30" max="45" step="0.1">
+                    </div>
+                </div>
+                <div class="vital-sign-item">
+                    <div class="form-group">
+                        <label for="respiratory_rate">Respiratory Rate</label>
+                        <input type="number" class="form-control" id="respiratory_rate" name="respiratory_rate" 
+                               value="{{ emergency.respiratory_rate|default:'' }}" placeholder="breaths/min" min="5" max="60">
+                    </div>
+                </div>
+                <div class="vital-sign-item">
+                    <div class="form-group">
+                        <label for="oxygen_saturation">Oxygen Saturation</label>
+                        <input type="number" class="form-control" id="oxygen_saturation" name="oxygen_saturation" 
+                               value="{{ emergency.oxygen_saturation|default:'' }}" placeholder="%" min="50" max="100">
+                    </div>
+                </div>
+                <div class="vital-sign-item">
+                    <div class="form-group">
+                        <label for="blood_sugar">Blood Sugar</label>
+                        <input type="number" class="form-control" id="blood_sugar" name="blood_sugar" 
+                               value="{{ emergency.blood_sugar|default:'' }}" placeholder="mg/dL" min="20" max="1000" step="0.1">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Medical Information -->
+        <div class="form-section">
+            <h4 class="section-title"><i class="fas fa-notes-medical"></i> Medical Information</h4>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="allergies">Known Allergies</label>
+                        <textarea class="form-control" id="allergies" name="allergies" rows="3">{{ emergency.allergies }}</textarea>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="current_medications">Current Medications</label>
+                        <textarea class="form-control" id="current_medications" name="current_medications" rows="3">{{ emergency.current_medications }}</textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="medical_history">Medical History</label>
+                <textarea class="form-control" id="medical_history" name="medical_history" rows="3">{{ emergency.medical_history }}</textarea>
+            </div>
+        </div>
+
+        <!-- Treatment Information -->
+        <div class="form-section">
+            <h4 class="section-title"><i class="fas fa-stethoscope"></i> Treatment Information</h4>
+            <div class="form-group">
+                <label for="treatment_plan">Treatment Plan</label>
+                <textarea class="form-control" id="treatment_plan" name="treatment_plan" rows="4" 
+                          placeholder="Treatment plan and medications given...">{{ emergency.treatment_plan }}</textarea>
+            </div>
+            <div class="form-group">
+                <label for="notes">Additional Notes</label>
+                <textarea class="form-control" id="notes" name="notes" rows="3">{{ emergency.notes }}</textarea>
+            </div>
+        </div>
+
+        <!-- Staff Information -->
+        <div class="form-section">
+            <h4 class="section-title"><i class="fas fa-user-md"></i> Staff Information</h4>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="attending_doctor">Attending Doctor</label>
+                        <select class="form-control" id="attending_doctor" name="attending_doctor">
+                            <option value="">Select Doctor</option>
+                            {% for doctor in doctors %}
+                            <option value="{{ doctor.id }}" {% if emergency.attending_doctor == doctor %}selected{% endif %}>
+                                {% if doctor.name|slice:':3'|lower == 'dr.' %}{{ doctor.name }}{% else %}Dr. {{ doctor.name }}{% endif %} - {{ doctor.special }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="nurse_staff">Nurse/Staff on Duty</label>
+                        <input type="text" class="form-control" id="nurse_staff" name="nurse_staff" 
+                               value="{{ emergency.nurse_staff }}">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Timeline -->
+        <div class="timeline">
+            <h4 class="section-title"><i class="fas fa-clock"></i> Timeline</h4>
+            <div class="timeline-item">
+                <div class="timeline-icon">
+                    <i class="fas fa-ambulance"></i>
+                </div>
+                <div class="timeline-content">
+                    <div class="timeline-title">Patient Arrival</div>
+                    <div class="timeline-time">{{ emergency.arrival_time|date:"M d, Y H:i" }}</div>
+                </div>
+            </div>
+            {% if emergency.treatment_start_time %}
+            <div class="timeline-item">
+                <div class="timeline-icon">
+                    <i class="fas fa-stethoscope"></i>
+                </div>
+                <div class="timeline-content">
+                    <div class="timeline-title">Treatment Started</div>
+                    <div class="timeline-time">{{ emergency.treatment_start_time|date:"M d, Y H:i" }}</div>
+                </div>
+            </div>
+            {% endif %}
+            {% if emergency.completion_time %}
+            <div class="timeline-item">
+                <div class="timeline-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="timeline-content">
+                    <div class="timeline-title">Case Completed</div>
+                    <div class="timeline-time">{{ emergency.completion_time|date:"M d, Y H:i" }}</div>
+                </div>
+            </div>
+            {% endif %}
+            <div class="timeline-item">
+                <div class="timeline-icon">
+                    <i class="fas fa-edit"></i>
+                </div>
+                <div class="timeline-content">
+                    <div class="timeline-title">Last Updated</div>
+                    <div class="timeline-time">{{ emergency.updated_at|date:"M d, Y H:i" }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="row mt-4">
+            <div class="col-md-12 text-center">
+                <button type="submit" class="btn-emergency">
+                    <i class="fas fa-save"></i> Update Emergency Case
+                </button>
+                <a href="{% url 'clinic:emergency_services_overview' %}" class="btn-secondary-custom">
+                    <i class="fas fa-arrow-left"></i> Back to Overview
+                </a>
+                {% if emergency.patient %}
+                <a href="{% url 'clinic:view_patient_detail' emergency.patient.id %}" class="btn-secondary-custom">
+                    <i class="fas fa-user"></i> View Patient Record
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+// Priority level styling
+document.addEventListener('DOMContentLoaded', function() {
+    const prioritySelect = document.getElementById('priority');
+    const emergencySection = document.querySelector('.form-section:nth-child(2)');
+    
+    function updatePriorityStyle() {
+        emergencySection.className = 'form-section priority-' + prioritySelect.value;
+    }
+    
+    prioritySelect.addEventListener('change', updatePriorityStyle);
+    updatePriorityStyle();
+});
+</script>
+{% endblock %} 
