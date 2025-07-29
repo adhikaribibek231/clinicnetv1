@@ -28,9 +28,73 @@ class Service(models.Model):
     description = models.TextField(blank=True)
     duration_minutes = models.IntegerField(default=30)
     price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    
+
     def __str__(self):
         return self.name
+
+class RecurringSchedule(models.Model):
+    """Model to store recurring schedule patterns for doctors"""
+    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
+    service = models.ForeignKey(Service, on_delete=models.CASCADE)
+    day_of_week = models.IntegerField(choices=[
+        (0, 'Monday'),
+        (1, 'Tuesday'),
+        (2, 'Wednesday'),
+        (3, 'Thursday'),
+        (4, 'Friday'),
+        (5, 'Saturday'),
+        (6, 'Sunday'),
+    ])
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ['doctor', 'day_of_week', 'start_time']
+        ordering = ['day_of_week', 'start_time']
+
+    def __str__(self):
+        return f"{self.doctor.name} - {self.service.name} - {self.get_day_of_week_display()} {self.start_time}"
+
+    def generate_schedules_for_month(self, year, month):
+        """Generate DoctorSchedule instances for a specific month based on this recurring pattern"""
+        from calendar import monthcalendar
+        from datetime import date
+
+        schedules_created = 0
+        cal = monthcalendar(year, month)
+
+        for week in cal:
+            for day in week:
+                if day == 0:  # Empty day
+                    continue
+
+                schedule_date = date(year, month, day)
+
+                # Check if this day matches our recurring pattern
+                if schedule_date.weekday() == self.day_of_week:
+                    # Check if schedule already exists for this date and time
+                    existing_schedule = DoctorSchedule.objects.filter(
+                        doctor=self.doctor,
+                        date=schedule_date,
+                        start_time=self.start_time
+                    ).first()
+
+                    if not existing_schedule:
+                        # Create new schedule
+                        DoctorSchedule.objects.create(
+                            doctor=self.doctor,
+                            service=self.service,
+                            date=schedule_date,
+                            start_time=self.start_time,
+                            end_time=self.end_time,
+                            is_available=True
+                        )
+                        schedules_created += 1
+
+        return schedules_created
 
 class DoctorSchedule(models.Model):
     doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
@@ -39,19 +103,19 @@ class DoctorSchedule(models.Model):
     start_time = models.TimeField()
     end_time = models.TimeField()
     is_available = models.BooleanField(default=True)
-    
+
     class Meta:
         unique_together = ['doctor', 'date', 'start_time']
-    
+
     def __str__(self):
         return f"{self.doctor.name} - {self.service.name} - {self.date} {self.start_time}"
-    
+
     def get_available_slots(self):
         """Get available time slots for this schedule"""
         slots = []
         current_time = datetime.combine(self.date, self.start_time)
         end_datetime = datetime.combine(self.date, self.end_time)
-        
+
         while current_time < end_datetime:
             slot_end = current_time + timedelta(minutes=self.service.duration_minutes)
             if slot_end <= end_datetime:
@@ -63,9 +127,26 @@ class DoctorSchedule(models.Model):
                 ).exists():
                     slots.append(current_time.time())
             current_time = slot_end
-        
+
         return slots
-    
+
+    @classmethod
+    def generate_monthly_schedules(cls, doctor, year, month):
+        """Generate all schedules for a doctor for a specific month based on recurring patterns"""
+        total_created = 0
+
+        # Get all active recurring schedules for this doctor
+        recurring_schedules = RecurringSchedule.objects.filter(
+            doctor=doctor,
+            is_active=True
+        )
+
+        for recurring_schedule in recurring_schedules:
+            created = recurring_schedule.generate_schedules_for_month(year, month)
+            total_created += created
+
+        return total_created
+
 class Patient(models.Model):
     name = models.CharField(max_length=100)
     gender = models.CharField(max_length=10, choices=[('Male', 'Male'), ('Female', 'Female'), ('Other', 'Other')])
@@ -73,13 +154,13 @@ class Patient(models.Model):
     age = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(150)])
     address = models.TextField()
     email = models.EmailField(blank=True, null=True, unique=True)
-    blood_group = models.CharField(max_length=5, blank=True, null=True, 
-                                 choices=[('A+', 'A+'), ('A-', 'A-'), ('B+', 'B+'), ('B-', 'B-'), 
+    blood_group = models.CharField(max_length=5, blank=True, null=True,
+                                 choices=[('A+', 'A+'), ('A-', 'A-'), ('B+', 'B+'), ('B-', 'B-'),
                                          ('AB+', 'AB+'), ('AB-', 'AB-'), ('O+', 'O+'), ('O-', 'O-')])
     emergency_contact = models.CharField(max_length=15, blank=True, null=True)
     medical_history = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
-    
+
     def __str__(self):
         return self.name
 
@@ -90,7 +171,7 @@ class PublicAppointment(models.Model):
         ('completed', 'Completed'),
         ('cancelled', 'Cancelled'),
     ]
-    
+
     token = models.CharField(max_length=10, unique=True, default=uuid.uuid4().hex[:10].upper())
     # New: Link to Patient if possible
     patient = models.ForeignKey('Patient', on_delete=models.SET_NULL, null=True, blank=True, related_name='public_appointments')
@@ -101,23 +182,23 @@ class PublicAppointment(models.Model):
     patient_address = models.TextField()
     patient_email = models.EmailField(blank=True, null=True)
     emergency_contact = models.CharField(max_length=15, blank=True)
-    
+
     doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
     service = models.ForeignKey(Service, on_delete=models.CASCADE)
     date = models.DateField()
     time = models.TimeField()
-    
+
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     payment_status = models.CharField(max_length=20, choices=[('pending', 'Pending'), ('paid', 'Paid')], default='pending')
-    
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
+
     notes = models.TextField(blank=True)
-    
+
     def __str__(self):
         return f"{self.token} - {self.patient_name} - {self.doctor.name}"
-    
+
     def save(self, *args, **kwargs):
         if not self.token or PublicAppointment.objects.filter(token=self.token).exclude(pk=self.pk).exists():
             # Ensure unique token
@@ -145,7 +226,7 @@ class Appointment(models.Model):
 
     def __str__(self):
         return self.doctor.name+"--"+ self.patient.name
-    
+
 class ContactMessage(models.Model):
     name = models.CharField(max_length=100)
     email = models.EmailField()

@@ -51,6 +51,12 @@ urlpatterns = [
     path('doctor-schedules/<int:doctor_id>/delete/<int:schedule_id>/', delete_schedule_ajax, name='delete_schedule_ajax'),
     path('doctor-schedules/<int:doctor_id>/details/<int:schedule_id>/', get_schedule_details_ajax, name='get_schedule_details_ajax'),
 
+    # Recurring Schedule Management URLs
+    path('recurring-schedules/', recurring_schedules_overview, name='recurring_schedules_overview'),
+    path('recurring-schedules/edit/<int:schedule_id>/', edit_recurring_schedule, name='edit_recurring_schedule'),
+    path('recurring-schedules/delete/<int:schedule_id>/', delete_recurring_schedule, name='delete_recurring_schedule'),
+    path('recurring-schedules/<int:doctor_id>/generate-monthly/', generate_monthly_schedules_ajax, name='generate_monthly_schedules_ajax'),
+
     #test modal
     path('test-modal/', test_modal, name='test_modal'),
     path('admin/inbox/', admin_inbox, name='admin_inbox'),

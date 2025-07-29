@@ -7,7 +7,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Dr. {{ doctor.name }} - Schedule Calendar - ClinicNet</title>
+  <title>{% if doctor.name|slice:':3'|lower == 'dr.' %}{{ doctor.name }}{% else %}Dr. {{ doctor.name }}{% endif %} - Schedule Calendar - ClinicNet</title>
 
   <!-- Custom CSS -->
   <link rel="stylesheet" href="{% static 'css/styles.css' %}">

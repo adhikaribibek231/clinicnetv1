@@ -693,7 +693,8 @@ def Update_Doctor_Availability(request, doctor_id):
         schedules.update(is_available=is_available)
         
         status = "available" if is_available else "unavailable"
-        messages.success(request, f'Dr. {doctor.name} marked as {status} for {schedule_date}')
+        doctor_display_name = doctor.name if doctor.name.startswith('Dr.') else f'Dr. {doctor.name}'
+        messages.success(request, f'{doctor_display_name} marked as {status} for {schedule_date}')
         return redirect('clinic:doctor_schedules_overview')
     
     # Get doctor's schedules for the next 30 days
@@ -1128,6 +1129,132 @@ def get_schedule_details_ajax(request, doctor_id, schedule_id):
             'is_available': schedule.is_available
         }
     })
+
+@staff_member_required
+def recurring_schedules_overview(request):
+    """Overview page for managing recurring schedules"""
+    from .models import RecurringSchedule
+    
+    doctors = Doctor.objects.all()  # type: ignore
+    services = Service.objects.all()  # type: ignore
+    
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        
+        if action == 'add_recurring':
+            try:
+                RecurringSchedule.objects.create(
+                    doctor_id=request.POST.get('doctor'),
+                    service_id=request.POST.get('service'),
+                    day_of_week=request.POST.get('day_of_week'),
+                    start_time=request.POST.get('start_time'),
+                    end_time=request.POST.get('end_time'),
+                    is_active=request.POST.get('is_active') == 'on'
+                )
+                messages.success(request, 'Recurring schedule added successfully!')
+            except Exception as e:
+                messages.error(request, f'Error adding recurring schedule: {str(e)}')
+        
+        elif action == 'generate_monthly':
+            try:
+                doctor_id = request.POST.get('doctor')
+                year = int(request.POST.get('year'))
+                month = int(request.POST.get('month'))
+                
+                doctor = Doctor.objects.get(id=doctor_id)  # type: ignore
+                schedules_created = DoctorSchedule.generate_monthly_schedules(doctor, year, month)
+                messages.success(request, f'Generated {schedules_created} schedules for {doctor.name} in {year}-{month:02d}')
+            except Exception as e:
+                messages.error(request, f'Error generating schedules: {str(e)}')
+        
+        return redirect('clinic:recurring_schedules_overview')
+    
+    # Get recurring schedules for each doctor
+    for doctor in doctors:
+        doctor.recurring_schedules = RecurringSchedule.objects.filter(doctor=doctor, is_active=True).order_by('day_of_week', 'start_time')
+    
+    context = {
+        'doctors': doctors,
+        'services': services,
+        'day_choices': RecurringSchedule._meta.get_field('day_of_week').choices
+    }
+    return render(request, 'recurring_schedules_overview.html', context)
+
+@staff_member_required
+def edit_recurring_schedule(request, schedule_id):
+    """Edit a recurring schedule"""
+    from .models import RecurringSchedule
+    
+    try:
+        recurring_schedule = RecurringSchedule.objects.get(id=schedule_id)  # type: ignore
+    except RecurringSchedule.DoesNotExist:  # type: ignore
+        messages.error(request, 'Recurring schedule not found!')
+        return redirect('clinic:recurring_schedules_overview')
+    
+    if request.method == 'POST':
+        try:
+            recurring_schedule.service_id = request.POST.get('service')
+            recurring_schedule.day_of_week = request.POST.get('day_of_week')
+            recurring_schedule.start_time = request.POST.get('start_time')
+            recurring_schedule.end_time = request.POST.get('end_time')
+            recurring_schedule.is_active = request.POST.get('is_active') == 'on'
+            recurring_schedule.save()
+            messages.success(request, 'Recurring schedule updated successfully!')
+            return redirect('clinic:recurring_schedules_overview')
+        except Exception as e:
+            messages.error(request, f'Error updating recurring schedule: {str(e)}')
+    
+    services = Service.objects.all()  # type: ignore
+    context = {
+        'recurring_schedule': recurring_schedule,
+        'services': services,
+        'day_choices': RecurringSchedule._meta.get_field('day_of_week').choices
+    }
+    return render(request, 'edit_recurring_schedule.html', context)
+
+@staff_member_required
+def delete_recurring_schedule(request, schedule_id):
+    """Delete a recurring schedule"""
+    from .models import RecurringSchedule
+    
+    try:
+        recurring_schedule = RecurringSchedule.objects.get(id=schedule_id)  # type: ignore
+        doctor_name = recurring_schedule.doctor.name
+        recurring_schedule.delete()
+        messages.success(request, f'Recurring schedule for {doctor_name} deleted successfully!')
+    except RecurringSchedule.DoesNotExist:  # type: ignore
+        messages.error(request, 'Recurring schedule not found!')
+    except Exception as e:
+        messages.error(request, f'Error deleting recurring schedule: {str(e)}')
+    
+    return redirect('clinic:recurring_schedules_overview')
+
+@staff_member_required
+def generate_monthly_schedules_ajax(request, doctor_id):
+    """AJAX endpoint to generate monthly schedules for a doctor"""
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Invalid request method'})
+    
+    try:
+        doctor = Doctor.objects.get(id=doctor_id)  # type: ignore
+    except Doctor.DoesNotExist:  # type: ignore
+        return JsonResponse({'success': False, 'error': 'Doctor not found'})
+    
+    try:
+        data = json.loads(request.body)
+        year = int(data.get('year'))
+        month = int(data.get('month'))
+        
+        schedules_created = DoctorSchedule.generate_monthly_schedules(doctor, year, month)
+        
+        return JsonResponse({
+            'success': True,
+            'schedules_created': schedules_created,
+            'message': f'Generated {schedules_created} schedules for {doctor.name} in {year}-{month:02d}'
+        })
+        
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
 
 @staff_member_required
 def view_patient_detail(request, patient_id):

@@ -1,0 +1,203 @@
+{% include 'navigation.html' %}
+{% load static %}
+
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Edit Recurring Schedule - ClinicNet</title>
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+    body {
+      background-color: #f8f9fa;
+    }
+
+    .page-header {
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      margin-bottom: 30px;
+    }
+
+    .form-card {
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      padding: 30px;
+    }
+
+    .btn-custom {
+      border-radius: 25px;
+      padding: 10px 25px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .btn-custom:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    .schedule-preview {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-radius: 15px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container py-4">
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="row align-items-center">
+        <div class="col-md-8">
+          <h2><i class="fas fa-edit"></i> Edit Recurring Schedule</h2>
+          <p class="text-muted mb-0">Update the recurring schedule pattern for Dr. {{ recurring_schedule.doctor.name }}</p>
+        </div>
+        <div class="col-md-4 text-right">
+          <a href="{% url 'clinic:recurring_schedules_overview' %}" class="btn btn-secondary btn-custom">
+            <i class="fas fa-arrow-left"></i> Back to Overview
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Messages -->
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    <!-- Schedule Preview -->
+    <div class="schedule-preview">
+      <h5><i class="fas fa-calendar-week"></i> Current Schedule</h5>
+      <p class="mb-0">
+        <strong>{{ recurring_schedule.get_day_of_week_display }}</strong> | 
+        {{ recurring_schedule.start_time|time:"g:i A" }} - {{ recurring_schedule.end_time|time:"g:i A" }} | 
+        {{ recurring_schedule.service.name }}
+      </p>
+    </div>
+
+    <!-- Edit Form -->
+    <div class="form-card">
+      <form method="post">
+        {% csrf_token %}
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="service">Service</label>
+              <select class="form-control" id="service" name="service" required>
+                <option value="">Select Service</option>
+                {% for service in services %}
+                <option value="{{ service.id }}" {% if service.id == recurring_schedule.service.id %}selected{% endif %}>
+                  {{ service.name }} ({{ service.duration_minutes }} min)
+                </option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="day_of_week">Day of Week</label>
+              <select class="form-control" id="day_of_week" name="day_of_week" required>
+                <option value="">Select Day</option>
+                {% for value, label in day_choices %}
+                <option value="{{ value }}" {% if value == recurring_schedule.day_of_week %}selected{% endif %}>
+                  {{ label }}
+                </option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+        </div>
+        
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="start_time">Start Time</label>
+              <input type="time" class="form-control" id="start_time" name="start_time" 
+                     value="{{ recurring_schedule.start_time|time:'H:i' }}" required>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="end_time">End Time</label>
+              <input type="time" class="form-control" id="end_time" name="end_time" 
+                     value="{{ recurring_schedule.end_time|time:'H:i' }}" required>
+            </div>
+          </div>
+        </div>
+        
+        <div class="form-check">
+          <input type="checkbox" class="form-check-input" id="is_active" name="is_active" 
+                 {% if recurring_schedule.is_active %}checked{% endif %}>
+          <label class="form-check-label" for="is_active">Active</label>
+          <small class="form-text text-muted">Inactive schedules won't generate monthly schedules</small>
+        </div>
+        
+        <div class="mt-4">
+          <button type="submit" class="btn btn-primary btn-custom">
+            <i class="fas fa-save"></i> Update Schedule
+          </button>
+          <a href="{% url 'clinic:recurring_schedules_overview' %}" class="btn btn-secondary btn-custom ml-2">
+            <i class="fas fa-times"></i> Cancel
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  <script>
+    $(document).ready(function() {
+      // Validate that end time is after start time
+      $('#end_time').on('change', function() {
+        const startTime = $('#start_time').val();
+        const endTime = $(this).val();
+        
+        if (startTime && endTime && startTime >= endTime) {
+          alert('End time must be after start time');
+          $(this).val('');
+        }
+      });
+      
+      $('#start_time').on('change', function() {
+        const startTime = $(this).val();
+        const endTime = $('#end_time').val();
+        
+        if (startTime && endTime && startTime >= endTime) {
+          alert('End time must be after start time');
+          $('#end_time').val('');
+        }
+      });
+    });
+  </script>
+</body>
+
+</html> 

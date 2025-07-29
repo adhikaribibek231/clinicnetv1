@@ -1,30 +1,34 @@
 from django.contrib import admin
-from .models import Doctor, Patient, Appointment, Service, DoctorSchedule, PublicAppointment
+from .models import Doctor, Patient, Appointment, Service, DoctorSchedule, PublicAppointment, ContactMessage, RecurringSchedule
 
+# Register your models here.
 @admin.register(Doctor)
 class DoctorAdmin(admin.ModelAdmin):
-    list_display = ('name', 'special', 'mobile')
-    search_fields = ('name', 'special')
-    list_filter = ('special',)
+    list_display = ('name', 'special', 'mobile', 'email', 'consultation_fee', 'experience')
+    list_filter = ('special', 'experience')
+    search_fields = ('name', 'special', 'mobile', 'email')
+    ordering = ('name',)
 
 @admin.register(Patient)
 class PatientAdmin(admin.ModelAdmin):
-    list_display = ('name', 'gender', 'age', 'mobile', 'address')
+    list_display = ('name', 'gender', 'mobile', 'age', 'created_at')
+    list_filter = ('gender', 'created_at')
     search_fields = ('name', 'mobile')
-    list_filter = ('gender', 'age')
+    ordering = ('name',)
 
 @admin.register(Appointment)
 class AppointmentAdmin(admin.ModelAdmin):
-    list_display = ('doctor', 'patient', 'date1', 'time1')
-    list_filter = ('date1', 'doctor', 'patient')
+    list_display = ('doctor', 'patient', 'date1', 'time1', 'status')
+    list_filter = ('status', 'date1', 'doctor')
     search_fields = ('doctor__name', 'patient__name')
-    date_hierarchy = 'date1'
+    ordering = ('-date1', '-time1')
 
 @admin.register(Service)
 class ServiceAdmin(admin.ModelAdmin):
     list_display = ('name', 'duration_minutes', 'price')
+    list_filter = ('duration_minutes', 'price')
     search_fields = ('name',)
-    list_filter = ('duration_minutes',)
+    ordering = ('name',)
 
 @admin.register(DoctorSchedule)
 class DoctorScheduleAdmin(admin.ModelAdmin):
@@ -34,45 +38,25 @@ class DoctorScheduleAdmin(admin.ModelAdmin):
     date_hierarchy = 'date'
     ordering = ('date', 'start_time')
 
+@admin.register(RecurringSchedule)
+class RecurringScheduleAdmin(admin.ModelAdmin):
+    list_display = ('doctor', 'service', 'get_day_of_week_display', 'start_time', 'end_time', 'is_active')
+    list_filter = ('day_of_week', 'doctor', 'service', 'is_active')
+    search_fields = ('doctor__name', 'service__name')
+    ordering = ('doctor__name', 'day_of_week', 'start_time')
+
 @admin.register(PublicAppointment)
 class PublicAppointmentAdmin(admin.ModelAdmin):
     list_display = ('token', 'patient_name', 'doctor', 'service', 'date', 'time', 'status', 'payment_status')
     list_filter = ('status', 'payment_status', 'date', 'doctor', 'service')
     search_fields = ('token', 'patient_name', 'patient_mobile', 'doctor__name')
     date_hierarchy = 'date'
+    ordering = ('-date', '-time')
+
+@admin.register(ContactMessage)
+class ContactMessageAdmin(admin.ModelAdmin):
+    list_display = ('name', 'email', 'phone', 'created_at', 'is_read')
+    list_filter = ('is_read', 'created_at')
+    search_fields = ('name', 'email', 'phone', 'message')
     ordering = ('-created_at',)
-    readonly_fields = ('token', 'created_at', 'updated_at')
-    
-    fieldsets = (
-        ('Appointment Information', {
-            'fields': ('token', 'status', 'payment_status', 'notes')
-        }),
-        ('Patient Information', {
-            'fields': ('patient_name', 'patient_age', 'patient_gender', 'patient_mobile', 'patient_address', 'emergency_contact')
-        }),
-        ('Appointment Details', {
-            'fields': ('doctor', 'service', 'date', 'time')
-        }),
-        ('Timestamps', {
-            'fields': ('created_at', 'updated_at'),
-            'classes': ('collapse',)
-        }),
-    )
-    
-    actions = ['mark_as_confirmed', 'mark_as_completed', 'mark_as_cancelled', 'mark_as_paid']
-    
-    def mark_as_confirmed(self, request, queryset):
-        queryset.update(status='confirmed')
-    mark_as_confirmed.short_description = "Mark selected appointments as confirmed"
-    
-    def mark_as_completed(self, request, queryset):
-        queryset.update(status='completed')
-    mark_as_completed.short_description = "Mark selected appointments as completed"
-    
-    def mark_as_cancelled(self, request, queryset):
-        queryset.update(status='cancelled')
-    mark_as_cancelled.short_description = "Mark selected appointments as cancelled"
-    
-    def mark_as_paid(self, request, queryset):
-        queryset.update(payment_status='paid')
-    mark_as_paid.short_description = "Mark selected appointments as paid"
+    readonly_fields = ('created_at',)

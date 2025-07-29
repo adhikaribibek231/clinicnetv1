@@ -120,6 +120,9 @@
           <p class="text-muted mb-0">Manage individual doctor schedules and availability</p>
         </div>
         <div class="col-md-4 text-right">
+          <a href="{% url 'clinic:recurring_schedules_overview' %}" class="btn btn-success btn-custom mr-2">
+            <i class="fas fa-calendar-week"></i> Recurring Schedules
+          </a>
           <button class="btn btn-primary btn-custom" data-toggle="modal" data-target="#addScheduleModal">
             <i class="fas fa-plus"></i> Add New Schedule
           </button>
@@ -248,7 +251,7 @@
               <select class="form-control" id="doctor" name="doctor" required>
                 <option value="">Select Doctor</option>
                 {% for doctor in doctors %}
-                <option value="{{ doctor.id }}">Dr. {{ doctor.name }} - {{ doctor.special }}</option>
+                <option value="{{ doctor.id }}">{% if doctor.name|slice:':3'|lower == 'dr.' %}{{ doctor.name }}{% else %}Dr. {{ doctor.name }}{% endif %} - {{ doctor.special }}</option>
                 {% endfor %}
               </select>
             </div>
