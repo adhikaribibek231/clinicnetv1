@@ -128,7 +128,7 @@
                             <i class="fas fa-map-marker-alt"></i>
                         </div>
                         <h5>Our Location</h5>
-                        <p>123 Medical Center Drive<br>Healthcare District<br>City, State 12345</p>
+                        <p>Kumarigal, Kathmandu<br>Nepal</p>
                     </div>
                 </div>
                 <div class="col-md-4">
@@ -137,7 +137,7 @@
                             <i class="fas fa-phone"></i>
                         </div>
                         <h5>Phone Numbers</h5>
-                        <p>Main: (555) 123-4567<br>Emergency: (555) 911-0000<br>Appointments: (555) 123-4568</p>
+                        <p>Main: +977 9860257950<br>Email: info@clinicnet.com</p>
                     </div>
                 </div>
                 <div class="col-md-4">
@@ -146,7 +146,7 @@
                             <i class="fas fa-clock"></i>
                         </div>
                         <h5>Operating Hours</h5>
-                        <p>Monday - Friday: 8:00 AM - 8:00 PM<br>Saturday: 9:00 AM - 5:00 PM<br>Sunday: Emergency Only</p>
+                        <p>Monday - Friday: 8:00 AM - 6:00 PM<br>Saturday: 9:00 AM - 2:00 PM<br>Sunday: Closed</p>
                     </div>
                 </div>
             </div>
@@ -155,48 +155,49 @@
                 <div class="col-lg-8 mx-auto">
                     <div class="contact-card">
                         <h3 class="text-center mb-4">Send us a Message</h3>
-                        <form>
+                        {% if errors %}
+                        <div class="alert alert-danger">
+                            <ul class="mb-0">
+                                {% for error in errors %}
+                                <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+                        {% if success %}
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle"></i> Your message has been sent successfully! We'll get back to you soon.
+                        </div>
+                        {% endif %}
+                        <form method="post" action="{% url 'contact' %}">
+                            {% csrf_token %}
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="firstName">First Name</label>
-                                        <input type="text" class="form-control" id="firstName" placeholder="Enter your first name">
+                                        <label for="name">Your Name</label>
+                                        <input type="text" class="form-control" id="name" name="name" value="{{ name|default:'' }}" placeholder="Enter your full name" required>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="lastName">Last Name</label>
-                                        <input type="text" class="form-control" id="lastName" placeholder="Enter your last name">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="email">Email Address</label>
-                                        <input type="email" class="form-control" id="email" placeholder="Enter your email">
+                                        <input type="email" class="form-control" id="email" name="email" value="{{ email|default:'' }}" placeholder="Enter your email" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="phone">Phone Number</label>
+                                        <input type="tel" class="form-control" id="phone" name="phone" value="{{ phone|default:'' }}" placeholder="Enter your phone number" required oninput="this.value=this.value.replace(/[^0-9]/g,'');">
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="phone">Phone Number</label>
-                                        <input type="tel" class="form-control" id="phone" placeholder="Enter your phone number">
+                                        <label for="message">Your Message</label>
+                                        <textarea class="form-control" id="message" name="message" rows="4" placeholder="Enter your message" required>{{ message|default:'' }}</textarea>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="subject">Subject</label>
-                                <select class="form-control" id="subject">
-                                    <option>General Inquiry</option>
-                                    <option>Appointment Request</option>
-                                    <option>Emergency Care</option>
-                                    <option>Billing Question</option>
-                                    <option>Other</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="message">Message</label>
-                                <textarea class="form-control" id="message" rows="5" placeholder="Enter your message"></textarea>
                             </div>
                             <div class="text-center">
                                 <button type="submit" class="btn btn-primary btn-custom">
@@ -215,11 +216,11 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <h6><i class="fas fa-exclamation-triangle text-warning"></i> Emergency Care</h6>
-                                <p>For medical emergencies, please call 911 immediately or visit our emergency department.</p>
+                                <p>For medical emergencies, please call emergency services immediately or visit our emergency department.</p>
                             </div>
                             <div class="col-md-6">
                                 <h6><i class="fas fa-info-circle text-info"></i> After Hours</h6>
-                                <p>For urgent care after hours, call our emergency hotline: (555) 911-0000</p>
+                                <p>For urgent care after hours, please contact us at: +977 9860257950</p>
                             </div>
                         </div>
                     </div>

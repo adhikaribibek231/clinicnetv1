@@ -88,11 +88,11 @@ def Contact_Public(request):
                 return render(request, 'verify_contact_message.html', {
                     'name': name, 'email': email, 'phone': phone, 'message': message
                 })
-            return render(request, 'contact.html', {'errors': errors, 'name': name, 'email': email, 'phone': phone, 'message': message})
+            return render(request, 'contact_public.html', {'errors': errors, 'name': name, 'email': email, 'phone': phone, 'message': message})
         # Save message
         ContactMessage.objects.create(name=name, email=email, phone=phone, message=message)
-        return render(request, 'contact.html', {'success': True})
-    return render(request, 'contact.html')
+        return render(request, 'contact_public.html', {'success': True})
+    return render(request, 'contact_public.html')
 
 def BookAppointment(request):
     """Public appointment booking page"""
