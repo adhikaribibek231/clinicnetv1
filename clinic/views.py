@@ -85,7 +85,7 @@ def Contact_Public(request):
         if errors or 'verify' not in request.POST:
             # Show verification page if no errors and not yet verified
             if not errors and 'verify' not in request.POST:
-                return render(request, 'verify_contact_message.html', {
+                return render(request, 'verify_contact_message_public.html', {
                     'name': name, 'email': email, 'phone': phone, 'message': message
                 })
             return render(request, 'contact_public.html', {'errors': errors, 'name': name, 'email': email, 'phone': phone, 'message': message})
