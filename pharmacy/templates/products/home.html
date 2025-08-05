@@ -23,32 +23,62 @@
 
 <section>
     <h2>Quick Actions</h2>
-    <div class="grid">
-        <div class="card">
-            <h3>View Inventory</h3>
-            <p>Check all items currently in stock</p>
-            <a href="{% url 'pharmacy:index' %}" class="btn-placeholder">View Stock</a>
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title"><i class="fas fa-boxes fa-lg text-primary"></i> View Inventory</h5>
+                    <p class="card-text text-muted">Check all items currently in stock</p>
+                    <a href="{% url 'pharmacy:index' %}" class="btn btn-primary btn-lg w-100 mt-2">
+                        <i class="fas fa-clipboard-list"></i> View Inventory
+                    </a>
+                </div>
+            </div>
         </div>
-        <div class="card">
-            <h3>View Receipts</h3>
-            <p>Check all transaction receipts</p>
-            <a href="{% url 'pharmacy:receipt' %}" class="btn-placeholder">View Receipts</a>
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title"><i class="fas fa-receipt fa-lg text-success"></i> View Receipts</h5>
+                    <p class="card-text text-muted">Check all transaction receipts</p>
+                    <a href="{% url 'pharmacy:receipt' %}" class="btn btn-success btn-lg w-100 mt-2">
+                        <i class="fas fa-file-invoice-dollar"></i> View Receipts
+                    </a>
+                </div>
+            </div>
         </div>
-        <div class="card">
-            <h3>Sales Report</h3>
-            <p>View detailed sales information</p>
-            <a href="{% url 'pharmacy:all_sales' %}" class="btn-placeholder">View Sales</a>
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title"><i class="fas fa-chart-line fa-lg text-info"></i> Sales Report</h5>
+                    <p class="card-text text-muted">View detailed sales information</p>
+                    <a href="{% url 'pharmacy:all_sales' %}" class="btn btn-info btn-lg w-100 mt-2">
+                        <i class="fas fa-chart-bar"></i> View Sales
+                    </a>
+                </div>
+            </div>
         </div>
         {% if request.user.is_staff %}
-        <div class="card">
-            <h3>Lab Test Module</h3>
-            <p>Access and record lab test results</p>
-            <a href="{% url 'labtest:lab_analysis_form' %}" class="btn-placeholder">Go to Lab Test</a>
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title"><i class="fas fa-vials fa-lg text-warning"></i> Lab Test Module</h5>
+                    <p class="card-text text-muted">Access and record lab test results</p>
+                    <a href="{% url 'labtest:lab_analysis_form' %}" class="btn btn-warning btn-lg w-100 mt-2">
+                        <i class="fas fa-flask"></i> Go to Lab Test
+                    </a>
+                </div>
+            </div>
         </div>
-        <div class="card">
-            <h3>Lab Reports</h3>
-            <p>View all patients' lab reports</p>
-            <a href="{% url 'labtest:lab_reports_list' %}" class="btn-placeholder">Go to Lab Reports</a>
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title"><i class="fas fa-file-medical fa-lg text-secondary"></i> Lab Reports</h5>
+                    <p class="card-text text-muted">View all patients' lab reports</p>
+                    <a href="{% url 'labtest:lab_reports_list' %}" class="btn btn-secondary btn-lg w-100 mt-2">
+                        <i class="fas fa-file-alt"></i> Go to Lab Reports
+                    </a>
+                </div>
+            </div>
         </div>
         {% endif %}
     </div>
